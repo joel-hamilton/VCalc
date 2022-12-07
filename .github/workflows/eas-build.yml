@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - no-branch
 jobs:
   build:
     name: Install and build
@@ -14,19 +14,17 @@ jobs:
         with:
           node-version: 16.x
           cache: npm
-      # - name: Setup Expo and EAS
-      #   uses: expo/expo-github-action@v7
-      #   with:
-      #     expo-version: 5.x
-      #     eas-version: latest
-      #     token: ${{ secrets.EXPO_TOKEN }}
-      # - name: Install dependencies
-      #   run: npm ci
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: 5.x
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Install dependencies
+        run: npm ci
       - name: Make credentials file
         run: echo ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 }} | base64 -d > googleServiceAccountKey.json
-      # - name: Build on EAS and Submit to Google Play
-      #   run: eas build --platform android --non-interactive --auto-submit
-      - name: Inject secrets into app.json
+      - name: Inject secrets into eas.json
         run: sed -i -e 's/APPLE_ID/${{ secrets.APPLE_ID }}/' -e 's/ASC_APP_ID/${{ secrets.ASC_APP_ID }}/' -e 's/APPLE_TEAM_ID/${{ secrets.APPLE_TEAM_ID }}/' eas.json
-      - name: Verify eas.json
-        run: cat eas.json
+      - name: Build on EAS and Submit to Google Play
+        run: eas build --platform android --non-interactive --auto-submit
