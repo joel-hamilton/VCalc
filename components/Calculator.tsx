@@ -44,8 +44,8 @@ const createStyles = ({ colors }) =>
       color: colors.text,
     },
     secondaryDisplay: {
-      fontSize: 24,
-      color: colors.secondaryText,
+      fontSize: 18,
+      color: colors.secondaryText
     },
     variablesScrollView: {
       height: 20,
@@ -315,12 +315,22 @@ const Calculator = () => {
           >
             <View>
               {!!variables.length && (
-                <Text style={styles.secondaryDisplay}>
+                <Text
+                  style={styles.secondaryDisplay}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   {interpolationPreview}
                 </Text>
               )}
             </View>
-            <Text style={styles.secondaryDisplay}>{preview}</Text>
+            <Text
+              style={{...styles.secondaryDisplay, paddingLeft: 50}}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {preview}
+            </Text>
           </View>
         </View>
         {!!Object.keys(variables).length && (

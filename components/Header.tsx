@@ -19,13 +19,12 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../themes";
 import AppMenuModal from "./AppMenuModal";
 import { Context } from "../Context";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const createStyles = ({ colors }, statusBarHeight) =>
   StyleSheet.create({
     main: {
       backgroundColor: colors.background,
-      paddingTop: statusBarHeight,
+      paddingTop: Platform.OS === "ios" ? 0 : statusBarHeight,
       paddingLeft: 15,
       flexDirection: "row",
       justifyContent: "space-between",
@@ -83,7 +82,9 @@ const Header = ({ navigation, route, options, back }) => {
         Linking.openURL(
           `mailto:${DEV_EMAIL}?subject=${encodeURIComponent(
             "VCalc Feedback"
-          )}&body=${encodeURIComponent(`Platform: ${Platform.OS}\nVersion: ${Platform.Version}`)}`
+          )}&body=${encodeURIComponent(
+            `Platform: ${Platform.OS}\nVersion: ${Platform.Version}`
+          )}`
         );
       },
     },

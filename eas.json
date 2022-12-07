@@ -19,9 +19,9 @@
         "serviceAccountKeyPath": "./googleServiceAccountKey.json"
       },
       "ios": {
-        "appleId": "john@turtle.com",
-        "ascAppId": "1234567890",
-        "appleTeamId": "AB12XYZ34S"
+        "appleId": "APPLE_ID",
+        "ascAppId": "ASC_APP_ID",
+        "appleTeamId": "APPLE_TEAM_ID"
       }
     }
   }

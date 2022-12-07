@@ -1,12 +1,11 @@
 import * as React from "react";
-import { StatusBar, useColorScheme } from "react-native";
+import { SafeAreaView, StatusBar, useColorScheme } from "react-native";
 import { NavigationContainer, Theme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import Calculator from "./components/Calculator";
 import { MyDarkTheme, MyDefaultTheme } from "./themes";
-import HeaderRight from "./components/HeaderRight";
 
 import { Context } from "./Context";
 import Header from "./components/Header";
@@ -46,15 +45,19 @@ const App = () => {
 
   return (
     <Context.Provider value={[context, setContext]}>
-      <NavigationContainer theme={theme as unknown as Theme}>
-        <Stack.Navigator
-          screenOptions={{
-            header: Header,
-          }}
-        >
-          <Stack.Screen name="VCalc" component={Calculator} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: theme.colors.background }}
+      >
+        <NavigationContainer theme={theme as unknown as Theme}>
+          <Stack.Navigator
+            screenOptions={{
+              header: Header,
+            }}
+          >
+            <Stack.Screen name="VCalc" component={Calculator} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaView>
     </Context.Provider>
   );
 };

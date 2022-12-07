@@ -1,8 +1,9 @@
+import { columnTransformDependencies } from "mathjs";
 import React from "react";
 import {
   Alert,
-  Button,
   Modal,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -11,7 +12,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { setSyntheticLeadingComments } from "typescript";
 
 import { useTheme } from "../themes";
 import { IVariable } from "../types";
@@ -36,6 +36,16 @@ const createStyles = ({ colors }) =>
       borderRadius: 10,
       padding: 20,
       elevation: 5,
+      borderColor: colors.border,
+      borderWidth: 1,
+      ...(Platform.OS === "ios"
+        ? {
+            shadowColor: '#000',
+            shadowOffset: { width: 5, height: 5 },
+            shadowOpacity: 0.3,
+            shadowRadius: 5,
+          }
+        : {}),
     },
     title: {
       fontSize: 24,
