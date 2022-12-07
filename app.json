@@ -2,34 +2,34 @@
   "expo": {
     "name": "VCalc",
     "slug": "vcalc",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "",
+    "icon": "./assets/icon/calculator-4-512.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "",
+      "image": "./assets/icon/calculator-4-512.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.joelhamilton5.vcalc"
+      "bundleIdentifier": "dev.peregrinelabs.vcalc",
+      "buildNumber": 1
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "",
+        "foregroundImage": "./assets/icon/calculator-4-512.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.joelhamilton5.vcalc"
+      "package": "dev.peregrinelabs.vcalc",
+      "versionCode": 1
     },
     "web": {
-      "favicon": ""
+      "favicon": "./assets/icon/calculator-4-16.png"
     },
     "extra": {
       "eas": {

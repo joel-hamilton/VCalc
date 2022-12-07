@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 2.9.0"
+    "version": ">= 2.9.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -13,6 +14,15 @@
     "production": {}
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./googleServiceAccountKey.json"
+      },
+      "ios": {
+        "appleId": "john@turtle.com",
+        "ascAppId": "1234567890",
+        "appleTeamId": "AB12XYZ34S"
+      }
+    }
   }
 }
