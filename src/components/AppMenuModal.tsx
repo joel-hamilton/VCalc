@@ -1,19 +1,12 @@
-import React from "react";
+import React from 'react';
 import {
-  FlatList,
-  Modal,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-  ViewStyle,
-} from "react-native";
+    FlatList, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableWithoutFeedback, View,
+    ViewStyle
+} from 'react-native';
 
-import { useHeaderHeight } from "@react-navigation/elements";
+import { useHeaderHeight } from '@react-navigation/elements';
 
-import { useTheme } from "../themes";
+import { useTheme } from '../themes';
 
 const createStyles = ({ colors }, headerHeight, statusBarHeight) =>
   StyleSheet.create({
@@ -75,10 +68,10 @@ const AppMenuModal = ({ visible, data, onClose }) => {
       visible={!!visible}
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
+      <TouchableWithoutFeedback testID="modal-overlay" onPress={onClose}>
         <View style={styles.modalOverlay} />
       </TouchableWithoutFeedback>
-      <View style={styles.modalContent}>
+      <View testID="menu" style={styles.modalContent}>
         <FlatList
           style={{
             backgroundColor: theme.colors.card,

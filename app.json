@@ -4,10 +4,10 @@
     "slug": "vcalc",
     "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/icon/calculator-4-512.png",
+    "icon": "./src/assets/icon/calculator-4-512.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icon/calculator-4-512.png",
+      "image": "./src/assets/icon/calculator-4-512.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,14 +22,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon/calculator-4-512.png",
+        "foregroundImage": "./src/assets/icon/calculator-4-512.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "dev.peregrinelabs.vcalc",
       "versionCode": 2
     },
     "web": {
-      "favicon": "./assets/icon/calculator-4-16.png"
+      "favicon": "./src/assets/icon/calculator-4-16.png"
     },
     "extra": {
       "eas": {

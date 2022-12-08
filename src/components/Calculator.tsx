@@ -1,29 +1,17 @@
-import { cloneDeep } from "lodash";
-import { evaluate } from "mathjs";
-import React from "react";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  ViewStyle,
-} from "react-native";
+import { cloneDeep } from 'lodash';
+import { evaluate } from 'mathjs';
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { useTheme } from "../themes";
-import { ISelection, IVariable } from "../types";
+import { useTheme } from '../themes';
+import { ISelection, IVariable } from '../types';
 import {
-  backspaceAtSelection,
-  getNextVariableName,
-  insertAtSelection,
-  interpolateString,
-  wrapAtSelection,
-} from "../utils";
-import { convertSelection } from "../utils/selection";
-import EditVariableModal from "./EditVariableModal";
+    backspaceAtSelection, getNextVariableName, insertAtSelection, interpolateString, wrapAtSelection
+} from '../utils';
+import { convertSelection } from '../utils/selection';
+import EditVariableModal from './EditVariableModal';
 
 const createStyles = ({ colors }) =>
   StyleSheet.create<any>({

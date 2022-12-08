@@ -1,11 +1,7 @@
-import { ISelection, IVariable } from "../types";
+import { ISelection, IVariable } from '../types';
 import {
-  backspaceAtSelection,
-  getNextVariableName,
-  insertAtSelection,
-  interpolateString,
-  wrapAtSelection,
-} from "./string";
+    backspaceAtSelection, getNextVariableName, insertAtSelection, interpolateString, wrapAtSelection
+} from './string';
 
 describe("getNextVariableName", () => {
   const cases: {

@@ -11,6 +11,7 @@ npm-debug.*
 web-build/
 .env
 googleServiceAccountKey.json
+TODO.md
 
 # macOS
 .DS_Store

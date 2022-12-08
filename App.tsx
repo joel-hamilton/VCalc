@@ -4,11 +4,11 @@ import { NavigationContainer, Theme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import Calculator from "./components/Calculator";
-import { MyDarkTheme, MyDefaultTheme } from "./themes";
+import Calculator from "./src/components/Calculator";
+import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
 
-import { Context } from "./Context";
-import Header from "./components/Header";
+import { Context } from "./src/Context";
+import Header from "./src/components/Header";
 
 const Stack = createNativeStackNavigator();
 

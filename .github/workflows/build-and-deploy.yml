@@ -24,9 +24,17 @@ jobs:
         run: npm ci
       - name: Test
         run: npm test
-      - name: Make credentials file
+      - name: Inject credentials file
         run: echo ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY_BASE64 }} | base64 -d > googleServiceAccountKey.json
       - name: Inject secrets into eas.json
         run: sed -i -e 's/APPLE_ID/${{ secrets.APPLE_ID }}/' -e 's/ASC_APP_ID/${{ secrets.ASC_APP_ID }}/' -e 's/APPLE_TEAM_ID/${{ secrets.APPLE_TEAM_ID }}/' eas.json
-      - name: Build on EAS and Submit to Google Play
-        run: echo "mock deploy" #eas build --platform android --non-interactive --auto-submit
+      # - name: Increment version numbers
+      #   run: echo "TODO"
+      # - name: Commit changes
+      #   uses: EndBug/add-and-commit@v9
+      #   with:
+      #     default_author: github_actions
+      #     message: 'Bump version'
+      #     add: 'package.json app.json'
+      # - name: Build on EAS and Submit to Google Play
+      #   run: echo "mock deploy" #eas build --platform android --non-interactive --auto-submit

@@ -1,6 +1,6 @@
-import runes from "runes";
+import runes from 'runes';
 
-import { ISelection } from "../types";
+import { ISelection } from '../types';
 
 /**
  * TextInput's `selection` doesn't work well with non-BMP chars. This function

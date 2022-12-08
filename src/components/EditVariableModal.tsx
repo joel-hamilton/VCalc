@@ -1,20 +1,12 @@
-import { columnTransformDependencies } from "mathjs";
-import React from "react";
+import { columnTransformDependencies } from 'mathjs';
+import React from 'react';
 import {
-  Alert,
-  Modal,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableWithoutFeedback,
-  View,
-  ViewStyle,
-} from "react-native";
+    Alert, Modal, Platform, Pressable, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View,
+    ViewStyle
+} from 'react-native';
 
-import { useTheme } from "../themes";
-import { IVariable } from "../types";
+import { useTheme } from '../themes';
+import { IVariable } from '../types';
 
 const createStyles = ({ colors }) =>
   StyleSheet.create({

@@ -1,8 +1,7 @@
 import React from "react";
-import { DEV_EMAIL } from "@env";
-
 import {
   Linking,
+  Platform,
   Pressable,
   StatusBar,
   StyleSheet,
@@ -10,15 +9,16 @@ import {
   Text,
   View,
   ViewStyle,
-  Platform,
 } from "react-native";
+import { DEV_EMAIL } from "react-native-dotenv";
 
-import { getHeaderTitle } from "@react-navigation/elements";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { getHeaderTitle } from "@react-navigation/elements";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 
+import { Context } from "../Context";
 import { useTheme } from "../themes";
 import AppMenuModal from "./AppMenuModal";
-import { Context } from "../Context";
 
 const createStyles = ({ colors }, statusBarHeight) =>
   StyleSheet.create({
@@ -43,7 +43,12 @@ const createStyles = ({ colors }, statusBarHeight) =>
     }),
   } as { [name: string]: ViewStyle });
 
-const Header = ({ navigation, route, options, back }) => {
+const Header = ({
+  navigation,
+  route,
+  options,
+  back,
+}: NativeStackHeaderProps) => {
   const [appMenuVisible, setAppMenuVisible] = React.useState(false);
   const [context, setContext] = React.useContext(Context);
 
@@ -94,6 +99,7 @@ const Header = ({ navigation, route, options, back }) => {
     <View style={styles.main}>
       <Text style={styles.title}>{title}</Text>
       <Pressable
+        testID="menu-toggle"
         hitSlop={10}
         onPress={() => setAppMenuVisible(!appMenuVisible)}
         style={styles.menuIcon}

@@ -1,5 +1,6 @@
-import { cloneDeep } from "lodash";
-import { ISelection, IVariable } from "../types";
+import { cloneDeep } from 'lodash';
+
+import { ISelection, IVariable } from '../types';
 
 const runes = require("runes");
 

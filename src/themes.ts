@@ -1,8 +1,8 @@
-import { merge } from "lodash";
-import { DefaultTheme, DarkTheme } from "@react-navigation/native";
-import { useTheme as reactUseTheme } from "@react-navigation/native";
+import { merge } from 'lodash';
 
-import { ITheme } from "./types";
+import { DarkTheme, DefaultTheme, useTheme as reactUseTheme } from '@react-navigation/native';
+
+import { ITheme } from './types';
 
 export const MyDefaultTheme: ITheme = merge(DefaultTheme, {
   colors: {
