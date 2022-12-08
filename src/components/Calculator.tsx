@@ -11,6 +11,9 @@ import {
   ViewStyle,
 } from "react-native";
 
+import NewInput from './NewInput';
+const runes = require("runes");
+
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useTheme } from "../themes";
@@ -51,7 +54,7 @@ const createStyles = ({ colors }) =>
       height: 20,
     },
     variables: {
-      minWidth: '100%',
+      minWidth: "100%",
       backgroundColor: colors.card,
       flexDirection: "row",
       alignItems: "center",
@@ -292,9 +295,10 @@ const Calculator = () => {
                 </Pressable>
               )}
             </View>
+            <NewInput display={display} selection={selection} />
             <View>
               <TextInput
-                autoFocus={true}
+                // autoFocus={true}
                 autoCorrect={false}
                 spellCheck={false}
                 selectionColor={theme.colors.primary}
