@@ -1,17 +1,29 @@
-import { cloneDeep } from 'lodash';
-import { evaluate } from 'mathjs';
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View, ViewStyle } from 'react-native';
-
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-import { useTheme } from '../themes';
-import { ISelection, IVariable } from '../types';
+import { cloneDeep } from "lodash";
+import { evaluate } from "mathjs";
+import React from "react";
 import {
-    backspaceAtSelection, getNextVariableName, insertAtSelection, interpolateString, wrapAtSelection
-} from '../utils';
-import { convertSelection } from '../utils/selection';
-import EditVariableModal from './EditVariableModal';
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  ViewStyle,
+} from "react-native";
+
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
+import { useTheme } from "../themes";
+import { ISelection, IVariable } from "../types";
+import {
+  backspaceAtSelection,
+  getNextVariableName,
+  insertAtSelection,
+  interpolateString,
+  wrapAtSelection,
+} from "../utils";
+import { convertSelection, unconvertSelection } from "../utils/selection";
+import EditVariableModal from "./EditVariableModal";
 
 const createStyles = ({ colors }) =>
   StyleSheet.create<any>({
@@ -33,13 +45,13 @@ const createStyles = ({ colors }) =>
     },
     secondaryDisplay: {
       fontSize: 18,
-      color: colors.secondaryText
+      color: colors.secondaryText,
     },
     variablesScrollView: {
       height: 20,
     },
     variables: {
-      flex: 1,
+      minWidth: '100%',
       backgroundColor: colors.card,
       flexDirection: "row",
       alignItems: "center",
@@ -282,6 +294,10 @@ const Calculator = () => {
             </View>
             <View>
               <TextInput
+                autoFocus={true}
+                autoCorrect={false}
+                spellCheck={false}
+                selectionColor={theme.colors.primary}
                 textAlignVertical="top"
                 multiline={true}
                 showSoftInputOnFocus={false}
@@ -313,7 +329,7 @@ const Calculator = () => {
               )}
             </View>
             <Text
-              style={{...styles.secondaryDisplay, paddingLeft: 50}}
+              style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
               numberOfLines={1}
               ellipsizeMode="tail"
             >

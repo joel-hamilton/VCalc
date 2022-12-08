@@ -1,6 +1,6 @@
-import runes from 'runes';
+import runes from "runes";
 
-import { ISelection } from '../types';
+import { ISelection } from "../types";
 
 /**
  * TextInput's `selection` doesn't work well with non-BMP chars. This function
@@ -11,14 +11,32 @@ import { ISelection } from '../types';
  * by this function to `{start: 3, end: 3}`
  */
 export const convertSelection = (baseStr: string, selection: ISelection) => {
-  // get start chars (native)
-  const r1 = runes(baseStr.substring(0, selection.start));
+  const runesUntilStart = runes(baseStr.substring(0, selection.start)).length;
 
-  // get end chart (native)
-  const r2 =
+  const runesUntilEnd =
     selection.end === selection.start
-      ? r1
-      : runes(baseStr.substring(0, selection.end));
+      ? runesUntilStart
+      : runes(baseStr.substring(0, selection.end)).length;
 
-  return { start: r1.length, end: r2.length };
+  return { start: runesUntilStart, end: runesUntilEnd };
+};
+
+/**
+ * Reverse the calculation in `convertSelection`
+ *
+ *  * Eg: "🥕🥕🥕<CARET>🥕" has a converted selection of `{start: 3, end: 3}`, which is converted
+ * by this function to `{start: 6, end: 6}`
+ */
+export const unconvertSelection = (
+  baseStr: string,
+  convertedSelection: ISelection
+) => {
+  const r = runes(baseStr);
+  const runesUntilStart = r.slice(0, convertedSelection.start);
+  const runesUntilEnd = r.slice(0, convertedSelection.end);
+
+  const nativeCharsUntilStart = runesUntilStart.join("").length;
+  const nativeCharsUntilEnd = runesUntilEnd.join("").length;
+
+  return { start: nativeCharsUntilStart, end: nativeCharsUntilEnd };
 };
