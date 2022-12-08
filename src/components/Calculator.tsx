@@ -295,7 +295,7 @@ const Calculator = () => {
                 </Pressable>
               )}
             </View>
-            <NewInput display={display} selection={selection} />
+            <NewInput display={display} selection={selection} onSelectionChange={setSelection} />
             <View>
               <TextInput
                 // autoFocus={true}
