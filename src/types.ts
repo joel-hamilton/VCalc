@@ -3,6 +3,13 @@ export interface ISelection {
   end: number | undefined;
 }
 
+export interface ILayout {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 export interface IVariable {
   varName: string;
   value: string;
@@ -24,6 +31,5 @@ export interface ITheme {
     buttonHighlightPressed: string;
     buttonVariable: string;
     buttonVariablePressed: string;
-  }
+  };
 }
-

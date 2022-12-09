@@ -11,7 +11,7 @@ import {
   ViewStyle,
 } from "react-native";
 
-import NewInput from './NewInput';
+import NewInput from "./NewInput";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -122,8 +122,8 @@ const Calculator = () => {
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
   const [selection, setSelection] = React.useState<ISelection>({
-    start: undefined,
-    end: undefined,
+    start: 0,
+    end: 0,
   });
 
   React.useEffect(() => {
@@ -294,24 +294,11 @@ const Calculator = () => {
                 </Pressable>
               )}
             </View>
-            <NewInput display={display} selection={selection} onSelectionChange={setSelection} />
-            {/* <View>
-              <TextInput
-                // autoFocus={true}
-                autoCorrect={false}
-                spellCheck={false}
-                selectionColor={theme.colors.primary}
-                textAlignVertical="top"
-                multiline={true}
-                showSoftInputOnFocus={false}
-                style={styles.primaryDisplay}
-                onSelectionChange={({ nativeEvent: { selection } }) =>
-                  setSelection(convertSelection(display, selection))
-                }
-              >
-                {display}
-              </TextInput>
-            </View> */}
+            <NewInput
+              display={display}
+              selection={selection}
+              onSelectionChange={setSelection}
+            />
           </View>
           <View
             style={{
