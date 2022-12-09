@@ -6,6 +6,7 @@ export interface ISelection {
 export interface INode {
   type: "string" | "variable";
   nodes: string | INode[]; // value exists only if it's `type: string`
+  varName?: string;
 }
 export interface ILayout {
   left: number;

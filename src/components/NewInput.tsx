@@ -1,10 +1,10 @@
 import React from "react";
 import { Pressable, Text, View, StyleSheet, ViewStyle } from "react-native";
-import { ILayout, ISelection } from "../types";
+import { ILayout, INode, ISelection, IVariable } from "../types";
 import { useTheme } from "../themes";
 import Caret from "./Caret";
 import { isEqual } from "lodash";
-const runes = require("runes");
+import VariableNode from "./VariableNode";
 
 const fontSize = 32;
 const xAdjust = -1;
@@ -36,11 +36,11 @@ const createStyles = ({ colors }) =>
   } as { [name: string]: ViewStyle });
 
 const NewInput = ({
-  displayRunes,
+  displayNodes,
   selection,
   onSelectionChange,
 }: {
-  displayRunes: string[];
+  displayNodes: INode[];
   selection: ISelection;
   onSelectionChange: (sel: ISelection) => void;
 }) => {
@@ -65,7 +65,7 @@ const NewInput = ({
         Problem: "UNDEFINED charLayout",
         layout,
         selectionStart: selection.start,
-        displayRunes,
+        displayNodes,
       });
       return;
     }
@@ -84,13 +84,13 @@ const NewInput = ({
     setRepositioningCaret(true);
     const timeout = setTimeout(() => setRepositioningCaret(false), 100);
     return () => clearTimeout(timeout);
-  }, [caretLayout])
+  }, [caretLayout]);
 
   // React.useEffect(() => setDisplayRunes(runes(display)), [display]);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      textsRef.current = textsRef.current.slice(0, displayRunes.length);
+      textsRef.current = textsRef.current.slice(0, displayNodes.length);
       const charLayouts = [];
       if (textsRef.current.length && textContainerRef.current) {
         textsRef.current.forEach((textRef, index) => {
@@ -99,7 +99,7 @@ const NewInput = ({
             (left, top, width, height) => {
               const charLayout = { left, top, width, height };
               charLayouts.push(charLayout);
-              if (index === displayRunes.length - 1) {
+              if (index === displayNodes.length - 1) {
                 setLayout((layout) => {
                   return layout.length === charLayouts.length
                     ? layout
@@ -118,52 +118,60 @@ const NewInput = ({
     });
 
     return () => clearInterval(interval);
-  }, [displayRunes, textsRef, textContainerRef]);
+  }, [displayNodes, textsRef, textContainerRef]);
 
   const selectAll = () => {
-    onSelectionChange({ start: 0, end: displayRunes.length });
+    onSelectionChange({ start: 0, end: displayNodes.length });
   };
 
   return (
     <View ref={textContainerRef} style={styles.wrapper}>
-      {displayRunes.map((char, index) => (
+      {displayNodes.map((node, index) => (
         <React.Fragment key={index}>
           {selection.start === selection.end && index === selection.start && (
             <Caret
-            visible={!repositioningCaret}
+              visible={!repositioningCaret}
               style={{ ...styles.text, ...styles.caret, ...caretLayout }}
               onLongPress={selectAll}
             />
           )}
           <View>
-            <Text
-              ref={(el) => (textsRef.current[index] = el)}
-              onLongPress={selectAll}
-              onPress={({ nativeEvent }) => {
-                const charWidth = layout[index].width;
-                const touchX = nativeEvent.locationX;
-                const caretPos = touchX < charWidth / 2 ? index : index + 1;
-                onSelectionChange({ start: caretPos, end: caretPos });
-              }}
-              style={{
-                ...styles.text,
-                backgroundColor:
-                  selection.start !== selection.end &&
-                  index >= selection.start &&
-                  index < selection.end
-                    ? theme.colors.primary
-                    : "transparent",
-              }}
-            >
-              {char}
-            </Text>
+            {node.type === "string" && (
+              <Text
+                ref={(el) => (textsRef.current[index] = el)}
+                onLongPress={selectAll}
+                onPress={({ nativeEvent }) => {
+                  const charWidth = layout[index].width;
+                  const touchX = nativeEvent.locationX;
+                  const caretPos = touchX < charWidth / 2 ? index : index + 1;
+                  onSelectionChange({ start: caretPos, end: caretPos });
+                }}
+                style={{
+                  ...styles.text,
+                  backgroundColor:
+                    selection.start !== selection.end &&
+                    index >= selection.start &&
+                    index < selection.end
+                      ? theme.colors.primary
+                      : "transparent",
+                }}
+              >
+                {node.nodes as string}
+              </Text>
+            )}
+            {node.type === "variable" && (
+              <VariableNode
+                ref={(el) => (textsRef.current[index] = el)}
+                variableNode={node}
+              />
+            )}
           </View>
         </React.Fragment>
       ))}
       {selection.start === selection.end &&
-        selection.start === displayRunes.length && (
+        selection.start === displayNodes.length && (
           <Caret
-          visible={!repositioningCaret}
+            visible={!repositioningCaret}
             style={{ ...styles.text, ...styles.caret, ...caretLayout }}
             onLongPress={selectAll}
           />

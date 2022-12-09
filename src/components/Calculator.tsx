@@ -16,21 +16,14 @@ import NewInput from "./NewInput";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useTheme } from "../themes";
-import { ISelection, IVariable } from "../types";
-import {
-  // backspaceAtSelection,
-  getNextVariableName,
-  // insertAtSelection,
-  // interpolateString,
-  // wrapAtSelection,
-} from "../utils";
+import { INode, ISelection, IVariable } from "../types";
+import { getNextVariableName } from "../utils";
 import {
   backspaceAtSelection,
-  insertAtSelection,
+  insertAtSelection as arrayInsertAtSelection,
   wrapAtSelection,
   interpolate,
 } from "../utils/array";
-import { convertSelection, unconvertSelection } from "../utils/selection";
 import EditVariableModal from "./EditVariableModal";
 
 const createStyles = ({ colors }) =>
@@ -124,7 +117,7 @@ const Calculator = () => {
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [variables, setVariables] = React.useState<IVariable[]>([]);
   const [editingVariableIndex, setEditingVariableIndex] = React.useState(-1);
-  const [display, setDisplay] = React.useState<string[]>([]);
+  const [display, setDisplay] = React.useState<INode[]>([]);
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
   const [selection, setSelection] = React.useState<ISelection>({
@@ -147,9 +140,23 @@ const Calculator = () => {
     }
   }, [display, variables]);
 
-  const insertString = (str) => {
-    const [newDisplay, newSelection] = insertAtSelection(
-      str,
+  const insertAtSelection = (
+    str: string,
+    type: "string" | "variable" = "string",
+    varName: string = null
+  ) => {
+    if (type === 'string' && str.length > 1) {
+      console.error(">1 length strings not implemented yet!");
+      return;
+    }
+
+    if(type === 'variable' && !varName) {
+      console.error('Variable name required');
+      return;
+    }
+
+    const [newDisplay, newSelection] = arrayInsertAtSelection(
+      [{ type, nodes: str, ...(varName ? { varName } : {}) }],
       display,
       selection
     );
@@ -175,8 +182,8 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const addVariable = (varName = null, value = null) => {
-    if (varName && !isNaN(varName)) {
+  const addVariable = (varName: string = null, nodes: INode[] = null) => {
+    if (varName && !isNaN(varName as any)) {
       alert("Cannot use number as a variable name");
       return;
     }
@@ -185,13 +192,14 @@ const Calculator = () => {
       varName = getNextVariableName("var", variables);
     }
 
-    if (value === null) {
-      value = display; // TODO allow adding selection as value
+    if (nodes === null) {
+      nodes = display; // TODO allow adding selection as value
     }
 
-    setVariables(variables.concat({ varName, value: value.join("") }));
+    setVariables(variables.concat({ varName, nodes }));
   };
 
+  // TODO does this work with nested vars?
   const updateVariable = (variableIndex, updates) => {
     const tempVariables = cloneDeep(variables);
     tempVariables[variableIndex] = {
@@ -225,25 +233,26 @@ const Calculator = () => {
   };
 
   const keypad = [
-    { text: 7, onPress: () => insertString("7") },
-    { text: 8, onPress: () => insertString("8") },
-    { text: 9, onPress: () => insertString("9") },
-    { text: 4, onPress: () => insertString("4") },
-    { text: 5, onPress: () => insertString("5") },
-    { text: 6, onPress: () => insertString("6") },
-    { text: 1, onPress: () => insertString("1") },
-    { text: 2, onPress: () => insertString("2") },
-    { text: 3, onPress: () => insertString("3") },
-    { text: 0, onPress: () => insertString("0") },
+    { text: 7, onPress: () => insertAtSelection("7") },
+    { text: 8, onPress: () => insertAtSelection("8") },
+    { text: 9, onPress: () => insertAtSelection("9") },
+    { text: 4, onPress: () => insertAtSelection("4") },
+    { text: 5, onPress: () => insertAtSelection("5") },
+    { text: 6, onPress: () => insertAtSelection("6") },
+    { text: 1, onPress: () => insertAtSelection("1") },
+    { text: 2, onPress: () => insertAtSelection("2") },
+    { text: 3, onPress: () => insertAtSelection("3") },
+    { text: 0, onPress: () => insertAtSelection("0") },
     {
       text: ".",
-      onPress: () => insertString("."),
+      onPress: () => insertAtSelection("."),
     },
     {
       text: "=",
       onPress: () => {
-        const val = doEvaluate();
-        setDisplay(val.split(""));
+        // TODO
+        // const val = doEvaluate();
+        // setDisplay(val.split(""));
       },
     },
   ];
@@ -258,25 +267,25 @@ const Calculator = () => {
     {
       text: "÷",
       secondaryText: "√",
-      onPress: () => insertString("/"),
-      onLongPress: () => insertString("√"),
+      onPress: () => insertAtSelection("/"),
+      onLongPress: () => insertAtSelection("√"),
     },
     {
       text: "x",
       secondaryText: "^",
-      onPress: () => insertString("*"),
-      onLongPress: () => insertString("^"),
+      onPress: () => insertAtSelection("*"),
+      onLongPress: () => insertAtSelection("^"),
     },
     {
       text: "-",
       secondaryText: "!",
-      onPress: () => insertString("-"),
-      onLongPress: () => insertString("!"),
+      onPress: () => insertAtSelection("-"),
+      onLongPress: () => insertAtSelection("!"),
     },
     {
       text: "+",
       secondaryText: "()",
-      onPress: () => insertString("+"),
+      onPress: () => insertAtSelection("+"),
       onLongPress: () => wrapString("(", ")"),
     },
   ];
@@ -302,7 +311,7 @@ const Calculator = () => {
               )}
             </View>
             <NewInput
-              displayRunes={display}
+              displayNodes={display}
               selection={selection}
               onSelectionChange={setSelection}
             />
@@ -341,17 +350,17 @@ const Calculator = () => {
             style={styles.variablesScrollView}
             contentContainerStyle={styles.variables}
           >
-            {variables.map(({ varName, value }, index) => (
+            {variables.map(({ varName, nodes }, index) => (
               <Pressable
                 key={varName}
                 style={styles.variable}
                 onLongPress={() => setEditingVariableIndex(index)}
                 onPress={() => {
-                  insertString(varName);
+                  insertAtSelection(varName, "variable", varName);
                 }}
               >
                 <Text style={styles.variableText}>
-                  {varName} ({value})
+                  {varName} {/* TODO add value preview too */}
                 </Text>
               </Pressable>
             ))}
