@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, Text, View, StyleSheet, ViewStyle } from "react-native";
+import { Text, View, StyleSheet, ViewStyle } from "react-native";
 import { ILayout, INode, ISelection, IVariable } from "../types";
 import { useTheme } from "../themes";
 import Caret from "./Caret";
@@ -24,6 +24,8 @@ const createStyles = ({ colors }) =>
       justifyContent: "flex-end",
       alignItems: "center",
       flexWrap: "wrap",
+      minHeight: fontSize + 10,
+      backgroundColor: "rgba(0,0,0,0.2)",
     },
     text: {
       fontSize,
@@ -60,6 +62,7 @@ const NewInput = ({
     }
 
     const charLayout = layout[selection.start - 1];
+    const nextCharLayout = layout[selection.start];
     if (charLayout === undefined) {
       console.log({
         Problem: "UNDEFINED charLayout",
@@ -70,9 +73,13 @@ const NewInput = ({
       return;
     }
 
-    const charRight = charLayout.left + charLayout.width + xAdjust;
+    const charRight = charLayout.left + charLayout.width;
+    const spaceUntilNextChar = nextCharLayout
+      ? nextCharLayout.left - charRight
+      : 10;
+    const left = charRight + xAdjust + spaceUntilNextChar / 2;
     const charTop = charLayout.top + yAdjust;
-    const newCaretLayout = { ...caretLayout, left: charRight, top: charTop };
+    const newCaretLayout = { ...caretLayout, left, top: charTop };
     if (!isEqual(caretLayout, newCaretLayout)) {
       console.log({ newCaretLayout });
       setCaretLayout(newCaretLayout);
@@ -85,8 +92,6 @@ const NewInput = ({
     const timeout = setTimeout(() => setRepositioningCaret(false), 100);
     return () => clearTimeout(timeout);
   }, [caretLayout]);
-
-  // React.useEffect(() => setDisplayRunes(runes(display)), [display]);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -124,6 +129,19 @@ const NewInput = ({
     onSelectionChange({ start: 0, end: displayNodes.length });
   };
 
+  const getTextNodeProps = (index) => {
+    return {
+      ref: (el) => (textsRef.current[index] = el),
+      onLongPress: selectAll,
+      onPress: ({ nativeEvent }) => {
+        const charWidth = layout[index].width;
+        const touchX = nativeEvent.locationX;
+        const caretPos = touchX < charWidth / 2 ? index : index + 1;
+        onSelectionChange({ start: caretPos, end: caretPos });
+      },
+    };
+  };
+
   return (
     <View ref={textContainerRef} style={styles.wrapper}>
       {displayNodes.map((node, index) => (
@@ -135,37 +153,34 @@ const NewInput = ({
               onLongPress={selectAll}
             />
           )}
-          <View>
-            {node.type === "string" && (
-              <Text
-                ref={(el) => (textsRef.current[index] = el)}
-                onLongPress={selectAll}
-                onPress={({ nativeEvent }) => {
-                  const charWidth = layout[index].width;
-                  const touchX = nativeEvent.locationX;
-                  const caretPos = touchX < charWidth / 2 ? index : index + 1;
-                  onSelectionChange({ start: caretPos, end: caretPos });
-                }}
-                style={{
-                  ...styles.text,
-                  backgroundColor:
-                    selection.start !== selection.end &&
-                    index >= selection.start &&
-                    index < selection.end
-                      ? theme.colors.primary
-                      : "transparent",
-                }}
-              >
-                {node.nodes as string}
-              </Text>
-            )}
-            {node.type === "variable" && (
-              <VariableNode
-                ref={(el) => (textsRef.current[index] = el)}
-                variableNode={node}
-              />
-            )}
-          </View>
+          {node.type === "string" && (
+            <Text
+              {...getTextNodeProps(index)}
+              style={{
+                ...styles.text,
+                backgroundColor:
+                  selection.start !== selection.end &&
+                  index >= selection.start &&
+                  index < selection.end
+                    ? theme.colors.primary
+                    : "transparent",
+              }}
+            >
+              {node.nodes as string}
+            </Text>
+          )}
+          {node.type === "variable" && (
+            <VariableNode
+              textNodeProps={getTextNodeProps(index)}
+              fontSize={(styles.text as any).fontSize}
+              variableNode={node}
+              isSelected={
+                selection.start !== selection.end &&
+                index >= selection.start &&
+                index < selection.end
+              }
+            />
+          )}
         </React.Fragment>
       ))}
       {selection.start === selection.end &&

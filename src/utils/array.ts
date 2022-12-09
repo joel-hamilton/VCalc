@@ -82,7 +82,6 @@ export const interpolate = (
   originalNodes: INode[],
   variables: IVariable[]
 ): string => {
-  console.log({originalNodes, variables})
   const nodes = cloneDeep(originalNodes);
 
   for (let i = 0; i < nodes.length; i++) {
