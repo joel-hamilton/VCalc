@@ -1,4 +1,4 @@
-import { IDisplayNode, ISelection, IVariable } from "../types";
+import { INode, ISelection, IVariable } from "../types";
 import {
   backspaceAtSelection,
   insertAtSelection,
@@ -6,19 +6,19 @@ import {
   wrapAtSelection,
 } from "./array";
 
-const testDisplayNodes: IDisplayNode[] = [
-  { type: "string", value: "t" },
-  { type: "string", value: "e" },
-  { type: "string", value: "s" },
-  { type: "string", value: "t" },
+const testDisplayNodes: INode[] = [
+  { type: "string", nodes: "t" },
+  { type: "string", nodes: "e" },
+  { type: "string", nodes: "s" },
+  { type: "string", nodes: "t" },
 ];
 
-describe.only("backspaceAtSelection", () => {
+describe("backspaceAtSelection", () => {
   const cases: {
     name: string;
-    displayNodes: IDisplayNode[];
+    displayNodes: INode[];
     selection: ISelection;
-    expected: [IDisplayNode[], ISelection];
+    expected: [INode[], ISelection];
   }[] = [
     {
       name: "does nothing if selection start/end is 0",
@@ -55,13 +55,13 @@ describe.only("backspaceAtSelection", () => {
     },
     // {
     //   name: "removes the first character if selection start/end is 1",
-    //   strArr: ["t", "e", "s", "t"],
+    //   displayNodes: ["t", "e", "s", "t"],
     //   selection: { start: 1, end: 1 },
     //   expected: [["e", "s", "t"], { start: 0, end: 0 }],
     // },
     // {
     //   name: "removes the selected range at start",
-    //   strArr: ["t", "e", "s", "t"],
+    //   displayNodes: ["t", "e", "s", "t"],
     //   selection: { start: 0, end: 2 },
     //   expected: [["s", "t"], { start: 0, end: 0 }],
     // },
@@ -77,7 +77,7 @@ describe.only("backspaceAtSelection", () => {
     },
     // {
     //   name: "removes the selected range at end",
-    //   strArr: ["t", "e", "s", "t"],
+    //   displayNodes: ["t", "e", "s", "t"],
     //   selection: { start: 2, end: 4 },
     //   expected: [["t", "e"], { start: 2, end: 2 }],
     // },
@@ -94,10 +94,10 @@ describe.only("backspaceAtSelection", () => {
 describe("insertAtSelection", () => {
   const cases: {
     name: string;
-    insertNodes: IDisplayNode[];
-    displayNodes: IDisplayNode[];
+    insertNodes: INode[];
+    displayNodes: INode[];
     selection: ISelection;
-    expected: [IDisplayNode[], ISelection];
+    expected: [INode[], ISelection];
   }[] = [
     {
       name: "does nothing and returns same selection if the str is empty",
@@ -108,27 +108,27 @@ describe("insertAtSelection", () => {
     },
     {
       name: "inserts the correct string at the beginning if selection start/end is 0",
-      insertNodes: [{ type: "string", value: "b" }],
+      insertNodes: [{ type: "string", nodes: "b" }],
       displayNodes: testDisplayNodes,
       selection: { start: 0, end: 0 },
       expected: [
-        [{ type: "string", value: "b" } as IDisplayNode].concat(
+        [{ type: "string", nodes: "b" } as INode].concat(
           testDisplayNodes
         ),
         { start: 1, end: 1 },
       ],
     },
     // {
-    //   name: "inserts the correct string at the end if selection start/end at end of `strArr`",
+    //   name: "inserts the correct string at the end if selection start/end at end of `displayNodes`",
     //   str: "a",
-    //   strArr: ["b"],
+    //   displayNodes: ["b"],
     //   selection: { start: 1, end: 1 },
     //   expected: [["b", "a"], { start: 2, end: 2 }],
     // },
     // {
     //   name: "inserts groups of characters characters correctly in middle",
     //   str: "💁👌😍大-은 ",
-    //   strArr: ["💥", "💥", "💥"],
+    //   displayNodes: ["💥", "💥", "💥"],
     //   selection: { start: 2, end: 2 },
     //   expected: [["💥", "💥", "💁👌😍大-은 ", "💥"], { start: 3, end: 3 }],
     // },
@@ -136,7 +136,7 @@ describe("insertAtSelection", () => {
     // {
     //   name: "inserts groups of characters characters correctly with range",
     //   str: "💁👌",
-    //   strArr: ["💥", "💥", "💥", "💥"],
+    //   displayNodes: ["💥", "💥", "💥", "💥"],
     //   selection: { start: 1, end: 3 },
     //   expected: [["💥", "💁👌", "💥"], { start: 2, end: 2 }],
     // },
@@ -154,11 +154,11 @@ describe("insertAtSelection", () => {
 describe("wrapAtSelection", () => {
   const cases: {
     name: string;
-    displayNodes: IDisplayNode[];
-    prependNodes: IDisplayNode[];
-    appendNodes: IDisplayNode[];
+    displayNodes: INode[];
+    prependNodes: INode[];
+    appendNodes: INode[];
     selection: ISelection;
-    expected: [IDisplayNode[], ISelection];
+    expected: [INode[], ISelection];
   }[] = [
     // {
     //   name: "it does nothing if there is no before or after string",
@@ -170,14 +170,14 @@ describe("wrapAtSelection", () => {
     // },
     {
       name: "it wraps nothing at the end if selection is undefined",
-      displayNodes: testDisplayNodess,
-      prependNodes: [{ type: "string", value: "(" }],
-      appendNodes: [{ type: "string", value: ")" }],
+      displayNodes: testDisplayNodes,
+      prependNodes: [{ type: "string", nodes: "(" }],
+      appendNodes: [{ type: "string", nodes: ")" }],
       selection: { start: undefined, end: undefined },
       expected: [
-        testDisplayNodess.concat([
-          { type: "string", value: "(" },
-          { type: "string", value: ")" },
+        testDisplayNodes.concat([
+          { type: "string", nodes: "(" },
+          { type: "string", nodes: ")" },
         ]),
         { start: 5, end: 5 },
       ],
@@ -219,7 +219,7 @@ describe("wrapAtSelection", () => {
   for (const c of cases) {
     it(c.name, () => {
       expect(
-        wrapAtSelection(c.baseStrArr, c.prependStr, c.appendStr, c.selection)
+        wrapAtSelection(c.displayNodes, c.prependNodes, c.appendNodes, c.selection)
       ).toEqual(c.expected);
     });
   }
@@ -228,73 +228,73 @@ describe("wrapAtSelection", () => {
 describe("interpolate", () => {
   const cases: {
     name: string;
-    strArr: IDisplayNode[];
+    displayNodes: INode[];
     variables: IVariable[];
     expected: string;
   }[] = [
     // {
     //   name: "returns the original string if no interpolation variables",
-    //   strArr: [
-    //     { type: "string", value: "t" },
-    //     { type: "string", value: "e" },
-    //     { type: "string", value: "s" },
-    //     { type: "string", value: "t" },
+    //   displayNodes: [
+    //     { type: "string", nodes: "t" },
+    //     { type: "string", nodes: "e" },
+    //     { type: "string", nodes: "s" },
+    //     { type: "string", nodes: "t" },
     //   ],
     //   variables: [],
     //   expected: "test",
     // },
     // {
     //   name: "returns the original string if interpolation variables don't exist",
-    //   strArr: [
-    //     { type: "string", value: "t" },
-    //     { type: "string", value: "e" },
-    //     { type: "string", value: "s" },
-    //     { type: "string", value: "t" },
+    //   displayNodes: [
+    //     { type: "string", nodes: "t" },
+    //     { type: "string", nodes: "e" },
+    //     { type: "string", nodes: "s" },
+    //     { type: "string", nodes: "t" },
     //   ],
-    //   variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+    //   variables: [{ varName: "var1", nodes: [{ type: "string", nodes: "5" }] }],
     //   expected: "test",
     // },
     {
       name: "interpolates at start of string",
-      strArr: [
-        { type: "variable", value: "var1" },
-        { type: "string", value: "+" },
-        { type: "string", value: "5" },
+      displayNodes: [
+        { type: "variable", nodes: "var1" },
+        { type: "string", nodes: "+" },
+        { type: "string", nodes: "5" },
       ],
-      variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+      variables: [{ varName: "var1", nodes: [{ type: "string", nodes: "5" }] }],
       expected: "5+5",
     },
     {
       name: "interpolates spaces correctly",
-      strArr: [
-        { type: "variable", value: "var1" },
-        { type: "string", value: " " },
-        { type: "string", value: "+" },
-        { type: "string", value: " " },
-        { type: "string", value: "4" },
-        { type: "string", value: "5" },
+      displayNodes: [
+        { type: "variable", nodes: "var1" },
+        { type: "string", nodes: " " },
+        { type: "string", nodes: "+" },
+        { type: "string", nodes: " " },
+        { type: "string", nodes: "4" },
+        { type: "string", nodes: "5" },
       ],
-      variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+      variables: [{ varName: "var1", nodes: [{ type: "string", nodes: "5" }] }],
       expected: "5 + 45",
     },
     // {
     //   name: "interpolates in middle of string",
-    //   strArr: ["4", "5", " ", "+", " ", "var1", " ", "+", " ", "4", "5"],
-    //   variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+    //   displayNodes: ["4", "5", " ", "+", " ", "var1", " ", "+", " ", "4", "5"],
+    //   variables: [{ varName: "var1", nodes: [{ type: "string", nodes: "5" }] }],
     //   expected: "45 + 5 + 45",
     // },
     // {
     //   name: "interpolates at end of string",
     //   str: "45 + var1",
-    //   variables: [{ varName: "var1", value: "5" }],
+    //   variables: [{ varName: "var1", nodes: "5" }],
     //   expected: "45 + (5)",
     // },
     // {
     //   name: "interpolates multiple variables",
     //   str: "45 + var1var1var2",
     //   variables: [
-    //     { varName: "var1", value: "5" },
-    //     { varName: "var2", value: "2*3" },
+    //     { varName: "var1", nodes: "5" },
+    //     { varName: "var2", nodes: "2*3" },
     //   ],
     //   expected: "45 + (5)(5)(2*3)",
     // },
@@ -302,27 +302,27 @@ describe("interpolate", () => {
     //   name: "handles non-BMP variable names and values",
     //   str: "45 + 💥💥💥💥💥💥var2",
     //   variables: [
-    //     { varName: "💥💥💥", value: "💁👌😍大-은 " },
-    //     { varName: "var2", value: "2*3" },
+    //     { varName: "💥💥💥", nodes: "💁👌😍大-은 " },
+    //     { varName: "var2", nodes: "2*3" },
     //   ],
     //   expected: "45 + (💁👌😍大-은 )(💁👌😍大-은 )(2*3)",
     // },
 
     {
       name: "interpolates nested variable",
-      strArr: [
-        { type: "variable", value: "var1" },
-        { type: "string", value: "+" },
-        { type: "string", value: "1" },
+      displayNodes: [
+        { type: "variable", nodes: "var1" },
+        { type: "string", nodes: "+" },
+        { type: "string", nodes: "1" },
       ],
       variables: [
-        { varName: "var2", value: [{ type: "string", value: "3" }] }, // order matters
+        { varName: "var2", nodes: [{ type: "string", nodes: "3" }] }, // order matters
         {
           varName: "var1",
-          value: [
-            { type: "variable", value: "var2" },
-            { type: "string", value: "+" },
-            { type: "string", value: "2" },
+          nodes: [
+            { type: "variable", nodes: "var2" },
+            { type: "string", nodes: "+" },
+            { type: "string", nodes: "2" },
           ],
         },
       ],
@@ -332,10 +332,10 @@ describe("interpolate", () => {
     //   name: "interpolates deeply nested variable",
     //   str: "var1",
     //   variables: [
-    //     { varName: "var4", value: "4" },
-    //     { varName: "var3", value: "var4 + 3" },
-    //     { varName: "var2", value: "var3 + 2" }, // order matters
-    //     { varName: "var1", value: "var2 + 1" },
+    //     { varName: "var4", nodes: "4" },
+    //     { varName: "var3", nodes: "var4 + 3" },
+    //     { varName: "var2", nodes: "var3 + 2" }, // order matters
+    //     { varName: "var1", nodes: "var2 + 1" },
     //   ],
     //   expected: "((((4) + 3) + 2) + 1)",
     // },
@@ -343,7 +343,7 @@ describe("interpolate", () => {
 
   for (const c of cases) {
     it(c.name, () => {
-      expect(interpolate(c.strArr, c.variables)).toBe(c.expected);
+      expect(interpolate(c.displayNodes, c.variables)).toBe(c.expected);
     });
   }
 });

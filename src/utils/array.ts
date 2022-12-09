@@ -1,12 +1,12 @@
 import { cloneDeep } from "lodash";
-import { IDisplayNode, ISelection, IVariable } from "../types";
+import { INode, ISelection, IVariable } from "../types";
 
 
 
 export const backspaceAtSelection = (
-  displayNodes: IDisplayNode[],
+  displayNodes: INode[],
   selection: ISelection
-): [IDisplayNode[], ISelection] => {
+): [INode[], ISelection] => {
   // if no selection, just remove the last char
   if (selection.start === undefined) {
     const newDisplayNodes = displayNodes.slice(0, displayNodes.length - 1);
@@ -26,10 +26,10 @@ export const backspaceAtSelection = (
 };
 
 export const insertAtSelection = (
-  insertNodes: IDisplayNode[],
-  displayNodes: IDisplayNode[],
+  insertNodes: INode[],
+  displayNodes: INode[],
   selection: ISelection
-): [IDisplayNode[], ISelection] => {
+): [INode[], ISelection] => {
   if (!insertNodes.length) {
     return [displayNodes, selection];
   }
@@ -46,11 +46,11 @@ export const insertAtSelection = (
 };
 
 export const wrapAtSelection = (
-  baseStrArr: IDisplayNode[],
-  prependStr: IDisplayNode[],
-  appendStr: IDisplayNode[],
+  baseStrArr: INode[],
+  prependStr: INode[],
+  appendStr: INode[],
   selection: ISelection
-): [IDisplayNode[], ISelection] => {
+): [INode[], ISelection] => {
   if (!prependStr && !appendStr) {
     return [baseStrArr, selection];
   }
@@ -69,17 +69,17 @@ export const wrapAtSelection = (
   return [newStrArr, { start: newCaretPos, end: newCaretPos }];
 };
 
-const findVariableValue = (variableName, variables):IDisplayNode[] => {
+const getVariableNodes = (variableName, variables):INode[] => {
   const variable = variables.find((v) => v.varName === variableName);
   if (!variable) {
     return;
   }
 
-  return variable.value;
+  return variable.nodes;
 };
 
 export const interpolate = (
-  originalNodes: IDisplayNode[],
+  originalNodes: INode[],
   variables: IVariable[]
 ): string => {
   const nodes = cloneDeep(originalNodes);
@@ -88,14 +88,14 @@ export const interpolate = (
     const node = nodes[i];
 
     if (node.type === "variable") {
-      const variableValue = findVariableValue(node.value, variables);
+      const variableValue = getVariableNodes(node.nodes, variables);
 
       nodes[i] = {
         type: "string",
-        value: interpolate(variableValue, variables),
+        nodes: interpolate(variableValue, variables),
       };
     }
   }
 
-  return nodes.map(n => n.value).join("");
+  return nodes.map(n => n.nodes).join("");
 };

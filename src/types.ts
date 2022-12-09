@@ -3,9 +3,9 @@ export interface ISelection {
   end: number | undefined;
 }
 
-export interface IDisplayNode {
+export interface INode {
   type: "string" | "variable";
-  value: string | IDisplayNode[]; // value exists only if it's `type: string`
+  nodes: string | INode[]; // value exists only if it's `type: string`
 }
 export interface ILayout {
   left: number;
@@ -16,7 +16,7 @@ export interface ILayout {
 
 export interface IVariable {
   varName: string;
-  value: IDisplayNode[];
+  nodes: INode[];
 }
 
 export interface ITheme {
