@@ -13,42 +13,45 @@ const NewInput = ({
   selection: ISelection;
   onSelectionChange: (sel: ISelection) => void;
 }) => {
-  const textContainerRef = React.useRef(null);
-  const textsRef = React.useRef([]);
+  // const textContainerRef = React.useRef(null);
+  // const textsRef = React.useRef([]);
+  const [displayRunes, setDisplayRunes] = React.useState([]);
 
-  const [layout, setLayout] = React.useState([]);
+  // const [layout, setLayout] = React.useState([]);
   const theme = useTheme();
 
-  React.useEffect(() => {
-    const displayRunes = runes(display);
-    textsRef.current = textsRef.current.slice(0, displayRunes.length);
-    const charLayouts = [];
-    if (textsRef.current.length && textContainerRef.current) {
-      setTimeout(() => {
-        textsRef.current.forEach((textRef, index) =>
-          textRef.measureLayout(
-            textContainerRef.current,
-            (left, top, width, height) => {
-              console.log({ CHAR: "true", left, time: Date.now() });
-              charLayouts.push({ left, top, width, height });
-              if (index === displayRunes.length - 1) {
-                setLayout(charLayouts);
-              }
-            }
-          )
-        );
-      });
-    } else {
-      setLayout([]);
-    }
-  }, [display]);
+  React.useEffect(() => setDisplayRunes(runes(display)), [display]);
+
+  // layout only used for the character width (to see which side to put caret on
+  // this is causing problems as it's sometimes undefined, not very reliable.
+  // React.useEffect(() => {
+  //   textsRef.current = textsRef.current.slice(0, displayRunes.length);
+  //   const charLayouts = [];
+  //   if (textsRef.current.length && textContainerRef.current) {
+  //     setTimeout(() => {
+  //       textsRef.current.forEach((textRef, index) =>
+  //         textRef.measureLayout(
+  //           textContainerRef.current,
+  //           (left, top, width, height) => {
+  //             console.log({ CHAR: "true", left, time: Date.now() });
+  //             charLayouts.push({ left, top, width, height });
+  //             if (index === displayRunes.length - 1) {
+  //               setLayout(charLayouts);
+  //             }
+  //           }
+  //         )
+  //       );
+  //     });
+  //   } else {
+  //     setLayout([]);
+  //   }
+  // }, [display]);
 
   return (
     <>
-      <Text>{JSON.stringify(layout)}</Text>
       <View
         // onLayout={() => console.log('view layout changed')}
-        ref={textContainerRef}
+        // ref={textContainerRef}
         style={{
           flexDirection: "row",
           justifyContent: "flex-end",
@@ -73,12 +76,12 @@ const NewInput = ({
         // }
         // onResponderTerminate={() => console.log("terminated!")}
       >
-        {(runes(display) as string[]).map((char, index) => (
+        {displayRunes.map((char, index) => (
           <React.Fragment key={index}>
             {selection.start === selection.end && index === selection.start && (
               <Text
                 onLongPress={() =>
-                  onSelectionChange({ start: 0, end: runes(display).length })
+                  onSelectionChange({ start: 0, end: displayRunes.length })
                 }
                 style={{ fontSize: 100, color: theme.colors.primary }}
               >
@@ -97,17 +100,17 @@ const NewInput = ({
             >
               <Text
                 onLongPress={() =>
-                  onSelectionChange({ start: 0, end: runes(display).length })
+                  onSelectionChange({ start: 0, end: displayRunes.length })
                 }
                 onPress={({ nativeEvent }) => {
-                  const charWidth = layout[index].width;
+                  console.log(nativeEvent.target)
+                  const charWidth = 50; // TODO more precise estimate
                   const touchX = nativeEvent.locationX;
                   const caretPos = touchX < charWidth / 2 ? index : index + 1;
-                  console.log({ charWidth, touchX, caretPos });
                   onSelectionChange({ start: caretPos, end: caretPos });
                 }}
                 // ref={index === display.length - 1 ? textRef : null}
-                ref={(el) => (textsRef.current[index] = el)}
+                // ref={(el) => (textsRef.current[index] = el)}
                 // onLayout={({ nativeEvent }) =>
                 //   setCharLayout(nativeEvent.layout, index)
                 // }
@@ -127,10 +130,10 @@ const NewInput = ({
           </React.Fragment>
         ))}
         {selection.start === selection.end &&
-          selection.start === runes(display).length && (
+          selection.start === displayRunes.length && (
             <Text
               onLongPress={() =>
-                onSelectionChange({ start: 0, end: runes(display).length })
+                onSelectionChange({ start: 0, end: displayRunes.length })
               }
               style={{ fontSize: 100, color: theme.colors.primary }}
             >

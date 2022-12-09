@@ -12,7 +12,6 @@ import {
 } from "react-native";
 
 import NewInput from './NewInput';
-const runes = require("runes");
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -296,7 +295,7 @@ const Calculator = () => {
               )}
             </View>
             <NewInput display={display} selection={selection} onSelectionChange={setSelection} />
-            <View>
+            {/* <View>
               <TextInput
                 // autoFocus={true}
                 autoCorrect={false}
@@ -312,7 +311,7 @@ const Calculator = () => {
               >
                 {display}
               </TextInput>
-            </View>
+            </View> */}
           </View>
           <View
             style={{
