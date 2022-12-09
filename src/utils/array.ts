@@ -1,7 +1,6 @@
-import { cloneDeep } from "lodash";
-import { INode, ISelection, IVariable } from "../types";
+import { cloneDeep } from 'lodash';
 
-
+import { INode, ISelection, IVariable } from '../types';
 
 export const backspaceAtSelection = (
   displayNodes: INode[],

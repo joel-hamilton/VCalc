@@ -1,24 +1,16 @@
-import React from "react";
+import React from 'react';
 import {
-  Linking,
-  Platform,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
-import { DEV_EMAIL } from "react-native-dotenv";
+    Linking, Platform, Pressable, StatusBar, StyleSheet, Switch, Text, View, ViewStyle
+} from 'react-native';
+import { DEV_EMAIL } from 'react-native-dotenv';
 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getHeaderTitle } from "@react-navigation/elements";
-import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getHeaderTitle } from '@react-navigation/elements';
+import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 
-import { Context } from "../Context";
-import { useTheme } from "../themes";
-import AppMenuModal from "./AppMenuModal";
+import { Context } from '../Context';
+import { useTheme } from '../themes';
+import AppMenuModal from './AppMenuModal';
 
 const createStyles = ({ colors }, statusBarHeight) =>
   StyleSheet.create({

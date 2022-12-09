@@ -6,18 +6,17 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
   ViewStyle,
 } from "react-native";
 
-import NewInput from "./NewInput";
+import Display from "./Display";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useTheme } from "../themes";
 import { INode, ISelection, IVariable } from "../types";
-import { getNextVariableName } from "../utils";
+import { getNextVariableName } from "../utils/string";
 import {
   backspaceAtSelection,
   insertAtSelection as arrayInsertAtSelection,
@@ -25,6 +24,7 @@ import {
   interpolate,
 } from "../utils/array";
 import EditVariableModal from "./EditVariableModal";
+import VariableNode from "./VariableNode";
 
 const createStyles = ({ colors }) =>
   StyleSheet.create<any>({
@@ -63,9 +63,7 @@ const createStyles = ({ colors }) =>
       padding: 10,
       height: 40,
       borderRadius: 10,
-      backgroundColor: pressed
-        ? colors.buttonVariablePressed
-        : colors.buttonVariable,
+      backgroundColor: colors.variableBackground,
       marginRight: 5,
     }),
     variableText: {
@@ -145,13 +143,13 @@ const Calculator = () => {
     type: "string" | "variable" = "string",
     varName: string = null
   ) => {
-    if (type === 'string' && str.length > 1) {
+    if (type === "string" && str.length > 1) {
       console.error(">1 length strings not implemented yet!");
       return;
     }
 
-    if(type === 'variable' && !varName) {
-      console.error('Variable name required');
+    if (type === "variable" && !varName) {
+      console.error("Variable name required");
       return;
     }
 
@@ -310,7 +308,7 @@ const Calculator = () => {
                 </Pressable>
               )}
             </View>
-            <NewInput
+            <Display
               displayNodes={display}
               selection={selection}
               onSelectionChange={setSelection}

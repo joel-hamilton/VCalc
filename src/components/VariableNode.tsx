@@ -1,43 +1,68 @@
 import React from "react";
-import { Pressable, Text, View, StyleSheet, ViewStyle } from "react-native";
-import { ILayout, INode, ISelection, IVariable } from "../types";
+import { StyleSheet, Text, View, ViewStyle } from "react-native";
+
 import { useTheme } from "../themes";
+import { INode } from "../types";
 import Caret from "./Caret";
-import { isEqual } from "lodash";
 
 const createStyles = ({ colors }, fontSize) =>
   StyleSheet.create({
     wrapper: {
-      backgroundColor: colors.primary,
+      backgroundColor: colors.variableBackground,
       color: colors.text,
       borderRadius: 5,
-      marginLeft: 10,
-      marginRight: 10,
+      marginLeft: 5,
+      marginRight: 5,
     },
     text: {
       paddingTop: 5,
       paddingBottom: 5,
       paddingRight: 10,
       paddingLeft: 10,
-      lineHeight: fontSize - 10,
       fontSize: fontSize - 10,
+      height: fontSize + 2,
+      lineHeight: fontSize - 8,
     },
   } as { [name: string]: ViewStyle });
 
-const VariableNode = (
-  { variableNode, textNodeProps, fontSize, isSelected }
-) => {
+const VariableNode = ({
+  variableNode,
+  textNodeProps,
+  fontSize,
+  defaultTextHeight,
+  isSelected,
+}: {
+  variableNode: INode;
+  textNodeProps: any;
+  fontSize: number;
+  defaultTextHeight: number;
+  isSelected: boolean;
+}) => {
   const theme = useTheme();
   const styles = createStyles(theme, fontSize);
 
   return (
-    <Pressable onPress={textNodeProps.onPress} onLongPress={textNodeProps.onLongPress}>
-      <View style={styles.wrapper}>
-        <Text {...textNodeProps} style={styles.text}>
-          {variableNode.varName}
-        </Text>
-      </View>
-    </Pressable>
+    <View
+      style={{
+        ...styles.wrapper,
+        ...(isSelected
+          ? {
+              backgroundColor: theme.colors.primary,
+              borderRadius: 0,
+              marginLeft: 0,
+              paddingLeft: 5,
+              marginRight: 0,
+              paddingRight: 5,
+              height: defaultTextHeight,
+              justifyContent: 'center'
+            }
+          : {}),
+      }}
+    >
+      <Text {...textNodeProps} style={styles.text}>
+        {variableNode.varName}
+      </Text>
+    </View>
   );
 };
 

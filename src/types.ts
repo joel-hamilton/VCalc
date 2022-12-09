@@ -1,3 +1,9 @@
+export enum OperatorsWithExtraSpace {
+  "*" = '*',
+  "+" = "+",
+  "-" = "-",
+  "/" = "/",
+}
 export interface ISelection {
   start: number | undefined;
   end: number | undefined;
@@ -5,7 +11,7 @@ export interface ISelection {
 
 export interface INode {
   type: "string" | "variable";
-  nodes: string | INode[]; // value exists only if it's `type: string`
+  nodes: string | INode[];
   varName?: string;
 }
 export interface ILayout {
@@ -30,6 +36,7 @@ export interface ITheme {
     card: string;
     text: string;
     secondaryText: string;
+    variableBackground: string;
     button: string;
     buttonPressed: string;
     buttonHighlight: string;

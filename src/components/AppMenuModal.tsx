@@ -1,20 +1,12 @@
-import React from "react";
+import React from 'react';
 import {
-  FlatList,
-  Modal,
-  Platform,
-  Pressable,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-  ViewStyle,
-} from "react-native";
+    FlatList, Modal, Platform, Pressable, StatusBar, StyleSheet, Text, TouchableWithoutFeedback,
+    View, ViewStyle
+} from 'react-native';
 
-import { useHeaderHeight } from "@react-navigation/elements";
+import { useHeaderHeight } from '@react-navigation/elements';
 
-import { useTheme } from "../themes";
+import { useTheme } from '../themes';
 
 const createStyles = ({ colors }, headerHeight, statusBarHeight) =>
   StyleSheet.create({

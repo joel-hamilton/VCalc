@@ -1,7 +1,7 @@
-import { IVariable } from "../types";
-import { getNextVariableName } from "./string";
+import { IVariable } from '../types';
+import { getNextVariableName } from './string';
 
-describe.skip("getNextVariableName", () => {
+describe("getNextVariableName", () => {
   const cases: {
     name: string;
     baseStr: string;

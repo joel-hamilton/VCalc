@@ -1,4 +1,4 @@
-import { IVariable } from "../types";
+import { IVariable } from '../types';
 
 export const getNextVariableName = (
   baseStr: string,

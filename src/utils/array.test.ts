@@ -1,10 +1,5 @@
-import { INode, ISelection, IVariable } from "../types";
-import {
-  backspaceAtSelection,
-  insertAtSelection,
-  interpolate,
-  wrapAtSelection,
-} from "./array";
+import { INode, ISelection, IVariable } from '../types';
+import { backspaceAtSelection, insertAtSelection, interpolate, wrapAtSelection } from './array';
 
 const testDisplayNodes: INode[] = [
   { type: "string", nodes: "t" },
@@ -277,6 +272,18 @@ describe("interpolate", () => {
       variables: [{ varName: "var1", nodes: [{ type: "string", nodes: "5" }] }],
       expected: "5 + 45",
     },
+    // {
+    //   name: "converts '*' to 'x' and '/' to '÷'",
+    //   displayNodes: [
+    //     { type: "string", nodes: "2" },
+    //     { type: "string", nodes: "*" },
+    //     { type: "string", nodes: "4" },
+    //     { type: "string", nodes: "/" },
+    //     { type: "string", nodes: "5" },
+    //   ],
+    //   variables: [],
+    //   expected: "2x4÷5",
+    // },
     // {
     //   name: "interpolates in middle of string",
     //   displayNodes: ["4", "5", " ", "+", " ", "var1", " ", "+", " ", "4", "5"],
