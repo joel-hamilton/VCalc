@@ -11,7 +11,7 @@ const xAdjust = -1;
 const yAdjust = 3;
 const caretHeight = fontSize + 4;
 const initialCaretLayout = {
-  width: 2, 
+  width: 2,
   height: caretHeight,
   left: xAdjust,
   top: yAdjust,
@@ -22,7 +22,7 @@ const createStyles = ({ colors }) =>
     wrapper: {
       flexDirection: "row",
       justifyContent: "flex-end",
-      alignItems: 'center',
+      alignItems: "center",
       flexWrap: "wrap",
     },
     text: {
@@ -46,6 +46,7 @@ const NewInput = ({
 }) => {
   const textContainerRef = React.useRef(null);
   const textsRef = React.useRef([]);
+  const [repositioningCaret, setRepositioningCaret] = React.useState(false);
   const [layout, setLayout] = React.useState<ILayout[]>([]);
   const [displayRunes, setDisplayRunes] = React.useState<string[]>([]);
   const [caretLayout, setCaretLayout] =
@@ -73,11 +74,18 @@ const NewInput = ({
     const charRight = charLayout.left + charLayout.width + xAdjust;
     const charTop = charLayout.top + yAdjust;
     const newCaretLayout = { ...caretLayout, left: charRight, top: charTop };
-    if(!isEqual(caretLayout, newCaretLayout)) {
+    if (!isEqual(caretLayout, newCaretLayout)) {
       console.log({ newCaretLayout });
       setCaretLayout(newCaretLayout);
     }
   }, [selection, layout]);
+
+  // Prevent caret flickering during reposition
+  React.useEffect(() => {
+    setRepositioningCaret(true);
+    const timeout = setTimeout(() => setRepositioningCaret(false), 100);
+    return () => clearTimeout(timeout);
+  }, [caretLayout])
 
   React.useEffect(() => setDisplayRunes(runes(display)), [display]);
 
@@ -118,15 +126,12 @@ const NewInput = ({
   };
 
   return (
-    <View
-      onLayout={() => console.log("view layout changed")}
-      ref={textContainerRef}
-      style={styles.wrapper}
-    >
+    <View ref={textContainerRef} style={styles.wrapper}>
       {displayRunes.map((char, index) => (
         <React.Fragment key={index}>
           {selection.start === selection.end && index === selection.start && (
             <Caret
+            visible={!repositioningCaret}
               style={{ ...styles.text, ...styles.caret, ...caretLayout }}
               onLongPress={selectAll}
             />
@@ -161,6 +166,7 @@ const NewInput = ({
       {selection.start === selection.end &&
         selection.start === displayRunes.length && (
           <Caret
+          visible={!repositioningCaret}
             style={{ ...styles.text, ...styles.caret, ...caretLayout }}
             onLongPress={selectAll}
           />
