@@ -1,4 +1,4 @@
-import { ISelection, IVariable } from "../types";
+import { IDisplayNode, ISelection, IVariable } from "../types";
 import {
   backspaceAtSelection,
   insertAtSelection,
@@ -6,65 +6,87 @@ import {
   wrapAtSelection,
 } from "./array";
 
-describe("backspaceAtSelection", () => {
+const testDisplayNodes: IDisplayNode[] = [
+  { type: "string", value: "t" },
+  { type: "string", value: "e" },
+  { type: "string", value: "s" },
+  { type: "string", value: "t" },
+];
+
+describe.only("backspaceAtSelection", () => {
   const cases: {
     name: string;
-    strArr: string[];
+    displayNodes: IDisplayNode[];
     selection: ISelection;
-    expected: [string[], ISelection];
+    expected: [IDisplayNode[], ISelection];
   }[] = [
     {
       name: "does nothing if selection start/end is 0",
-      strArr: ["t", "e", "s", "t"],
+      displayNodes: testDisplayNodes,
       selection: { start: 0, end: 0 },
-      expected: [["t", "e", "s", "t"], { start: 0, end: 0 }],
+      expected: [testDisplayNodes, { start: 0, end: 0 }],
     },
     {
       name: "removes the last character if selection start is undefined",
-      strArr: ["t", "e", "s", "t"],
+      displayNodes: testDisplayNodes,
       selection: { start: undefined, end: undefined },
-      expected: [["t", "e", "s"], { start: undefined, end: undefined }],
+      expected: [
+        testDisplayNodes.slice(0, testDisplayNodes.length - 1),
+        { start: undefined, end: undefined },
+      ],
     },
     {
       name: "removes the last character if selection start/end equals bastStr.length",
-      strArr: ["t", "e", "s", "t"],
+      displayNodes: testDisplayNodes,
       selection: { start: 4, end: 4 },
-      expected: [["t", "e", "s"], { start: 3, end: 3 }],
+      expected: [
+        testDisplayNodes.slice(0, testDisplayNodes.length - 1),
+        { start: 3, end: 3 },
+      ],
     },
     {
       name: "removes the correct character if selection start/end in middle of string",
-      strArr: ["t", "e", "s", "t"],
+      displayNodes: testDisplayNodes,
       selection: { start: 2, end: 2 },
-      expected: [["t", "s", "t"], { start: 1, end: 1 }],
+      expected: [
+        testDisplayNodes.slice(0, 1).concat(testDisplayNodes.slice(2)),
+        { start: 1, end: 1 },
+      ],
     },
-    {
-      name: "removes the first character if selection start/end is 1",
-      strArr: ["t", "e", "s", "t"],
-      selection: { start: 1, end: 1 },
-      expected: [["e", "s", "t"], { start: 0, end: 0 }],
-    },
-    {
-      name: "removes the selected range at start",
-      strArr: ["t", "e", "s", "t"],
-      selection: { start: 0, end: 2 },
-      expected: [["s", "t"], { start: 0, end: 0 }],
-    },
+    // {
+    //   name: "removes the first character if selection start/end is 1",
+    //   strArr: ["t", "e", "s", "t"],
+    //   selection: { start: 1, end: 1 },
+    //   expected: [["e", "s", "t"], { start: 0, end: 0 }],
+    // },
+    // {
+    //   name: "removes the selected range at start",
+    //   strArr: ["t", "e", "s", "t"],
+    //   selection: { start: 0, end: 2 },
+    //   expected: [["s", "t"], { start: 0, end: 0 }],
+    // },
     {
       name: "removes the selected range in middle",
-      strArr: ["t", "e", "s", "t"],
+      displayNodes: testDisplayNodes,
       selection: { start: 1, end: 3 },
-      expected: [["t", "t"], { start: 1, end: 1 }],
+      expected: [
+        testDisplayNodes.slice(0, 1).concat(testDisplayNodes.slice(3)),
+
+        { start: 1, end: 1 },
+      ],
     },
-    {
-      name: "removes the selected range at end",
-      strArr: ["t", "e", "s", "t"],
-      selection: { start: 2, end: 4 },
-      expected: [["t", "e"], { start: 2, end: 2 }],
-    },
+    // {
+    //   name: "removes the selected range at end",
+    //   strArr: ["t", "e", "s", "t"],
+    //   selection: { start: 2, end: 4 },
+    //   expected: [["t", "e"], { start: 2, end: 2 }],
+    // },
   ];
   for (const c of cases) {
     it(c.name, () => {
-      expect(backspaceAtSelection(c.strArr, c.selection)).toEqual(c.expected);
+      expect(backspaceAtSelection(c.displayNodes, c.selection)).toEqual(
+        c.expected
+      );
     });
   }
 });
@@ -72,54 +94,59 @@ describe("backspaceAtSelection", () => {
 describe("insertAtSelection", () => {
   const cases: {
     name: string;
-    str: string;
-    strArr: string[];
+    insertNodes: IDisplayNode[];
+    displayNodes: IDisplayNode[];
     selection: ISelection;
-    expected: [string[], ISelection];
+    expected: [IDisplayNode[], ISelection];
   }[] = [
     {
       name: "does nothing and returns same selection if the str is empty",
-      str: "",
-      strArr: ["b"],
+      insertNodes: [],
+      displayNodes: testDisplayNodes,
       selection: { start: 0, end: 0 },
-      expected: [["b"], { start: 0, end: 0 }],
+      expected: [testDisplayNodes, { start: 0, end: 0 }],
     },
     {
       name: "inserts the correct string at the beginning if selection start/end is 0",
-      str: "a",
-      strArr: ["b"],
+      insertNodes: [{ type: "string", value: "b" }],
+      displayNodes: testDisplayNodes,
       selection: { start: 0, end: 0 },
-      expected: [["a", "b"], { start: 1, end: 1 }],
+      expected: [
+        [{ type: "string", value: "b" } as IDisplayNode].concat(
+          testDisplayNodes
+        ),
+        { start: 1, end: 1 },
+      ],
     },
-    {
-      name: "inserts the correct string at the end if selection start/end at end of `strArr`",
-      str: "a",
-      strArr: ["b"],
-      selection: { start: 1, end: 1 },
-      expected: [["b", "a"], { start: 2, end: 2 }],
-    },
-    {
-      name: "inserts groups of characters characters correctly in middle",
-      str: "💁👌😍大-은 ",
-      strArr: ["💥", "💥", "💥"],
-      selection: { start: 2, end: 2 },
-      expected: [["💥", "💥", "💁👌😍大-은 ", "💥"], { start: 3, end: 3 }],
-    },
+    // {
+    //   name: "inserts the correct string at the end if selection start/end at end of `strArr`",
+    //   str: "a",
+    //   strArr: ["b"],
+    //   selection: { start: 1, end: 1 },
+    //   expected: [["b", "a"], { start: 2, end: 2 }],
+    // },
+    // {
+    //   name: "inserts groups of characters characters correctly in middle",
+    //   str: "💁👌😍大-은 ",
+    //   strArr: ["💥", "💥", "💥"],
+    //   selection: { start: 2, end: 2 },
+    //   expected: [["💥", "💥", "💁👌😍大-은 ", "💥"], { start: 3, end: 3 }],
+    // },
 
-    {
-      name: "inserts groups of characters characters correctly with range",
-      str: "💁👌",
-      strArr: ["💥", "💥", "💥", "💥"],
-      selection: { start: 1, end: 3 },
-      expected: [["💥", "💁👌", "💥"], { start: 2, end: 2 }],
-    },
+    // {
+    //   name: "inserts groups of characters characters correctly with range",
+    //   str: "💁👌",
+    //   strArr: ["💥", "💥", "💥", "💥"],
+    //   selection: { start: 1, end: 3 },
+    //   expected: [["💥", "💁👌", "💥"], { start: 2, end: 2 }],
+    // },
   ];
 
   for (const c of cases) {
     it(c.name, () => {
-      expect(insertAtSelection(c.str, c.strArr, c.selection)).toEqual(
-        c.expected
-      );
+      expect(
+        insertAtSelection(c.insertNodes, c.displayNodes, c.selection)
+      ).toEqual(c.expected);
     });
   }
 });
@@ -127,60 +154,66 @@ describe("insertAtSelection", () => {
 describe("wrapAtSelection", () => {
   const cases: {
     name: string;
-    baseStrArr: string[];
-    prependStr: string;
-    appendStr: string;
+    displayNodes: IDisplayNode[];
+    prependNodes: IDisplayNode[];
+    appendNodes: IDisplayNode[];
     selection: ISelection;
-    expected: [string[], ISelection];
+    expected: [IDisplayNode[], ISelection];
   }[] = [
-    {
-      name: "it does nothing if there is no before or after string",
-      baseStrArr: ["t", "e", "s", "t"],
-      prependStr: "",
-      appendStr: "",
-      selection: { start: 2, end: 4 },
-      expected: [["t", "e", "s", "t"], { start: 2, end: 4 }],
-    },
+    // {
+    //   name: "it does nothing if there is no before or after string",
+    //   baseStrArr: baseDisplayNode,
+    //   prependStr: "",
+    //   appendStr: "",
+    //   selection: { start: 2, end: 4 },
+    //   expected: [baseDisplayNode, { start: 2, end: 4 }],
+    // },
     {
       name: "it wraps nothing at the end if selection is undefined",
-      baseStrArr: ["t", "e", "s", "t"],
-      prependStr: "(",
-      appendStr: ")",
+      displayNodes: testDisplayNodess,
+      prependNodes: [{ type: "string", value: "(" }],
+      appendNodes: [{ type: "string", value: ")" }],
       selection: { start: undefined, end: undefined },
-      expected: [["t", "e", "s", "t", "(", ")"], { start: 5, end: 5 }],
+      expected: [
+        testDisplayNodess.concat([
+          { type: "string", value: "(" },
+          { type: "string", value: ")" },
+        ]),
+        { start: 5, end: 5 },
+      ],
     },
-    {
-      name: "it wraps nothing at the beginning if selection start/end is 0",
-      baseStrArr: ["t", "e", "s", "t"],
-      prependStr: "(",
-      appendStr: ")",
-      selection: { start: 0, end: 0 },
-      expected: [["(", ")", "t", "e", "s", "t"], { start: 1, end: 1 }],
-    },
-    {
-      name: "it wraps a range",
-      baseStrArr: ["t", "e", "s", "t"],
-      prependStr: "~",
-      appendStr: "*",
-      selection: { start: 1, end: 3 },
-      expected: [["t", "~", "e", "s", "*", "t"], { start: 4, end: 4 }],
-    },
-    {
-      name: "it wraps nothing correctly when no baseStrArr exists and selection is undefined",
-      baseStrArr: [],
-      prependStr: "*",
-      appendStr: "*",
-      selection: { start: undefined, end: undefined },
-      expected: [["*", "*"], { start: 1, end: 1 }],
-    },
-    {
-      name: "it wraps nothing correctly when no baseStrArr exists and selection is at 0",
-      baseStrArr: [],
-      prependStr: "*",
-      appendStr: "*",
-      selection: { start: 0, end: 0 },
-      expected: [["*", "*"], { start: 1, end: 1 }],
-    },
+    // {
+    //   name: "it wraps nothing at the beginning if selection start/end is 0",
+    //   baseStrArr: ["t", "e", "s", "t"],
+    //   prependStr: "(",
+    //   appendStr: ")",
+    //   selection: { start: 0, end: 0 },
+    //   expected: [["(", ")", "t", "e", "s", "t"], { start: 1, end: 1 }],
+    // },
+    // {
+    //   name: "it wraps a range",
+    //   baseStrArr: ["t", "e", "s", "t"],
+    //   prependStr: "~",
+    //   appendStr: "*",
+    //   selection: { start: 1, end: 3 },
+    //   expected: [["t", "~", "e", "s", "*", "t"], { start: 4, end: 4 }],
+    // },
+    // {
+    //   name: "it wraps nothing correctly when no baseStrArr exists and selection is undefined",
+    //   baseStrArr: [],
+    //   prependStr: "*",
+    //   appendStr: "*",
+    //   selection: { start: undefined, end: undefined },
+    //   expected: [["*", "*"], { start: 1, end: 1 }],
+    // },
+    // {
+    //   name: "it wraps nothing correctly when no baseStrArr exists and selection is at 0",
+    //   baseStrArr: [],
+    //   prependStr: "*",
+    //   appendStr: "*",
+    //   selection: { start: 0, end: 0 },
+    //   expected: [["*", "*"], { start: 1, end: 1 }],
+    // },
   ];
 
   for (const c of cases) {
@@ -192,43 +225,63 @@ describe("wrapAtSelection", () => {
   }
 });
 
-
 describe("interpolate", () => {
   const cases: {
     name: string;
-    strArr: string[];
+    strArr: IDisplayNode[];
     variables: IVariable[];
     expected: string;
   }[] = [
-    {
-      name: "returns the original string if no interpolation variables",
-      strArr: ["t", "e", "s", "t"],
-      variables: [],
-      expected: "test",
-    },
-    {
-      name: "returns the original string if interpolation variables don't exist",
-      strArr: ["t", "e", "s", "t"],
-      variables: [{ varName: "var1", value: "0" }],
-      expected: "test",
-    },
+    // {
+    //   name: "returns the original string if no interpolation variables",
+    //   strArr: [
+    //     { type: "string", value: "t" },
+    //     { type: "string", value: "e" },
+    //     { type: "string", value: "s" },
+    //     { type: "string", value: "t" },
+    //   ],
+    //   variables: [],
+    //   expected: "test",
+    // },
+    // {
+    //   name: "returns the original string if interpolation variables don't exist",
+    //   strArr: [
+    //     { type: "string", value: "t" },
+    //     { type: "string", value: "e" },
+    //     { type: "string", value: "s" },
+    //     { type: "string", value: "t" },
+    //   ],
+    //   variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+    //   expected: "test",
+    // },
     {
       name: "interpolates at start of string",
-      strArr: ["var1", "+", "4", "5"],
-      variables: [{ varName: "var1", value: "5" }],
-      expected: "5+45",
+      strArr: [
+        { type: "variable", value: "var1" },
+        { type: "string", value: "+" },
+        { type: "string", value: "5" },
+      ],
+      variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+      expected: "5+5",
     },
     {
       name: "interpolates spaces correctly",
-      strArr: ["var1", " ", "+", " ", "4", "5"],
-      variables: [{ varName: "var1", value: "5" }],
+      strArr: [
+        { type: "variable", value: "var1" },
+        { type: "string", value: " " },
+        { type: "string", value: "+" },
+        { type: "string", value: " " },
+        { type: "string", value: "4" },
+        { type: "string", value: "5" },
+      ],
+      variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
       expected: "5 + 45",
     },
     // {
     //   name: "interpolates in middle of string",
-    //   str: "45 + var1 + 45",
-    //   variables: [{ varName: "var1", value: "5" }],
-    //   expected: "45 + (5) + 45",
+    //   strArr: ["4", "5", " ", "+", " ", "var1", " ", "+", " ", "4", "5"],
+    //   variables: [{ varName: "var1", value: [{ type: "string", value: "5" }] }],
+    //   expected: "45 + 5 + 45",
     // },
     // {
     //   name: "interpolates at end of string",
@@ -255,15 +308,26 @@ describe("interpolate", () => {
     //   expected: "45 + (💁👌😍大-은 )(💁👌😍大-은 )(2*3)",
     // },
 
-    // {
-    //   name: "interpolates nested variable",
-    //   str: "var1 + 1",
-    //   variables: [
-    //     { varName: "var2", value: "1" }, // order matters
-    //     { varName: "var1", value: "var2 + 1" },
-    //   ],
-    //   expected: "((1) + 1) + 1",
-    // },
+    {
+      name: "interpolates nested variable",
+      strArr: [
+        { type: "variable", value: "var1" },
+        { type: "string", value: "+" },
+        { type: "string", value: "1" },
+      ],
+      variables: [
+        { varName: "var2", value: [{ type: "string", value: "3" }] }, // order matters
+        {
+          varName: "var1",
+          value: [
+            { type: "variable", value: "var2" },
+            { type: "string", value: "+" },
+            { type: "string", value: "2" },
+          ],
+        },
+      ],
+      expected: "3+2+1",
+    },
     // {
     //   name: "interpolates deeply nested variable",
     //   str: "var1",

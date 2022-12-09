@@ -3,7 +3,7 @@ import {
     backspaceAtSelection, getNextVariableName, insertAtSelection, interpolateString, wrapAtSelection
 } from './string';
 
-describe("getNextVariableName", () => {
+describe.skip("getNextVariableName", () => {
   const cases: {
     name: string;
     baseStr: string;

@@ -3,6 +3,10 @@ export interface ISelection {
   end: number | undefined;
 }
 
+export interface IDisplayNode {
+  type: "string" | "variable";
+  value: string | IDisplayNode[]; // value exists only if it's `type: string`
+}
 export interface ILayout {
   left: number;
   top: number;
@@ -12,7 +16,7 @@ export interface ILayout {
 
 export interface IVariable {
   varName: string;
-  value: string;
+  value: IDisplayNode[];
 }
 
 export interface ITheme {
