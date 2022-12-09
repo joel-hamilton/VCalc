@@ -126,7 +126,9 @@ const Calculator = () => {
   React.useEffect(() => {
     try {
       const res = doEvaluate();
-      const interpolationString = interpolate(display, variables);
+      // TODO, empty display being passed in to interpolate (called 2x)
+      const interpolationString = interpolate(display, variables, true);
+      console.log({interpolationString, display})
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -138,23 +140,40 @@ const Calculator = () => {
     }
   }, [display, variables]);
 
-  const insertAtSelection = (
-    str: string,
-    type: "string" | "variable" = "string",
-    varName: string = null
-  ) => {
-    if (type === "string" && str.length > 1) {
+  interface IInsertOptions {
+    type?: "string" | "variable";
+    varName?: string;
+    displayValue?: string;
+  }
+
+  const insertAtSelection = (str: string, options?: IInsertOptions) => {
+    if (!options) {
+      options = {}
+    }
+    
+    if (!options.type) {
+      options.type = "string";
+    }
+
+    if (options.type === "string" && str.length > 1) {
       console.error(">1 length strings not implemented yet!");
       return;
     }
 
-    if (type === "variable" && !varName) {
+    if (options.type === "variable" && !options.varName) {
       console.error("Variable name required");
       return;
     }
 
     const [newDisplay, newSelection] = arrayInsertAtSelection(
-      [{ type, nodes: str, ...(varName ? { varName } : {}) }],
+      [
+        {
+          type: options.type,
+          nodes: str,
+          ...(options.varName ? { varName: options.varName } : {}),
+          ...(options.displayValue ? { displayValue: options.displayValue } : {}),
+        },
+      ],
       display,
       selection
     );
@@ -265,13 +284,13 @@ const Calculator = () => {
     {
       text: "÷",
       secondaryText: "√",
-      onPress: () => insertAtSelection("/"),
+      onPress: () => insertAtSelection("/", { displayValue: "÷" }),
       onLongPress: () => insertAtSelection("√"),
     },
     {
       text: "x",
       secondaryText: "^",
-      onPress: () => insertAtSelection("*"),
+      onPress: () => insertAtSelection("*", { displayValue: "x" }),
       onLongPress: () => insertAtSelection("^"),
     },
     {
@@ -354,7 +373,8 @@ const Calculator = () => {
                 style={styles.variable}
                 onLongPress={() => setEditingVariableIndex(index)}
                 onPress={() => {
-                  insertAtSelection(varName, "variable", varName);
+                  insertAtSelection(varName, { type: "variable", varName }
+                  );
                 }}
               >
                 <Text style={styles.variableText}>

@@ -105,6 +105,7 @@ const Display = ({
               Problem: "null text ref",
               textsRef: textsRef.current,
             });
+            setLayout([]);
             return;
           }
 

@@ -225,6 +225,7 @@ describe("interpolate", () => {
     name: string;
     displayNodes: INode[];
     variables: IVariable[];
+    useDisplayValues?: boolean;
     expected: string;
   }[] = [
     // {
@@ -272,18 +273,19 @@ describe("interpolate", () => {
       variables: [{ varName: "var1", nodes: [{ type: "string", nodes: "5" }] }],
       expected: "5 + 45",
     },
-    // {
-    //   name: "converts '*' to 'x' and '/' to '÷'",
-    //   displayNodes: [
-    //     { type: "string", nodes: "2" },
-    //     { type: "string", nodes: "*" },
-    //     { type: "string", nodes: "4" },
-    //     { type: "string", nodes: "/" },
-    //     { type: "string", nodes: "5" },
-    //   ],
-    //   variables: [],
-    //   expected: "2x4÷5",
-    // },
+    {
+      name: "converts '*' to 'x' and '/' to '÷'",
+      displayNodes: [
+        { type: "string", nodes: "2" },
+        { type: "string", nodes: "*", displayValue: "x" },
+        { type: "string", nodes: "4" },
+        { type: "string", nodes: "/", displayValue: "÷" },
+        { type: "string", nodes: "5" },
+      ],
+      useDisplayValues: true,
+      variables: [],
+      expected: "2x4÷5",
+    },
     // {
     //   name: "interpolates in middle of string",
     //   displayNodes: ["4", "5", " ", "+", " ", "var1", " ", "+", " ", "4", "5"],
@@ -350,7 +352,7 @@ describe("interpolate", () => {
 
   for (const c of cases) {
     it(c.name, () => {
-      expect(interpolate(c.displayNodes, c.variables)).toBe(c.expected);
+      expect(interpolate(c.displayNodes, c.variables, c.useDisplayValues)).toBe(c.expected);
     });
   }
 });

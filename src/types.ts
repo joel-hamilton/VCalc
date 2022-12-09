@@ -12,6 +12,7 @@ export interface ISelection {
 export interface INode {
   type: "string" | "variable";
   nodes: string | INode[];
+  displayValue?: string;
   varName?: string;
 }
 export interface ILayout {

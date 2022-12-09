@@ -1,6 +1,6 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from "lodash";
 
-import { INode, ISelection, IVariable } from '../types';
+import { INode, ISelection, IVariable } from "../types";
 
 export const backspaceAtSelection = (
   displayNodes: INode[],
@@ -17,7 +17,9 @@ export const backspaceAtSelection = (
   const deleteFrom = Math.max(0, selection.start - additionalCharsToRemove);
   const deleteTo = selection.end;
 
-  const newDisplayNodes = displayNodes.slice(0, deleteFrom).concat(displayNodes.slice(deleteTo));
+  const newDisplayNodes = displayNodes
+    .slice(0, deleteFrom)
+    .concat(displayNodes.slice(deleteTo));
   const distanceToMoveCaret = selection.start === selection.end ? 1 : 0;
   const newCaretPos = Math.max(0, selection.start - distanceToMoveCaret);
   const newSelection = { start: newCaretPos, end: newCaretPos };
@@ -68,7 +70,7 @@ export const wrapAtSelection = (
   return [newStrArr, { start: newCaretPos, end: newCaretPos }];
 };
 
-const getVariableNodes = (variableName, variables):INode[] => {
+const getVariableNodes = (variableName, variables): INode[] => {
   const variable = variables.find((v) => v.varName === variableName);
   if (!variable) {
     return;
@@ -79,7 +81,8 @@ const getVariableNodes = (variableName, variables):INode[] => {
 
 export const interpolate = (
   originalNodes: INode[],
-  variables: IVariable[]
+  variables: IVariable[],
+  useDisplayValues?: boolean
 ): string => {
   const nodes = cloneDeep(originalNodes);
 
@@ -91,10 +94,18 @@ export const interpolate = (
 
       nodes[i] = {
         type: "string",
-        nodes: interpolate(variableValue, variables),
+        nodes: interpolate(variableValue, variables, useDisplayValues),
       };
+    } else if (useDisplayValues) {
+      if (nodes[i].displayValue !== undefined) {
+        nodes[i] = {
+          type: "string",
+          nodes: nodes[i].displayValue,
+        };
+      }
     }
   }
 
-  return nodes.map(n => n.nodes).join("");
+  console.log({ text: nodes.map((n) => n.nodes).join("") });
+  return nodes.map((n) => n.nodes).join("");
 };
