@@ -36,11 +36,11 @@ const createStyles = ({ colors }) =>
   } as { [name: string]: ViewStyle });
 
 const NewInput = ({
-  display,
+  displayRunes,
   selection,
   onSelectionChange,
 }: {
-  display: string;
+  displayRunes: string[];
   selection: ISelection;
   onSelectionChange: (sel: ISelection) => void;
 }) => {
@@ -48,7 +48,6 @@ const NewInput = ({
   const textsRef = React.useRef([]);
   const [repositioningCaret, setRepositioningCaret] = React.useState(false);
   const [layout, setLayout] = React.useState<ILayout[]>([]);
-  const [displayRunes, setDisplayRunes] = React.useState<string[]>([]);
   const [caretLayout, setCaretLayout] =
     React.useState<ILayout>(initialCaretLayout);
 
@@ -66,7 +65,7 @@ const NewInput = ({
         Problem: "UNDEFINED charLayout",
         layout,
         selectionStart: selection.start,
-        display,
+        displayRunes,
       });
       return;
     }
@@ -87,7 +86,7 @@ const NewInput = ({
     return () => clearTimeout(timeout);
   }, [caretLayout])
 
-  React.useEffect(() => setDisplayRunes(runes(display)), [display]);
+  // React.useEffect(() => setDisplayRunes(runes(display)), [display]);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -144,8 +143,6 @@ const NewInput = ({
                 const charWidth = layout[index].width;
                 const touchX = nativeEvent.locationX;
                 const caretPos = touchX < charWidth / 2 ? index : index + 1;
-
-                console.log({ SELCHANGE: caretPos });
                 onSelectionChange({ start: caretPos, end: caretPos });
               }}
               style={{

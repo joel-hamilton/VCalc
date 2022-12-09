@@ -18,12 +18,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../themes";
 import { ISelection, IVariable } from "../types";
 import {
-  backspaceAtSelection,
+  // backspaceAtSelection,
   getNextVariableName,
-  insertAtSelection,
-  interpolateString,
-  wrapAtSelection,
+  // insertAtSelection,
+  // interpolateString,
+  // wrapAtSelection,
 } from "../utils";
+import {
+  backspaceAtSelection,
+  insertAtSelection,
+  wrapAtSelection,
+  interpolate,
+} from "../utils/array";
 import { convertSelection, unconvertSelection } from "../utils/selection";
 import EditVariableModal from "./EditVariableModal";
 
@@ -118,7 +124,7 @@ const Calculator = () => {
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [variables, setVariables] = React.useState<IVariable[]>([]);
   const [editingVariableIndex, setEditingVariableIndex] = React.useState(-1);
-  const [display, setDisplay] = React.useState("");
+  const [display, setDisplay] = React.useState<string[]>([]);
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
   const [selection, setSelection] = React.useState<ISelection>({
@@ -129,7 +135,7 @@ const Calculator = () => {
   React.useEffect(() => {
     try {
       const res = doEvaluate();
-      const interpolationString = interpolateString(display, variables);
+      const interpolationString = interpolate(display, variables);
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -147,6 +153,7 @@ const Calculator = () => {
       display,
       selection
     );
+    console.log({ str, newDisplay });
     setDisplay(newDisplay);
     setSelection(newSelection);
   };
@@ -182,7 +189,7 @@ const Calculator = () => {
       value = display; // TODO allow adding selection as value
     }
 
-    setVariables(variables.concat({ varName, value }));
+    setVariables(variables.concat({ varName, value: value.join("") }));
   };
 
   const updateVariable = (variableIndex, updates) => {
@@ -205,7 +212,7 @@ const Calculator = () => {
 
   const doEvaluate = () => {
     try {
-      const interpolatedDisplay = interpolateString(display, variables);
+      const interpolatedDisplay = interpolate(display, variables);
       const result = evaluate(interpolatedDisplay);
       if (result === undefined) {
         return "";
@@ -236,7 +243,7 @@ const Calculator = () => {
       text: "=",
       onPress: () => {
         const val = doEvaluate();
-        setDisplay(val);
+        setDisplay(val.split(""));
       },
     },
   ];
@@ -245,7 +252,7 @@ const Calculator = () => {
     {
       text: "DEL",
       secondaryText: "CLR",
-      onLongPress: () => setDisplay(""),
+      onLongPress: () => setDisplay([]),
       onPress: backspace,
     },
     {
@@ -280,7 +287,7 @@ const Calculator = () => {
         <View style={styles.display}>
           <View style={{ alignItems: "flex-end" }}>
             <View style={{ height: 50 }}>
-              {!!display && (
+              {!!display.length && (
                 <Pressable
                   hitSlop={15}
                   style={styles.addVariableButton}
@@ -295,7 +302,7 @@ const Calculator = () => {
               )}
             </View>
             <NewInput
-              display={display}
+              displayRunes={display}
               selection={selection}
               onSelectionChange={setSelection}
             />

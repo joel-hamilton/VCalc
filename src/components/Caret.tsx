@@ -1,6 +1,5 @@
 import React from "react";
 import { Text, View } from "react-native";
-import { ILayout } from "src/types";
 
 const Caret = ({
   visible,
