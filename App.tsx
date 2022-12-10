@@ -7,15 +7,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Calculator from "./src/components/Calculator";
 import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
 
-import { Context } from "./src/Context";
+import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
+import { IContext } from "src/types";
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   const scheme = useColorScheme();
   const [theme, setTheme] = React.useState(MyDefaultTheme);
-  const [context, setContext] = React.useState({ useDarkTheme: undefined });
+  const [context, setContext] = React.useState<IContext>({
+    useDarkTheme: undefined,
+    variables: [],
+  });
+
+  const actions = createActions(setContext);
 
   React.useEffect(() => {
     const loadUserPrefs = async () => {
@@ -23,9 +29,9 @@ const App = () => {
         JSON.parse(await AsyncStorage.getItem("@userPrefs")) || {};
 
       if (userPrefs.useDarkTheme !== undefined) {
-        setContext({ useDarkTheme: userPrefs.useDarkTheme });
+        actions.ctxSetUseDarkMode(setContext)(userPrefs.useDarkTheme);
       } else if (context.useDarkTheme === undefined) {
-        setContext({ useDarkTheme: scheme === "dark" });
+        actions.ctxSetUseDarkMode(setContext)(scheme === "dark");
       }
     };
 
@@ -44,7 +50,7 @@ const App = () => {
   }, [context.useDarkTheme]);
 
   return (
-    <Context.Provider value={[context, setContext]}>
+    <Context.Provider value={[context, actions]}>
       <SafeAreaView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
       >

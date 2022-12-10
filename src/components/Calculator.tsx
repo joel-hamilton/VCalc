@@ -1,4 +1,3 @@
-import { cloneDeep } from "lodash";
 import { evaluate } from "mathjs";
 import React from "react";
 import {
@@ -24,7 +23,7 @@ import {
   interpolate,
 } from "../utils/array";
 import EditVariableModal from "./EditVariableModal";
-import VariableNode from "./VariableNode";
+import { Context } from "../Context";
 
 const createStyles = ({ colors }) =>
   StyleSheet.create<any>({
@@ -112,8 +111,10 @@ const createStyles = ({ colors }) =>
 
 const Calculator = () => {
   const theme = useTheme();
+  const [context, { ctxAddVariable, ctxDeleteVariable }] =
+    React.useContext(Context);
   const styles = React.useMemo(() => createStyles(theme), [theme]);
-  const [variables, setVariables] = React.useState<IVariable[]>([]);
+  // const [variables, setVariables] = React.useState<IVariable[]>([]);
   const [editingVariableIndex, setEditingVariableIndex] = React.useState(-1);
   const [display, setDisplay] = React.useState<INode[]>([]);
   const [preview, setPreview] = React.useState("");
@@ -126,9 +127,8 @@ const Calculator = () => {
   React.useEffect(() => {
     try {
       const res = doEvaluate();
-      // TODO, empty display being passed in to interpolate (called 2x)
-      const interpolationString = interpolate(display, variables, true);
-      console.log({interpolationString, display})
+      const interpolationString = interpolate(display, context.variables, true);
+      console.log({ interpolationString, display });
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -138,7 +138,7 @@ const Calculator = () => {
     } catch (e) {
       setPreview("");
     }
-  }, [display, variables]);
+  }, [display, context.variables]);
 
   interface IInsertOptions {
     type?: "string" | "variable";
@@ -146,11 +146,28 @@ const Calculator = () => {
     displayValue?: string;
   }
 
+  const setTotal = (total: string) => {
+    const res = doEvaluate();
+    const nodes = res.split("").map(
+      (char): INode => ({
+        type: "string",
+        nodes: char,
+      })
+    );
+
+    const [newDisplay, newSelection] = arrayInsertAtSelection(nodes, display, {
+      start: 0,
+      end: display.length,
+    });
+    setDisplay(newDisplay);
+    setSelection(newSelection);
+  };
+
   const insertAtSelection = (str: string, options?: IInsertOptions) => {
     if (!options) {
-      options = {}
+      options = {};
     }
-    
+
     if (!options.type) {
       options.type = "string";
     }
@@ -171,13 +188,15 @@ const Calculator = () => {
           type: options.type,
           nodes: str,
           ...(options.varName ? { varName: options.varName } : {}),
-          ...(options.displayValue ? { displayValue: options.displayValue } : {}),
+          ...(options.displayValue
+            ? { displayValue: options.displayValue }
+            : {}),
         },
       ],
       display,
       selection
     );
-    console.log({ str, newDisplay });
+
     setDisplay(newDisplay);
     setSelection(newSelection);
   };
@@ -206,38 +225,19 @@ const Calculator = () => {
     }
 
     if (varName === null) {
-      varName = getNextVariableName("var", variables);
+      varName = getNextVariableName("var", context.variables);
     }
 
     if (nodes === null) {
       nodes = display; // TODO allow adding selection as value
     }
 
-    setVariables(variables.concat({ varName, nodes }));
-  };
-
-  // TODO does this work with nested vars?
-  const updateVariable = (variableIndex, updates) => {
-    const tempVariables = cloneDeep(variables);
-    tempVariables[variableIndex] = {
-      ...tempVariables[variableIndex],
-      ...updates,
-    };
-
-    setVariables(tempVariables);
-  };
-
-  const deleteVariable = (variableIndex) => {
-    setVariables(
-      variables
-        .slice(0, variableIndex)
-        .concat(variables.slice(variableIndex + 1))
-    );
+    ctxAddVariable({ varName, nodes });
   };
 
   const doEvaluate = () => {
     try {
-      const interpolatedDisplay = interpolate(display, variables);
+      const interpolatedDisplay = interpolate(display, context.variables);
       const result = evaluate(interpolatedDisplay);
       if (result === undefined) {
         return "";
@@ -266,11 +266,7 @@ const Calculator = () => {
     },
     {
       text: "=",
-      onPress: () => {
-        // TODO
-        // const val = doEvaluate();
-        // setDisplay(val.split(""));
-      },
+      onPress: setTotal,
     },
   ];
 
@@ -341,7 +337,8 @@ const Calculator = () => {
             }}
           >
             <View>
-              {!!variables.length /* TODO this should show only when a variable exists in the current display */ && (
+              {!!context.variables
+                .length /* TODO this should show only when a variable exists in the current display */ && (
                 <Text
                   style={styles.secondaryDisplay}
                   numberOfLines={1}
@@ -360,21 +357,20 @@ const Calculator = () => {
             </Text>
           </View>
         </View>
-        {!!Object.keys(variables).length && (
+        {!!Object.keys(context.variables).length && (
           <ScrollView
             keyboardShouldPersistTaps="always"
             horizontal={true}
             style={styles.variablesScrollView}
             contentContainerStyle={styles.variables}
           >
-            {variables.map(({ varName, nodes }, index) => (
+            {context.variables.map(({ varName, nodes }, index) => (
               <Pressable
                 key={varName}
                 style={styles.variable}
                 onLongPress={() => setEditingVariableIndex(index)}
                 onPress={() => {
-                  insertAtSelection(varName, { type: "variable", varName }
-                  );
+                  insertAtSelection(varName, { type: "variable", varName });
                 }}
               >
                 <Text style={styles.variableText}>
@@ -418,11 +414,12 @@ const Calculator = () => {
       <EditVariableModal
         variable={
           editingVariableIndex >= 0
-            ? variables[editingVariableIndex]
+            ? context.variables[editingVariableIndex]
             : undefined
         }
-        onUpdate={(updates) => updateVariable(editingVariableIndex, updates)}
-        onDelete={() => deleteVariable(editingVariableIndex)}
+        onUpdate={(updates) => {}}
+        // onUpdate={(updates) => updateVariable(editingVariableIndex, updates)}
+        onDelete={() => ctxDeleteVariable(editingVariableIndex)}
         onClose={() => setEditingVariableIndex(-1)}
       />
     </>

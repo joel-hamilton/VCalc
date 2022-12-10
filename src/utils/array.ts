@@ -40,7 +40,7 @@ export const insertAtSelection = (
     .concat(insertNodes)
     .concat(displayNodes.slice(selection.end));
 
-  const newCaretPos = Math.min(selection.start + 1, newStrArr.length);
+  const newCaretPos = Math.min(selection.start + insertNodes.length, newStrArr.length);
   const newSelection = { start: newCaretPos, end: newCaretPos };
 
   return [newStrArr, newSelection];

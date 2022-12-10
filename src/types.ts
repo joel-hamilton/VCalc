@@ -46,3 +46,8 @@ export interface ITheme {
     buttonVariablePressed: string;
   };
 }
+
+export interface IContext {
+  useDarkTheme: boolean;
+  variables: IVariable[]
+}

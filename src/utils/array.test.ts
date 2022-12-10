@@ -1,5 +1,10 @@
-import { INode, ISelection, IVariable } from '../types';
-import { backspaceAtSelection, insertAtSelection, interpolate, wrapAtSelection } from './array';
+import { INode, ISelection, IVariable } from "../types";
+import {
+  backspaceAtSelection,
+  insertAtSelection,
+  interpolate,
+  wrapAtSelection,
+} from "./array";
 
 const testDisplayNodes: INode[] = [
   { type: "string", nodes: "t" },
@@ -107,10 +112,26 @@ describe("insertAtSelection", () => {
       displayNodes: testDisplayNodes,
       selection: { start: 0, end: 0 },
       expected: [
-        [{ type: "string", nodes: "b" } as INode].concat(
-          testDisplayNodes
-        ),
+        [{ type: "string", nodes: "b" } as INode].concat(testDisplayNodes),
         { start: 1, end: 1 },
+      ],
+    },
+    {
+      name: "inserts multiple nodes correctly",
+      insertNodes: [
+        { type: "string", nodes: "X" },
+        { type: "string", nodes: "X" },
+      ],
+      displayNodes: testDisplayNodes,
+      selection: { start: 0, end: 0 },
+      expected: [
+        (
+          [
+            { type: "string", nodes: "X" },
+            { type: "string", nodes: "X" },
+          ] as INode[]
+        ).concat(testDisplayNodes),
+        { start: 2, end: 2 },
       ],
     },
     // {
@@ -214,7 +235,12 @@ describe("wrapAtSelection", () => {
   for (const c of cases) {
     it(c.name, () => {
       expect(
-        wrapAtSelection(c.displayNodes, c.prependNodes, c.appendNodes, c.selection)
+        wrapAtSelection(
+          c.displayNodes,
+          c.prependNodes,
+          c.appendNodes,
+          c.selection
+        )
       ).toEqual(c.expected);
     });
   }
@@ -352,7 +378,9 @@ describe("interpolate", () => {
 
   for (const c of cases) {
     it(c.name, () => {
-      expect(interpolate(c.displayNodes, c.variables, c.useDisplayValues)).toBe(c.expected);
+      expect(interpolate(c.displayNodes, c.variables, c.useDisplayValues)).toBe(
+        c.expected
+      );
     });
   }
 });
