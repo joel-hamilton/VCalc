@@ -341,7 +341,7 @@ const Calculator = () => {
             }}
           >
             <View>
-              {!!variables.length && (
+              {!!variables.length /* TODO this should show only when a variable exists in the current display */ && (
                 <Text
                   style={styles.secondaryDisplay}
                   numberOfLines={1}

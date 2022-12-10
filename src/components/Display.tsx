@@ -187,7 +187,7 @@ const Display = ({
                       : "transparent",
                 }}
               >
-                {node.nodes as string}
+                {node.displayValue || node.nodes as string}
               </Text>
             )}
             {node.type === "variable" && (
