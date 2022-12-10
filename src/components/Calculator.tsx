@@ -23,6 +23,7 @@ import {
   interpolate,
 } from "../utils/array";
 import EditVariableModal from "./EditVariableModal";
+import VariableScrollView from "./VariablesScrollView";
 import { Context } from "../Context";
 
 const createStyles = ({ colors }) =>
@@ -47,27 +48,7 @@ const createStyles = ({ colors }) =>
       fontSize: 18,
       color: colors.secondaryText,
     },
-    variablesScrollView: {
-      height: 20,
-    },
-    variables: {
-      minWidth: "100%",
-      backgroundColor: colors.card,
-      flexDirection: "row",
-      alignItems: "center",
-      padding: 5,
-    },
-    variable: ({ pressed }) => ({
-      border: colors.border,
-      padding: 10,
-      height: 40,
-      borderRadius: 10,
-      backgroundColor: colors.variableBackground,
-      marginRight: 5,
-    }),
-    variableText: {
-      color: colors.text,
-    },
+   
     inputWrapper: {
       flex: 12,
       flexDirection: "row",
@@ -114,8 +95,6 @@ const Calculator = () => {
   const [context, { ctxAddVariable, ctxDeleteVariable }] =
     React.useContext(Context);
   const styles = React.useMemo(() => createStyles(theme), [theme]);
-  // const [variables, setVariables] = React.useState<IVariable[]>([]);
-  const [editingVariableIndex, setEditingVariableIndex] = React.useState(-1);
   const [display, setDisplay] = React.useState<INode[]>([]);
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
@@ -146,7 +125,7 @@ const Calculator = () => {
     displayValue?: string;
   }
 
-  const setTotal = (total: string) => {
+  const setTotal = () => {
     const res = doEvaluate();
     const nodes = res.split("").map(
       (char): INode => ({
@@ -357,29 +336,7 @@ const Calculator = () => {
             </Text>
           </View>
         </View>
-        {!!Object.keys(context.variables).length && (
-          <ScrollView
-            keyboardShouldPersistTaps="always"
-            horizontal={true}
-            style={styles.variablesScrollView}
-            contentContainerStyle={styles.variables}
-          >
-            {context.variables.map(({ varName, nodes }, index) => (
-              <Pressable
-                key={varName}
-                style={styles.variable}
-                onLongPress={() => setEditingVariableIndex(index)}
-                onPress={() => {
-                  insertAtSelection(varName, { type: "variable", varName });
-                }}
-              >
-                <Text style={styles.variableText}>
-                  {varName} {/* TODO add value preview too */}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        )}
+        <VariableScrollView onInsertVariable={insertAtSelection} />
         <View style={styles.inputWrapper}>
           <View style={styles.keypad}>
             {keypad.map((key) => (
@@ -411,7 +368,7 @@ const Calculator = () => {
           </View>
         </View>
       </View>
-      <EditVariableModal
+      {/* <EditVariableModal
         variable={
           editingVariableIndex >= 0
             ? context.variables[editingVariableIndex]
@@ -421,7 +378,7 @@ const Calculator = () => {
         // onUpdate={(updates) => updateVariable(editingVariableIndex, updates)}
         onDelete={() => ctxDeleteVariable(editingVariableIndex)}
         onClose={() => setEditingVariableIndex(-1)}
-      />
+      /> */}
     </>
   );
 };
