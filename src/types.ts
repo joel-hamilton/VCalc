@@ -47,7 +47,20 @@ export interface ITheme {
   };
 }
 
+export interface IDimensions {
+  screenH: number;
+  screenW: number;
+  headerH: number;
+  displayH: number;
+  inputH: number;
+  variableScrollViewH: number;
+  keyboardH:number;
+  keyboardVisible: boolean;
+  operatorEditModeH: number;
+}
 export interface IContext {
   useDarkTheme: boolean;
-  variables: IVariable[]
+  variables: IVariable[];
+  dimensions: IDimensions;
+  isEditMode: boolean;
 }

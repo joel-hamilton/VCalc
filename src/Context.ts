@@ -1,5 +1,5 @@
 import React from "react";
-import { IContext, INode, IVariable } from "./types";
+import { IContext, IDimensions, INode, IVariable } from "./types";
 
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));
@@ -20,9 +20,29 @@ const deleteVariable = (setContext) => (index: number) => {
   }));
 };
 
+const setDimensions = (setContext) => (dimensions: IDimensions) => {
+  setContext((context: IContext) => ({
+    ...context,
+    dimensions,
+  }));
+};
+
+const isEditMode = (setContext) => (isEditMode) => {
+  console.log(`SETTING EDITING TO ${isEditMode}`);
+  setContext(
+    (context): IContext => ({
+      ...context,
+      isEditMode,
+    })
+  );
+};
+
 export const Context = React.createContext([]);
+
 export const createActions = (setContext) => ({
   ctxSetUseDarkMode: setUseDarkMode(setContext),
   ctxAddVariable: addVariable(setContext),
-  ctxDeleteVariable: deleteVariable(setContext)
+  ctxDeleteVariable: deleteVariable(setContext),
+  ctxSetDimensions: setDimensions(setContext),
+  ctxSetIsEditMode: isEditMode(setContext),
 });

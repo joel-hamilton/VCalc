@@ -19,8 +19,9 @@ import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { Context } from "../Context";
 import { useTheme } from "../themes";
 import AppMenuModal from "./AppMenuModal";
+import { IDimensions } from "../types";
 
-const createStyles = ({ colors }, statusBarHeight) =>
+const createStyles = ({ colors }, dimensions:IDimensions, statusBarHeight) =>
   StyleSheet.create({
     main: {
       backgroundColor: colors.background,
@@ -29,6 +30,7 @@ const createStyles = ({ colors }, statusBarHeight) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+      
     },
     title: {
       fontSize: 18,
@@ -53,7 +55,7 @@ const Header = ({
   const [context, { ctxSetUseDarkMode }] = React.useContext(Context);
 
   const theme = useTheme();
-  const styles = createStyles(theme, StatusBar.currentHeight);
+  const styles = createStyles(theme, context.dimensions, StatusBar.currentHeight);
   const title = getHeaderTitle(options, route.name);
 
   const appMenuData = [

@@ -12,9 +12,10 @@ import {
 import Display from "./Display";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useKeyboard, useDimensions } from "@react-native-community/hooks";
 
 import { useTheme } from "../themes";
-import { INode, ISelection, IVariable } from "../types";
+import { IDimensions, INode, ISelection, ITheme, IVariable } from "../types";
 import { getNextVariableName } from "../utils/string";
 import {
   backspaceAtSelection,
@@ -26,14 +27,14 @@ import EditVariableModal from "./EditVariableModal";
 import VariableScrollView from "./VariablesScrollView";
 import { Context } from "../Context";
 
-const createStyles = ({ colors }) =>
+const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
     main: {
       flex: 1,
     },
     display: {
       padding: 20,
-      flex: 8,
+      flex: 1,
       alignItems: "flex-end",
       justifyContent: "space-between",
     },
@@ -48,9 +49,9 @@ const createStyles = ({ colors }) =>
       fontSize: 18,
       color: colors.secondaryText,
     },
-   
+
     inputWrapper: {
-      flex: 12,
+      height: dimensions.inputH,
       flexDirection: "row",
     },
     buttonText: {
@@ -69,6 +70,9 @@ const createStyles = ({ colors }) =>
       flexWrap: "wrap",
       backgroundColor: colors.button,
     },
+    keypadEditMode: {
+      display: "none",
+    },
     keypadItem: ({ pressed }) => ({
       backgroundColor: pressed ? colors.buttonPressed : colors.button,
       height: "25%",
@@ -80,6 +84,16 @@ const createStyles = ({ colors }) =>
       flex: 1,
       backgroundColor: colors.buttonHighlight,
     },
+    operatorsEditMode: {
+      position: "absolute",
+      bottom: 0, // bottom 0 is top of keyboard
+      left: 0,
+      right: 0,
+      flexDirection: "row",
+      height: dimensions.operatorEditModeH,
+      width: "100%",
+      backgroundColor: colors.buttonHighlight,
+    },
     operatorsItem: ({ pressed }) => ({
       backgroundColor: pressed
         ? colors.buttonHighlightPressed
@@ -88,13 +102,26 @@ const createStyles = ({ colors }) =>
       alignItems: "center",
       justifyContent: "center",
     }),
+    operatorsItemEditMode: ({ pressed }) => ({
+      backgroundColor: pressed
+        ? colors.buttonHighlightPressed
+        : colors.buttonHighlight,
+      height: "100%",
+      width: "20%",
+      alignItems: "center",
+      justifyContent: "center",
+    }),
   } as { [name: string]: ViewStyle });
 
 const Calculator = () => {
   const theme = useTheme();
+  const keyboard = useKeyboard();
   const [context, { ctxAddVariable, ctxDeleteVariable }] =
     React.useContext(Context);
-  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const styles = React.useMemo(
+    () => createStyles(theme, context.dimensions),
+    [theme]
+  );
   const [display, setDisplay] = React.useState<INode[]>([]);
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
@@ -338,7 +365,12 @@ const Calculator = () => {
         </View>
         <VariableScrollView onInsertVariable={insertAtSelection} />
         <View style={styles.inputWrapper}>
-          <View style={styles.keypad}>
+          <View
+            style={{
+              ...styles.keypad,
+              ...(context.isEditMode ? styles.keypadEditMode : {}),
+            }}
+          >
             {keypad.map((key) => (
               <Pressable
                 key={key.text}
@@ -349,11 +381,21 @@ const Calculator = () => {
               </Pressable>
             ))}
           </View>
-          <View style={styles.operators}>
+          <View
+            style={
+              context.isEditMode
+                ? styles.operatorsEditMode
+                : styles.operators
+            }
+          >
             {operators.map((operator) => (
               <Pressable
                 key={operator.text}
-                style={styles.operatorsItem}
+                style={({ pressed }) =>
+                  context.isEditMode
+                    ? styles.operatorsItemEditMode({ pressed })
+                    : styles.operatorsItem({ pressed })
+                }
                 onLongPress={operator.onLongPress}
                 onPress={operator.onPress}
               >
@@ -377,7 +419,7 @@ const Calculator = () => {
         onUpdate={(updates) => {}}
         // onUpdate={(updates) => updateVariable(editingVariableIndex, updates)}
         onDelete={() => ctxDeleteVariable(editingVariableIndex)}
-        onClose={() => setEditingVariableIndex(-1)}
+        onClose={() => setEditVariableIndex(-1)}
       /> */}
     </>
   );

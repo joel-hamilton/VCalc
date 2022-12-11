@@ -1,77 +1,144 @@
-import { columnTransformDependencies } from "mathjs";
 import React from "react";
 import {
-  Alert,
-  Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableWithoutFeedback,
   View,
   ViewStyle,
 } from "react-native";
+import { IContext, IDimensions, ITheme } from "../types";
 import { Context } from "../Context";
 
 import { useTheme } from "../themes";
-import { IVariable } from "../types";
 
-const createStyles = ({ colors }) =>
+const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
-    variablesScrollView: {
-      height: 20,
-    },
-    variables: {
-      minWidth: "100%",
+    wrapper: {
+      height: dimensions.variableScrollViewH,
       backgroundColor: colors.card,
-      flexDirection: "row",
-      alignItems: "center",
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
       padding: 5,
     },
-    variable: ({ pressed }) => ({
+    wrapperEdit: {
+      height: "100%",
+    },
+    variablesView: {
+      justifyContent: "space-between",
+      flexDirection: "row",
+    },
+    variables: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "flex-start",
+    },
+    variable: {
       border: colors.border,
       padding: 10,
-      height: 40,
+      height: 30,
       borderRadius: 10,
-      backgroundColor: colors.variableBackground,
       marginRight: 5,
-    }),
+      backgroundColor: colors.variableBackground,
+    },
+    variableEditing: {
+      backgroundColor: colors.secondaryText,
+    },
     variableText: {
+      lineHeight: 13,
       color: colors.text,
+    },
+    editView: {
+      flex: 1,
+      backgroundColor: "purple",
+      marginBottom: dimensions.operatorEditModeH,
     },
   } as { [name: string]: ViewStyle });
 
 const VariableScrollView = ({ onInsertVariable }) => {
   const theme = useTheme();
-  const styles = createStyles(theme);
-  const [context, { ctxAddVariable, ctxDeleteVariable }] =
+  const inputRef = React.createRef();
+  const [context, { ctxAddVariable, ctxDeleteVariable, ctxSetIsEditMode }] =
     React.useContext(Context);
-  const [editingVariableIndex, setEditingVariableIndex] = React.useState(-1);
+  const styles = createStyles(theme, context.dimensions);
+  const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
+
+  React.useEffect(() => {
+    const isEditMode = editingVariableIndex >= 0;
+    ctxSetIsEditMode(isEditMode ? true : false);
+
+    if (inputRef.current === null) {
+      return;
+    }
+
+    if (isEditMode) {
+      inputRef.current.focus();
+    } else {
+      inputRef.current.blur();
+    }
+  }, [editingVariableIndex]);
+
+  React.useEffect(() => {
+    if (context.isEditMode && !context.dimensions.keyboardVisible) {
+      setEditVariableIndex(-1);
+    }
+  }, [context.dimensions.keyboardVisible]);
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="always"
-      horizontal={true}
-      style={styles.variablesScrollView}
-      contentContainerStyle={styles.variables}
+    <View
+      style={{
+        ...styles.wrapper,
+        ...(context.isEditMode ? styles.wrapperEdit : {}),
+      }}
     >
-      {context.variables.map(({ varName, nodes }, index) => (
-        <Pressable
-          key={varName}
-          style={styles.variable}
-          onLongPress={() => setEditingVariableIndex(index)}
-          onPress={() => {
-            onInsertVariable(varName, { type: "variable", varName });
-          }}
+      <View style={styles.variablesView}>
+        <ScrollView
+          keyboardShouldPersistTaps="always"
+          horizontal={true}
+          contentContainerStyle={styles.variables}
         >
-          <Text style={styles.variableText}>
-            {varName} {/* TODO add value preview too */}
-          </Text>
+          {context.variables.map(({ varName, nodes }, index) => (
+            <Pressable
+              key={varName}
+              style={{
+                ...styles.variable,
+                ...(context.isEditMode ? styles.variableEditing : {}),
+                ...(index === editingVariableIndex
+                  ? { backgroundColor: theme.colors.variableBackground }
+                  : {}),
+              }}
+              onLongPress={() => setEditVariableIndex(index)}
+              onPress={() => {
+                if (context.isEditMode) {
+                  setEditVariableIndex(index);
+                } else {
+                  onInsertVariable(varName, { type: "variable", varName });
+                }
+              }}
+            >
+              <Text style={styles.variableText}>
+                {varName} {/* TODO add value preview too */}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+        <Pressable onPress={() => setEditVariableIndex(-1)}>
+          <Text style={{ fontSize: 30 }}>x</Text>
         </Pressable>
-      ))}
-    </ScrollView>
+      </View>
+      {context.isEditMode && (
+        <View style={styles.editView}>
+          <TextInput
+            ref={inputRef}
+            autoFocus={true}
+            // style={{ position: "absolute", left: -99999 }}
+          />
+        </View>
+      )}
+    </View>
   );
 };
 
