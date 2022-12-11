@@ -115,7 +115,6 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
 
 const Calculator = () => {
   const theme = useTheme();
-  const keyboard = useKeyboard();
   const [context, { ctxAddVariable, ctxDeleteVariable }] =
     React.useContext(Context);
   const styles = React.useMemo(
@@ -333,6 +332,7 @@ const Calculator = () => {
               displayNodes={display}
               selection={selection}
               onSelectionChange={setSelection}
+              baseZIndex={1}
             />
           </View>
           <View

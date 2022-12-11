@@ -41,7 +41,7 @@ const App = () => {
     useDarkTheme: undefined,
     variables: [],
     dimensions: getDimensions(dimensions, keyboard),
-    isEditMode: false
+    isEditMode: false,
   });
 
   const actions = createActions(setContext);

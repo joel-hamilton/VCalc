@@ -3,7 +3,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
 import { useTheme } from "../themes";
-import { ILayout, INode, ISelection, OperatorsWithExtraSpace } from "../types";
+import { ILayout, INode, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
 import Caret from "./Caret";
 import VariableNode from "./VariableNode";
 
@@ -19,7 +19,7 @@ const initialCaretLayout = {
   top: yAdjust,
 };
 
-const createStyles = ({ colors }) =>
+const createStyles = ({ colors }: ITheme, baseZIndex: number) =>
   StyleSheet.create({
     wrapper: {
       flexDirection: "row",
@@ -27,6 +27,7 @@ const createStyles = ({ colors }) =>
       alignItems: "center",
       flexWrap: "wrap",
       minHeight: textHeight,
+      backgroundColor: 'green'
     },
     text: {
       fontSize,
@@ -34,7 +35,7 @@ const createStyles = ({ colors }) =>
     caret: {
       position: "absolute",
       color: colors.primary,
-      zIndex: 1,
+      zIndex: baseZIndex + 1,
     },
   } as { [name: string]: ViewStyle });
 
@@ -42,10 +43,12 @@ const Display = ({
   displayNodes,
   selection,
   onSelectionChange,
+  baseZIndex,
 }: {
   displayNodes: INode[];
   selection: ISelection;
   onSelectionChange: (sel: ISelection) => void;
+  baseZIndex: number;
 }) => {
   const textContainerRef = React.useRef(null);
   const textsRef = React.useRef([]);
@@ -55,7 +58,7 @@ const Display = ({
     React.useState<ILayout>(initialCaretLayout);
 
   const theme = useTheme();
-  const styles = createStyles(theme);
+  const styles = createStyles(theme, baseZIndex);
 
   React.useEffect(() => {
     if (!layout.length || selection.start === 0) {
@@ -100,7 +103,7 @@ const Display = ({
       const charLayouts = [];
       if (textsRef.current.length && textContainerRef.current) {
         textsRef.current.forEach((textRef, index) => {
-          if(textRef === null) {
+          if (textRef === null) {
             console.log({
               Problem: "null text ref",
               textsRef: textsRef.current,
@@ -187,7 +190,7 @@ const Display = ({
                       : "transparent",
                 }}
               >
-                {node.displayValue || node.nodes as string}
+                {node.displayValue || (node.nodes as string)}
               </Text>
             )}
             {node.type === "variable" && (

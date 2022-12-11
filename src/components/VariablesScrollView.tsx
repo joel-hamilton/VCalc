@@ -8,10 +8,12 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { IContext, IDimensions, ITheme } from "../types";
+import { IContext, IDimensions, INode, ISelection, ITheme } from "../types";
 import { Context } from "../Context";
 
 import { useTheme } from "../themes";
+import Display from "./Display";
+import { backspaceAtSelection, insertAtSelection as arrayInsertAtSelection } from "../utils/array";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -52,6 +54,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       color: colors.text,
     },
     editView: {
+      // position:'relative',
       flex: 1,
       backgroundColor: "purple",
       marginBottom: dimensions.operatorEditModeH,
@@ -61,11 +64,16 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
 const VariableScrollView = ({ onInsertVariable }) => {
   const theme = useTheme();
   const inputRef = React.createRef();
-  const [context, { ctxAddVariable, ctxDeleteVariable, ctxSetIsEditMode }] =
-    React.useContext(Context);
+  const [context, { ctxSetIsEditMode }] = React.useContext(Context);
   const styles = createStyles(theme, context.dimensions);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
+  const [nameDisplay, setNameDisplay] = React.useState<INode[]>([]);
+  const [nameSelection, setNameSelection] = React.useState<ISelection>({
+    start: 0,
+    end: 0,
+  });
 
+  // set edit mode and show keyboard
   React.useEffect(() => {
     const isEditMode = editingVariableIndex >= 0;
     ctxSetIsEditMode(isEditMode ? true : false);
@@ -75,8 +83,15 @@ const VariableScrollView = ({ onInsertVariable }) => {
     }
 
     if (isEditMode) {
+      // open keyboard
       inputRef.current.focus();
+
+      // update display/selection
+      const newDisplay = context.variables[editingVariableIndex].nodes;
+      setNameDisplay(newDisplay);
+      setNameSelection({ start: newDisplay.length, end: newDisplay.length });
     } else {
+      // close keyboard
       inputRef.current.blur();
     }
   }, [editingVariableIndex]);
@@ -86,6 +101,32 @@ const VariableScrollView = ({ onInsertVariable }) => {
       setEditVariableIndex(-1);
     }
   }, [context.dimensions.keyboardVisible]);
+
+  const insertAtSelection = (
+    char: string,
+    display,
+    selection,
+    setDisplayFn,
+    setSelectionFn
+  ) => {
+    const [newDisplay, newSelection] = arrayInsertAtSelection(
+      [{ type: "string", nodes: char }],
+      display,
+      selection
+    );
+
+    setDisplayFn(newDisplay);
+    setSelectionFn(newSelection);
+  };
+
+    const backspace = (display, selection, setDisplayFn, setSelectionFn) => {
+      const [newDisplay, newSelection] = backspaceAtSelection(
+        display,
+        selection
+      );
+      setDisplayFn(newDisplay);
+      setSelectionFn(newSelection);
+    };
 
   return (
     <View
@@ -129,12 +170,46 @@ const VariableScrollView = ({ onInsertVariable }) => {
           <Text style={{ fontSize: 30 }}>x</Text>
         </Pressable>
       </View>
-      {context.isEditMode && (
+      {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
         <View style={styles.editView}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              position: "relative",
+              width: "100%",
+            }}
+          >
+            <Display
+              baseZIndex={2}
+              displayNodes={nameDisplay}
+              selection={nameSelection}
+              onSelectionChange={setNameSelection}
+            />
+          </View>
           <TextInput
             ref={inputRef}
             autoFocus={true}
-            // style={{ position: "absolute", left: -99999 }}
+            style={{ position: "absolute", left: -99999 }}
+            onKeyPress={({ nativeEvent: { key } }) => {
+              // This doesn't work on androids with hard keyboards!!
+              if (key === "Backspace") {
+                backspace(
+                  nameDisplay,
+                  nameSelection,
+                  setNameDisplay,
+                  setNameSelection
+                );
+              } else if (key.length === 1) {
+                insertAtSelection(
+                  key,
+                  nameDisplay,
+                  nameSelection,
+                  setNameDisplay,
+                  setNameSelection
+                );
+              }
+            }}
           />
         </View>
       )}

@@ -37,12 +37,12 @@ const isEditMode = (setContext) => (isEditMode) => {
   );
 };
 
-export const Context = React.createContext([]);
+export const Context = React.createContext<[IContext, any]>([] as any);
 
 export const createActions = (setContext) => ({
   ctxSetUseDarkMode: setUseDarkMode(setContext),
   ctxAddVariable: addVariable(setContext),
   ctxDeleteVariable: deleteVariable(setContext),
   ctxSetDimensions: setDimensions(setContext),
-  ctxSetIsEditMode: isEditMode(setContext),
+  ctxSetIsEditMode: isEditMode(setContext)
 });
