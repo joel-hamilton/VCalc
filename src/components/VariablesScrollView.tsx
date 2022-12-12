@@ -11,7 +11,6 @@ import {
   ViewStyle,
 } from "react-native";
 import {
-  IContext,
   IDimensions,
   IInsertOptions,
   INode,
@@ -22,11 +21,6 @@ import { Context } from "../Context";
 
 import { useTheme } from "../themes";
 import Display from "./Display";
-import {
-  backspaceAtSelection,
-  insertAtSelection as arrayInsertAtSelection,
-  wrapAtSelection,
-} from "../utils/array";
 import Operators from "./Operators";
 import Pictos from "../utils/Pictos";
 

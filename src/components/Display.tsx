@@ -69,12 +69,6 @@ const Display = ({
     const charLayout = layout[selection.start - 1];
     const nextCharLayout = layout[selection.start];
     if (charLayout === undefined) {
-      console.log({
-        Problem: "UNDEFINED charLayout",
-        layout,
-        selectionStart: selection.start,
-        displayNodes,
-      });
       return;
     }
 

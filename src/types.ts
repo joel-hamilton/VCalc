@@ -21,7 +21,7 @@ export interface INode {
 export interface IPicto {
   type: "string" | "variable";
   nodes: string | Pictos;
-  varName?: Pictos;
+  varName?: Pictos; // variables will have
 }
 
 export interface ILayout {
@@ -34,6 +34,7 @@ export interface ILayout {
 export interface IVariable {
   varName: Pictos;
   nodes: Pictos;
+  key: string;
 }
 
 export interface ITheme {

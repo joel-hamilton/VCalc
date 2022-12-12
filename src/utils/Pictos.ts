@@ -110,12 +110,10 @@ export default class Pictos {
     }
 
     const nodes = cloneDeep(originalNodes);
-    console.log({ nodes });
 
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
 
-      console.log({node})
       if (node.type === "variable") {
         if (variables.length) {
           const variableValue = this.getVariableNodes(node.nodes as Pictos, variables);

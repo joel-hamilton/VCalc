@@ -14,11 +14,6 @@ import { IContext, IDimensions, INode, ISelection, ITheme } from "../types";
 import { Context } from "../Context";
 
 import { useTheme } from "../themes";
-import Display from "./Display";
-import {
-  backspaceAtSelection,
-  insertAtSelection as arrayInsertAtSelection,
-} from "../utils/array";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({

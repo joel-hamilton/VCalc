@@ -1,6 +1,10 @@
 import { INode, IPicto, IVariable } from "../types";
 import Pictos from "./Pictos";
 
+export const generateHex = (length: number = 32) => {
+  return Array.from({ length }, () => "0123456789ABCDEF".charAt(Math.floor(Math.random() * 16))).join('');
+}
+
 export const getNextVariableName = (
   baseStr: string,
   variables: IVariable[]
@@ -25,7 +29,7 @@ export const getNextVariableName = (
   const pictos = newVarName.split("").map(
     (char):IPicto => ({
       type: "string",
-      nodes: char,
+      nodes: char
     })
   );
 

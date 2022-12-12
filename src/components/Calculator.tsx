@@ -1,10 +1,7 @@
 import { evaluate } from "mathjs";
 import React from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -14,17 +11,11 @@ import {
 import Display from "./Display";
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useKeyboard, useDimensions } from "@react-native-community/hooks";
 
 import { useTheme } from "../themes";
-import { IDimensions, IInsertOptions, INode, IPicto, ISelection, ITheme, IVariable } from "../types";
-import { getNextVariableName } from "../utils/string";
-import {
-  backspaceAtSelection,
-  insertAtSelection as arrayInsertAtSelection,
-  wrapAtSelection,
-  interpolate,
-} from "../utils/array";
+import { IDimensions, IInsertOptions, IPicto, ISelection, ITheme, IVariable } from "../types";
+import { generateHex, getNextVariableName } from "../utils/string";
+
 import EditVariableModal from "./EditVariableModal";
 import VariableScrollView from "./VariablesScrollView";
 import { Context } from "../Context";
@@ -203,7 +194,7 @@ const Calculator = () => {
       nodes = display; // TODO allow adding selection as value
     }
 
-    ctxAddVariable({ varName, nodes });
+    ctxAddVariable({ varName, nodes, key: generateHex(8) });
   };
 
   const doEvaluate = () => {
