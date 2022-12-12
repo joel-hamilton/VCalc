@@ -1,9 +1,8 @@
 import React from "react";
 import { StyleSheet, Text, View, ViewStyle } from "react-native";
+import Pictos from "../utils/Pictos";
 
 import { useTheme } from "../themes";
-import { INode } from "../types";
-import Caret from "./Caret";
 
 const createStyles = ({ colors }, fontSize) =>
   StyleSheet.create({
@@ -32,7 +31,7 @@ const VariableNode = ({
   defaultTextHeight,
   isSelected,
 }: {
-  variableNode: INode;
+  variableNode: Pictos;
   textNodeProps: any;
   fontSize: number;
   defaultTextHeight: number;
@@ -60,7 +59,7 @@ const VariableNode = ({
       }}
     >
       <Text {...textNodeProps} style={styles.text}>
-        {variableNode.varName}
+        {variableNode.toString()}
       </Text>
     </View>
   );

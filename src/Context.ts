@@ -20,6 +20,17 @@ const deleteVariable = (setContext) => (index: number) => {
   }));
 };
 
+const updateVariable =
+  (setContext) => (variableUpdates: Partial<IVariable>, index: number) => {
+    setContext((context: IContext) => ({
+      ...context,
+      variables: context.variables
+        .slice(0, index)
+        .concat({ ...context.variables[index], ...variableUpdates })
+        .concat(context.variables.slice(index + 1)),
+    }));
+  };
+
 const setDimensions = (setContext) => (dimensions: IDimensions) => {
   setContext((context: IContext) => ({
     ...context,
@@ -43,6 +54,7 @@ export const createActions = (setContext) => ({
   ctxSetUseDarkMode: setUseDarkMode(setContext),
   ctxAddVariable: addVariable(setContext),
   ctxDeleteVariable: deleteVariable(setContext),
+  ctxUpdateVariable: updateVariable(setContext),
   ctxSetDimensions: setDimensions(setContext),
-  ctxSetIsEditMode: isEditMode(setContext)
+  ctxSetIsEditMode: isEditMode(setContext),
 });

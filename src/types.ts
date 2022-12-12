@@ -1,5 +1,7 @@
+import Pictos from "./utils/Pictos";
+
 export enum OperatorsWithExtraSpace {
-  "*" = '*',
+  "*" = "*",
   "+" = "+",
   "-" = "-",
   "/" = "/",
@@ -13,8 +15,15 @@ export interface INode {
   type: "string" | "variable";
   nodes: string | INode[];
   displayValue?: string;
-  varName?: string;
+  varName?: INode[];
 }
+
+export interface IPicto {
+  type: "string" | "variable";
+  nodes: string | Pictos;
+  varName?: Pictos;
+}
+
 export interface ILayout {
   left: number;
   top: number;
@@ -23,8 +32,8 @@ export interface ILayout {
 }
 
 export interface IVariable {
-  varName: string;
-  nodes: INode[];
+  varName: Pictos;
+  nodes: Pictos;
 }
 
 export interface ITheme {
@@ -54,7 +63,7 @@ export interface IDimensions {
   displayH: number;
   inputH: number;
   variableScrollViewH: number;
-  keyboardH:number;
+  keyboardH: number;
   keyboardVisible: boolean;
   operatorEditModeH: number;
 }
@@ -63,4 +72,9 @@ export interface IContext {
   variables: IVariable[];
   dimensions: IDimensions;
   isEditMode: boolean;
+}
+
+export interface IInsertOptions {
+  type?: "string" | "variable";
+  varName?: Pictos;
 }

@@ -1,9 +1,10 @@
 import { isEqual } from "lodash";
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
+import Pictos from "../utils/Pictos";
 
 import { useTheme } from "../themes";
-import { ILayout, INode, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
+import { ILayout, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
 import Caret from "./Caret";
 import VariableNode from "./VariableNode";
 
@@ -45,7 +46,7 @@ const Display = ({
   onSelectionChange,
   baseZIndex,
 }: {
-  displayNodes: INode[];
+  displayNodes: Pictos;
   selection: ISelection;
   onSelectionChange: (sel: ISelection) => void;
   baseZIndex: number;
@@ -85,7 +86,6 @@ const Display = ({
     const charTop = charLayout.top + yAdjust;
     const newCaretLayout = { ...caretLayout, left, top: charTop };
     if (!isEqual(caretLayout, newCaretLayout)) {
-      console.log({ newCaretLayout });
       setCaretLayout(newCaretLayout);
     }
   }, [selection, layout]);
@@ -99,7 +99,7 @@ const Display = ({
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      textsRef.current = textsRef.current.slice(0, displayNodes.length);
+      textsRef.current = textsRef.current.slice(0, displayNodes.pictos.length);
       const charLayouts = [];
       if (textsRef.current.length && textContainerRef.current) {
         textsRef.current.forEach((textRef, index) => {
@@ -117,7 +117,7 @@ const Display = ({
             (left, top, width, height) => {
               const charLayout = { left, top, width, height };
               charLayouts.push(charLayout);
-              if (index === displayNodes.length - 1) {
+              if (index === displayNodes.pictos.length - 1) {
                 setLayout((layout) => {
                   return layout.length === charLayouts.length
                     ? layout
@@ -139,7 +139,7 @@ const Display = ({
   }, [displayNodes, textsRef, textContainerRef]);
 
   const selectAll = () => {
-    onSelectionChange({ start: 0, end: displayNodes.length });
+    onSelectionChange({ start: 0, end: displayNodes.pictos.length });
   };
 
   const getTextNodeProps = (index) => {
@@ -157,7 +157,7 @@ const Display = ({
 
   return (
     <View ref={textContainerRef} style={styles.wrapper}>
-      {displayNodes.map((node, index) => (
+      {(displayNodes.pictos || []).map((node, index) => (
         <React.Fragment key={index}>
           {selection.start === selection.end && index === selection.start && (
             <Caret
@@ -190,7 +190,7 @@ const Display = ({
                       : "transparent",
                 }}
               >
-                {node.displayValue || (node.nodes as string)}
+                {displayNodes.toString(null, [node]) /* seems sloppy */}
               </Text>
             )}
             {node.type === "variable" && (
@@ -198,7 +198,7 @@ const Display = ({
                 textNodeProps={getTextNodeProps(index)}
                 fontSize={(styles.text as any).fontSize}
                 defaultTextHeight={textHeight}
-                variableNode={node}
+                variableNode={node.nodes as Pictos}
                 isSelected={
                   selection.start !== selection.end &&
                   index >= selection.start &&
@@ -210,7 +210,7 @@ const Display = ({
         </React.Fragment>
       ))}
       {selection.start === selection.end &&
-        selection.start === displayNodes.length && (
+        selection.start === displayNodes.pictos.length && (
           <Caret
             visible={!repositioningCaret}
             style={{ ...styles.text, ...styles.caret, ...caretLayout }}

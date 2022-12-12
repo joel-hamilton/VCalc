@@ -1,6 +1,8 @@
 import { evaluate } from "mathjs";
 import React from "react";
 import {
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,7 +17,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useKeyboard, useDimensions } from "@react-native-community/hooks";
 
 import { useTheme } from "../themes";
-import { IDimensions, INode, ISelection, ITheme, IVariable } from "../types";
+import { IDimensions, IInsertOptions, INode, IPicto, ISelection, ITheme, IVariable } from "../types";
 import { getNextVariableName } from "../utils/string";
 import {
   backspaceAtSelection,
@@ -26,6 +28,8 @@ import {
 import EditVariableModal from "./EditVariableModal";
 import VariableScrollView from "./VariablesScrollView";
 import { Context } from "../Context";
+import Operators from "./Operators";
+import Pictos from "../utils/Pictos";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -80,37 +84,6 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       alignItems: "center",
       justifyContent: "center",
     }),
-    operators: {
-      flex: 1,
-      backgroundColor: colors.buttonHighlight,
-    },
-    operatorsEditMode: {
-      position: "absolute",
-      bottom: 0, // bottom 0 is top of keyboard
-      left: 0,
-      right: 0,
-      flexDirection: "row",
-      height: dimensions.operatorEditModeH,
-      width: "100%",
-      backgroundColor: colors.buttonHighlight,
-    },
-    operatorsItem: ({ pressed }) => ({
-      backgroundColor: pressed
-        ? colors.buttonHighlightPressed
-        : colors.buttonHighlight,
-      height: "20%",
-      alignItems: "center",
-      justifyContent: "center",
-    }),
-    operatorsItemEditMode: ({ pressed }) => ({
-      backgroundColor: pressed
-        ? colors.buttonHighlightPressed
-        : colors.buttonHighlight,
-      height: "100%",
-      width: "20%",
-      alignItems: "center",
-      justifyContent: "center",
-    }),
   } as { [name: string]: ViewStyle });
 
 const Calculator = () => {
@@ -121,7 +94,7 @@ const Calculator = () => {
     () => createStyles(theme, context.dimensions),
     [theme]
   );
-  const [display, setDisplay] = React.useState<INode[]>([]);
+  const [display, setDisplay] = React.useState<Pictos>(new Pictos());
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
   const [selection, setSelection] = React.useState<ISelection>({
@@ -132,8 +105,7 @@ const Calculator = () => {
   React.useEffect(() => {
     try {
       const res = doEvaluate();
-      const interpolationString = interpolate(display, context.variables, true);
-      console.log({ interpolationString, display });
+      const interpolationString = display.toString();
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -145,22 +117,19 @@ const Calculator = () => {
     }
   }, [display, context.variables]);
 
-  interface IInsertOptions {
-    type?: "string" | "variable";
-    varName?: string;
-    displayValue?: string;
-  }
 
   const setTotal = () => {
     const res = doEvaluate();
-    const nodes = res.split("").map(
-      (char): INode => ({
+    const nodes  = res.split("").map(
+      (char): IPicto => ({
         type: "string",
         nodes: char,
       })
     );
 
-    const [newDisplay, newSelection] = arrayInsertAtSelection(nodes, display, {
+    const total = new Pictos(nodes);
+  
+    const [newDisplay, newSelection] = display.insertAtSelection(total, {
       start: 0,
       end: display.length,
     });
@@ -187,18 +156,16 @@ const Calculator = () => {
       return;
     }
 
-    const [newDisplay, newSelection] = arrayInsertAtSelection(
-      [
-        {
-          type: options.type,
-          nodes: str,
-          ...(options.varName ? { varName: options.varName } : {}),
-          ...(options.displayValue
-            ? { displayValue: options.displayValue }
-            : {}),
-        },
-      ],
-      display,
+    const pictos = new Pictos([
+      {
+        type: options.type,
+        nodes: str,
+        ...(options.varName ? { varName: options.varName } : {}),
+      },
+    ]);
+
+    const [newDisplay, newSelection] = display.insertAtSelection(
+      pictos,
       selection
     );
 
@@ -207,8 +174,7 @@ const Calculator = () => {
   };
 
   const wrapString = (prependStr, appendStr) => {
-    const [newDisplay, newSelection] = wrapAtSelection(
-      display,
+    const [newDisplay, newSelection] = display.wrapAtSelection(
       prependStr,
       appendStr,
       selection
@@ -218,22 +184,22 @@ const Calculator = () => {
   };
 
   const backspace = () => {
-    const [newDisplay, newSelection] = backspaceAtSelection(display, selection);
+    const [newDisplay, newSelection] = display.backspaceAtSelection(selection);
     setDisplay(newDisplay);
     setSelection(newSelection);
   };
 
-  const addVariable = (varName: string = null, nodes: INode[] = null) => {
+  const addVariable = (varName?: Pictos, nodes?: Pictos) => {
     if (varName && !isNaN(varName as any)) {
       alert("Cannot use number as a variable name");
       return;
     }
 
-    if (varName === null) {
+    if (varName === undefined) {
       varName = getNextVariableName("var", context.variables);
     }
 
-    if (nodes === null) {
+    if (nodes === undefined) {
       nodes = display; // TODO allow adding selection as value
     }
 
@@ -242,7 +208,7 @@ const Calculator = () => {
 
   const doEvaluate = () => {
     try {
-      const interpolatedDisplay = interpolate(display, context.variables);
+      const interpolatedDisplay = display.toString(context.variables);
       const result = evaluate(interpolatedDisplay);
       if (result === undefined) {
         return "";
@@ -275,95 +241,62 @@ const Calculator = () => {
     },
   ];
 
-  const operators = [
-    {
-      text: "DEL",
-      secondaryText: "CLR",
-      onLongPress: () => setDisplay([]),
-      onPress: backspace,
-    },
-    {
-      text: "÷",
-      secondaryText: "√",
-      onPress: () => insertAtSelection("/", { displayValue: "÷" }),
-      onLongPress: () => insertAtSelection("√"),
-    },
-    {
-      text: "x",
-      secondaryText: "^",
-      onPress: () => insertAtSelection("*", { displayValue: "x" }),
-      onLongPress: () => insertAtSelection("^"),
-    },
-    {
-      text: "-",
-      secondaryText: "!",
-      onPress: () => insertAtSelection("-"),
-      onLongPress: () => insertAtSelection("!"),
-    },
-    {
-      text: "+",
-      secondaryText: "()",
-      onPress: () => insertAtSelection("+"),
-      onLongPress: () => wrapString("(", ")"),
-    },
-  ];
-
   return (
-    <>
-      <View style={styles.main}>
-        <View style={styles.display}>
-          <View style={{ alignItems: "flex-end" }}>
-            <View style={{ height: 50 }}>
-              {!!display.length && (
-                <Pressable
-                  hitSlop={15}
-                  style={styles.addVariableButton}
-                  onPress={() => addVariable()}
-                >
-                  <MaterialCommunityIcons
-                    name="plus-circle-outline"
-                    size={32}
-                    color={theme.colors.buttonHighlight}
-                  />
-                </Pressable>
-              )}
-            </View>
-            <Display
-              displayNodes={display}
-              selection={selection}
-              onSelectionChange={setSelection}
-              baseZIndex={1}
-            />
+    <View style={styles.main}>
+      <View style={styles.display}>
+        <View style={{ alignItems: "flex-end" }}>
+          <View style={{ height: 50 }}>
+            {!!display.length && (
+              <Pressable
+                hitSlop={15}
+                style={styles.addVariableButton}
+                onPress={() => addVariable()}
+              >
+                <MaterialCommunityIcons
+                  name="plus-circle-outline"
+                  size={32}
+                  color={theme.colors.buttonHighlight}
+                />
+              </Pressable>
+            )}
           </View>
-          <View
-            style={{
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "space-between",
-            }}
-          >
-            <View>
-              {!!context.variables
-                .length /* TODO this should show only when a variable exists in the current display */ && (
-                <Text
-                  style={styles.secondaryDisplay}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {interpolationPreview}
-                </Text>
-              )}
-            </View>
-            <Text
-              style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {preview}
-            </Text>
-          </View>
+          <Display
+            displayNodes={display}
+            selection={selection}
+            onSelectionChange={setSelection}
+            baseZIndex={1}
+          />
         </View>
-        <VariableScrollView onInsertVariable={insertAtSelection} />
+        <View
+          style={{
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <View>
+            {!!context.variables
+              .length /* TODO this should show only when a variable exists in the current display */ && (
+              <Text
+                style={styles.secondaryDisplay}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {interpolationPreview}
+              </Text>
+            )}
+          </View>
+          <Text
+            style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {preview}
+          </Text>
+        </View>
+      </View>
+      <VariableScrollView onInsertVariable={insertAtSelection} />
+      {!context.isEditMode && (
         <View style={styles.inputWrapper}>
           <View
             style={{
@@ -381,47 +314,15 @@ const Calculator = () => {
               </Pressable>
             ))}
           </View>
-          <View
-            style={
-              context.isEditMode
-                ? styles.operatorsEditMode
-                : styles.operators
-            }
-          >
-            {operators.map((operator) => (
-              <Pressable
-                key={operator.text}
-                style={({ pressed }) =>
-                  context.isEditMode
-                    ? styles.operatorsItemEditMode({ pressed })
-                    : styles.operatorsItem({ pressed })
-                }
-                onLongPress={operator.onLongPress}
-                onPress={operator.onPress}
-              >
-                {!!operator.secondaryText && (
-                  <Text style={styles.buttonSecondaryText}>
-                    {operator.secondaryText}
-                  </Text>
-                )}
-                <Text style={styles.buttonText}>{operator.text}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <Operators
+            setDisplay={setDisplay}
+            insertAtSelection={insertAtSelection}
+            backspace={backspace}
+            wrapString={wrapString}
+          />
         </View>
-      </View>
-      {/* <EditVariableModal
-        variable={
-          editingVariableIndex >= 0
-            ? context.variables[editingVariableIndex]
-            : undefined
-        }
-        onUpdate={(updates) => {}}
-        // onUpdate={(updates) => updateVariable(editingVariableIndex, updates)}
-        onDelete={() => ctxDeleteVariable(editingVariableIndex)}
-        onClose={() => setEditVariableIndex(-1)}
-      /> */}
-    </>
+      )}
+    </View>
   );
 };
 

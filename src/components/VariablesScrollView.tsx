@@ -1,19 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import {
+  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   StyleSheet,
+  Platform,
   Text,
   TextInput,
   View,
   ViewStyle,
 } from "react-native";
-import { IContext, IDimensions, INode, ISelection, ITheme } from "../types";
+import {
+  IContext,
+  IDimensions,
+  IInsertOptions,
+  INode,
+  ISelection,
+  ITheme,
+} from "../types";
 import { Context } from "../Context";
 
 import { useTheme } from "../themes";
 import Display from "./Display";
-import { backspaceAtSelection, insertAtSelection as arrayInsertAtSelection } from "../utils/array";
+import {
+  backspaceAtSelection,
+  insertAtSelection as arrayInsertAtSelection,
+  wrapAtSelection,
+} from "../utils/array";
+import Operators from "./Operators";
+import Pictos from "../utils/Pictos";
+
+enum InputStateKeys {
+  NAME = 0,
+  VALUE = 1,
+}
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -24,7 +44,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       bottom: 0,
       left: 0,
       right: 0,
-      padding: 5,
+      // padding: 5,
     },
     wrapperEdit: {
       height: "100%",
@@ -64,14 +84,37 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
 const VariableScrollView = ({ onInsertVariable }) => {
   const theme = useTheme();
   const inputRef = React.createRef();
-  const [context, { ctxSetIsEditMode }] = React.useContext(Context);
+  const [context, { ctxSetIsEditMode, ctxUpdateVariable, ctxDeleteVariable }] =
+    React.useContext(Context);
   const styles = createStyles(theme, context.dimensions);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
-  const [nameDisplay, setNameDisplay] = React.useState<INode[]>([]);
-  const [nameSelection, setNameSelection] = React.useState<ISelection>({
+  const [display, setDisplay] = React.useState<INode[]>([]);
+  const [selection, setSelection] = React.useState<ISelection>({
     start: 0,
     end: 0,
   });
+
+  interface InputState {
+    name: string;
+    display: Pictos;
+    selection: ISelection;
+  }
+
+  const initialInputStates: InputState[] = [
+    {
+      name: "name",
+      display: new Pictos(),
+      selection: { start: undefined, end: undefined },
+    },
+    {
+      name: "value",
+      display: new Pictos(),
+      selection: { start: undefined, end: undefined },
+    },
+  ];
+
+  const [activeInputIndex, setActiveInputIndex] = React.useState(0);
+  const [inputStates, setInputStates] = React.useState(initialInputStates);
 
   // set edit mode and show keyboard
   React.useEffect(() => {
@@ -87,12 +130,20 @@ const VariableScrollView = ({ onInsertVariable }) => {
       inputRef.current.focus();
 
       // update display/selection
-      const newDisplay = context.variables[editingVariableIndex].nodes;
-      setNameDisplay(newDisplay);
-      setNameSelection({ start: newDisplay.length, end: newDisplay.length });
+      const newDisplay =
+        inputStates[activeInputIndex].name === "name"
+          ? context.variables[editingVariableIndex].varName
+          : context.variables[editingVariableIndex].nodes;
+      const newSelection = { start: newDisplay.length, end: newDisplay.length };
+      setInputStates([
+        { name: "name", display: newDisplay, selection: newSelection },
+      ]);
     } else {
       // close keyboard
       inputRef.current.blur();
+
+      // reset focused elem
+      setActiveInputIndex(0);
     }
   }, [editingVariableIndex]);
 
@@ -102,31 +153,59 @@ const VariableScrollView = ({ onInsertVariable }) => {
     }
   }, [context.dimensions.keyboardVisible]);
 
-  const insertAtSelection = (
-    char: string,
-    display,
-    selection,
-    setDisplayFn,
-    setSelectionFn
-  ) => {
-    const [newDisplay, newSelection] = arrayInsertAtSelection(
-      [{ type: "string", nodes: char }],
-      display,
-      selection
-    );
+  const updateCurrentInputState = (inputState: Partial<InputState>) => {
+    const newInputStates = inputStates
+      .slice(0, activeInputIndex)
+      .concat([{ ...inputStates[activeInputIndex], ...inputState }])
+      .concat(inputStates.slice(activeInputIndex + 1));
 
-    setDisplayFn(newDisplay);
-    setSelectionFn(newSelection);
+    setInputStates(newInputStates);
+
+    // ctxUpdateVariable(); // TODO
   };
 
-    const backspace = (display, selection, setDisplayFn, setSelectionFn) => {
-      const [newDisplay, newSelection] = backspaceAtSelection(
-        display,
-        selection
-      );
-      setDisplayFn(newDisplay);
-      setSelectionFn(newSelection);
-    };
+  const insertAtSelection = (str: Pictos, options?: IInsertOptions) => {
+    // TODO de-duplicate this logic
+    if (!options) {
+      options = {};
+    }
+
+    if (!options.type) {
+      options.type = "string";
+    }
+
+    if (options.type === "string" && str.length > 1) {
+      console.error(">1 length strings not implemented yet!");
+      return;
+    }
+
+    if (options.type === "variable" && !options.varName) {
+      console.error("Variable name required");
+      return;
+    }
+
+    const [newDisplay, newSelection] = inputStates[
+      activeInputIndex
+    ].display.insertAtSelection(
+      new Pictos([
+        {
+          type: options.type,
+          nodes: str,
+          ...(options.varName ? { varName: options.varName } : {}),
+        },
+      ]),
+      inputStates[activeInputIndex].selection
+    );
+
+    updateCurrentInputState({ display: newDisplay, selection: newSelection });
+  };
+
+  const backspace = () => {
+    const [newDisplay, newSelection] = inputStates[
+      activeInputIndex
+    ].display.backspaceAtSelection(inputStates[activeInputIndex].selection);
+    updateCurrentInputState({ display: newDisplay, selection: newSelection });
+  };
 
   return (
     <View
@@ -135,84 +214,133 @@ const VariableScrollView = ({ onInsertVariable }) => {
         ...(context.isEditMode ? styles.wrapperEdit : {}),
       }}
     >
-      <View style={styles.variablesView}>
-        <ScrollView
-          keyboardShouldPersistTaps="always"
-          horizontal={true}
-          contentContainerStyle={styles.variables}
-        >
-          {context.variables.map(({ varName, nodes }, index) => (
-            <Pressable
-              key={varName}
-              style={{
-                ...styles.variable,
-                ...(context.isEditMode ? styles.variableEditing : {}),
-                ...(index === editingVariableIndex
-                  ? { backgroundColor: theme.colors.variableBackground }
-                  : {}),
-              }}
-              onLongPress={() => setEditVariableIndex(index)}
-              onPress={() => {
-                if (context.isEditMode) {
-                  setEditVariableIndex(index);
-                } else {
-                  onInsertVariable(varName, { type: "variable", varName });
-                }
-              }}
-            >
-              <Text style={styles.variableText}>
-                {varName} {/* TODO add value preview too */}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-        <Pressable onPress={() => setEditVariableIndex(-1)}>
-          <Text style={{ fontSize: 30 }}>x</Text>
-        </Pressable>
-      </View>
-      {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
-        <View style={styles.editView}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              position: "relative",
-              width: "100%",
-            }}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior="padding"
+        enabled={Platform.OS === "ios"}
+      >
+        <View style={styles.variablesView}>
+          <ScrollView
+            keyboardShouldPersistTaps="always"
+            horizontal={true}
+            contentContainerStyle={styles.variables}
           >
-            <Display
-              baseZIndex={2}
-              displayNodes={nameDisplay}
-              selection={nameSelection}
-              onSelectionChange={setNameSelection}
+            {context.variables.map(({ varName, nodes }, index) => (
+              <Pressable
+                key={index}
+                style={{
+                  ...styles.variable,
+                  ...(context.isEditMode ? styles.variableEditing : {}),
+                  ...(index === editingVariableIndex
+                    ? { backgroundColor: theme.colors.variableBackground }
+                    : {}),
+                }}
+                onLongPress={() => setEditVariableIndex(index)}
+                onPress={() => {
+                  if (context.isEditMode) {
+                    if (
+                      index !== editingVariableIndex &&
+                      activeInputIndex !== InputStateKeys.NAME
+                    ) {
+                      // TODO insertAtSelecetion only handles chars, add an addPictosAtSelection fn
+                      // insertAtSelection(varName, { type: "variable", varName });
+                    }
+                  } else {
+                    onInsertVariable(varName, { type: "variable", varName });
+                  }
+                }}
+              >
+                <Text style={styles.variableText}>
+                  {varName.toString()} {/* TODO add value preview too */}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <Pressable onPress={() => setEditVariableIndex(-1)}>
+            <Text style={{ fontSize: 30 }}>x</Text>
+          </Pressable>
+        </View>
+        {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
+          <View style={styles.editView}>
+            <View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  position: "relative",
+                  width: "100%",
+                }}
+              >
+                <Display
+                  baseZIndex={2}
+                  displayNodes={inputStates[activeInputIndex].display}
+                  selection={inputStates[activeInputIndex].selection}
+                  onSelectionChange={(selection) => {
+                    if (activeInputIndex !== InputStateKeys.NAME) {
+                      setActiveInputIndex(InputStateKeys.NAME);
+                    }
+                    setTimeout(() =>
+                      // TODO
+                      setSelection(selection)
+                    );
+                  }}
+                />
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                  position: "relative",
+                  width: "100%",
+                }}
+              >
+                <Display
+                  baseZIndex={2}
+                  displayNodes={inputStates[activeInputIndex].display}
+                  selection={inputStates[activeInputIndex].selection}
+                  onSelectionChange={(selection) => {
+                    if (activeInputIndex !== InputStateKeys.VALUE) {
+                      setActiveInputIndex(InputStateKeys.VALUE);
+                    }
+                    setTimeout(() =>
+                      // TODO
+                      setSelection(selection)
+                    );
+                  }}
+                />
+              </View>
+
+              <TextInput
+                ref={inputRef}
+                autoFocus={true}
+                autoCorrect={false}
+                autoComplete="off"
+                spellCheck={false}
+                style={{ position: "absolute", left: -99999 }}
+                onKeyPress={({ nativeEvent: { key } }) => {
+                  // This doesn't work on androids with hard keyboards!!
+                  if (key === "Backspace") {
+                    backspace();
+                  } else if (key.length === 1) {
+                    insertAtSelection(
+                      new Pictos([{ type: "string", nodes: key }])
+                    );
+                  }
+                }}
+              />
+            </View>
+
+            <Operators
+              setDisplay={setDisplay}
+              insertAtSelection={insertAtSelection}
+              backspace={backspace}
+              wrapString={() => {
+                /*TODO*/
+              }}
             />
           </View>
-          <TextInput
-            ref={inputRef}
-            autoFocus={true}
-            style={{ position: "absolute", left: -99999 }}
-            onKeyPress={({ nativeEvent: { key } }) => {
-              // This doesn't work on androids with hard keyboards!!
-              if (key === "Backspace") {
-                backspace(
-                  nameDisplay,
-                  nameSelection,
-                  setNameDisplay,
-                  setNameSelection
-                );
-              } else if (key.length === 1) {
-                insertAtSelection(
-                  key,
-                  nameDisplay,
-                  nameSelection,
-                  setNameDisplay,
-                  setNameSelection
-                );
-              }
-            }}
-          />
-        </View>
-      )}
+        )}
+      </KeyboardAvoidingView>
     </View>
   );
 };

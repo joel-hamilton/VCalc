@@ -1,21 +1,33 @@
-import { IVariable } from '../types';
+import { INode, IPicto, IVariable } from "../types";
+import Pictos from "./Pictos";
 
 export const getNextVariableName = (
   baseStr: string,
   variables: IVariable[]
-) => {
-  const lastNumUsed = variables.reduce((acc, { varName }) => {
-    if (varName.substring(0, baseStr.length) !== baseStr) {
-      return acc;
-    }
+):Pictos => {
+  // TODO
+  // const lastNumUsed = variables.reduce((acc, { varName }) => {
+  //   if (varName.substring(0, baseStr.length) !== baseStr) {
+  //     return acc;
+  //   }
 
-    const number = varName.substring(baseStr.length);
-    if (parseInt(number) > acc) {
-      return parseInt(number);
-    }
+  //   const number = varName.substring(baseStr.length);
+  //   if (parseInt(number) > acc) {
+  //     return parseInt(number);
+  //   }
 
-    return acc;
-  }, 0);
+  //   return acc;
+  // }, 0);
+  const lastNumUsed = Date.now();
 
-  return `${baseStr}${lastNumUsed + 1}`;
+  // TODO move this and tests to array
+  const newVarName = `${baseStr}${lastNumUsed + 1}`;
+  const pictos = newVarName.split("").map(
+    (char):IPicto => ({
+      type: "string",
+      nodes: char,
+    })
+  );
+
+  return new Pictos(pictos);
 };
