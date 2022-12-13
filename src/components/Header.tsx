@@ -1,19 +1,27 @@
-import React from 'react';
+import React from "react";
 import {
-    Linking, Platform, Pressable, StatusBar, StyleSheet, Switch, Text, View, ViewStyle
-} from 'react-native';
-import { DEV_EMAIL } from 'react-native-dotenv';
+  Linking,
+  Platform,
+  Pressable,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
+import { DEV_EMAIL } from "react-native-dotenv";
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getHeaderTitle } from '@react-navigation/elements';
-import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { getHeaderTitle } from "@react-navigation/elements";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 
-import { Context } from '../Context';
-import { useTheme } from '../themes';
-import { IDimensions } from '../types';
-import AppMenuModal from './AppMenuModal';
+import { Context } from "../Context";
+import { useTheme } from "../themes";
+import { IDimensions } from "../types";
+import AppMenuModal from "./AppMenuModal";
 
-const createStyles = ({ colors }, dimensions:IDimensions, statusBarHeight) =>
+const createStyles = ({ colors }, dimensions: IDimensions, statusBarHeight) =>
   StyleSheet.create({
     main: {
       backgroundColor: colors.background,
@@ -22,7 +30,6 @@ const createStyles = ({ colors }, dimensions:IDimensions, statusBarHeight) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      
     },
     title: {
       fontSize: 18,
@@ -47,7 +54,11 @@ const Header = ({
   const [context, { ctxSetUseDarkMode }] = React.useContext(Context);
 
   const theme = useTheme();
-  const styles = createStyles(theme, context.dimensions, StatusBar.currentHeight);
+  const styles = createStyles(
+    theme,
+    context.dimensions,
+    StatusBar.currentHeight
+  );
   const title = getHeaderTitle(options, route.name);
 
   const appMenuData = [
@@ -88,7 +99,12 @@ const Header = ({
   ];
 
   return (
-    <View style={styles.main}>
+    <View
+      style={{
+        ...styles.main,
+        ...(context.isEditMode ? { backgroundColor: theme.colors.card } : {}),
+      }}
+    >
       <Text style={styles.title}>{title}</Text>
       <Pressable
         testID="menu-toggle"

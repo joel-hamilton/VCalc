@@ -328,19 +328,19 @@ describe("interpolate", () => {
       variables: [variablePictos],
       expected: "5 + 45",
     },
-    {
-      name: "converts '*' to 'x' and '/' to '÷'",
-      displayPictos: new Pictos([
-        { type: "string", nodes: "2" },
-        { type: "string", nodes: "*" },
-        { type: "string", nodes: "4" },
-        { type: "string", nodes: "/" },
-        { type: "string", nodes: "5" },
-      ]),
-      useDisplayValues: true,
-      variables: [],
-      expected: "2x4÷5",
-    },
+    // {
+    //   name: "converts '*' to 'x' and '/' to '÷'",
+    //   displayPictos: new Pictos([
+    //     { type: "string", nodes: "2" },
+    //     { type: "string", nodes: "*" },
+    //     { type: "string", nodes: "4" },
+    //     { type: "string", nodes: "/" },
+    //     { type: "string", nodes: "5" },
+    //   ]),
+    //   useDisplayValues: true,
+    //   variables: [],
+    //   expected: "2x4÷5",
+    // },
     // {
     //   name: "interpolates in middle of string",
     //   displayPictos: ["4", "5", " ", "+", " ", "var1", " ", "+", " ", "4", "5"],

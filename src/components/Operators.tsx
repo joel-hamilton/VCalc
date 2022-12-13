@@ -26,16 +26,10 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       backgroundColor: colors.buttonHighlight,
     },
     operatorsEditMode: {
-      // position: "absolute",
-      // bottom: 0,
-      // left: 0,
-      // right: 0,
       flexDirection: "row",
       height: dimensions.operatorEditModeH,
       width: "100%",
       backgroundColor: colors.buttonHighlight,
-      // marginBottom:
-      //   Platform.OS === "ios" ? dimensions.operatorEditModeH - 5 : 0,
     },
     operatorsItem: ({ pressed }) => ({
       backgroundColor: pressed

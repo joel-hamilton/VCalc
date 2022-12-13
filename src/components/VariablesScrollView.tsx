@@ -30,6 +30,8 @@ enum InputStateKeys {
   VALUE = 1,
 }
 
+const variableScrollViewZIndex = 2;
+
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
   StyleSheet.create<any>({
     wrapper: {
@@ -43,6 +45,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
     wrapperEdit: {
       height: "100%",
+      zIndex: variableScrollViewZIndex,
     },
     variablesView: {
       justifyContent: "space-between",
@@ -52,6 +55,8 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
       flex: 1,
       flexDirection: "row",
       alignItems: "center",
+      paddingRight: 5,
+      paddingLeft: 5,
     },
     variable: {
       border: colors.border,
@@ -70,9 +75,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
     editView: {
       flex: 1,
-      backgroundColor: "purple",
       justifyContent: "space-between",
-      // marginBottom: dimensions.operatorEditModeH,
     },
     inputWrapper: {
       alignItems: "flex-end",
@@ -313,7 +316,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 <Text style={styles.inputLabel}>Name</Text>
                 <View style={styles.input}>
                   <Display
-                    baseZIndex={2}
+                    baseZIndex={variableScrollViewZIndex}
                     displayNodes={inputStates[InputStateKeys.NAME].display}
                     selection={inputStates[InputStateKeys.NAME].selection}
                     onSelectionChange={(selection) =>
@@ -326,7 +329,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 <Text style={styles.inputLabel}>Value</Text>
                 <View style={styles.input}>
                   <Display
-                    baseZIndex={2}
+                    baseZIndex={variableScrollViewZIndex}
                     displayNodes={inputStates[InputStateKeys.VALUE].display}
                     selection={inputStates[InputStateKeys.VALUE].selection}
                     onSelectionChange={(selection) =>

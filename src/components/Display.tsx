@@ -28,7 +28,6 @@ const createStyles = ({ colors }: ITheme, baseZIndex: number) =>
       alignItems: "center",
       flexWrap: "wrap",
       minHeight: textHeight,
-      backgroundColor: "green",
     },
     text: {
       fontSize,
