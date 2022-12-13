@@ -1,18 +1,26 @@
-import { evaluate } from 'mathjs';
-import React from 'react';
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { evaluate } from "mathjs";
+import React from "react";
+import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-import { Context } from '../Context';
-import Pictos from '../Pictos';
-import { useTheme } from '../themes';
-import { IBackspace, IDimensions, IInsertAtSelection, IPicto, ISelection, ITheme, IWrapString } from '../types';
-import { getNextVariableName } from '../utils/pictosHelpers';
-import { generateHex } from '../utils/string';
-import Display from './Display';
-import Operators from './Operators';
-import VariableScrollView from './VariablesScrollView';
+import { Context } from "../Context";
+import Pictos from "../Pictos";
+import { useTheme } from "../themes";
+import {
+  IBackspace,
+  IDimensions,
+  IInsertAtSelection,
+  IPicto,
+  ISelection,
+  ITheme,
+  IWrapString,
+} from "../types";
+import { getNextVariableName } from "../utils/pictosHelpers";
+import { generateHex } from "../utils/string";
+import Display from "./Display";
+import Operators from "./Operators";
+import VariableScrollView from "./VariablesScrollView";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -83,6 +91,7 @@ const Calculator = () => {
     try {
       const res = doEvaluate();
       const interpolationString = display.toString();
+      console.log({ interpolationPreview });
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -113,7 +122,10 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const insertAtSelection:IInsertAtSelection = (str: string, isVariable: boolean = false) => {
+  const insertAtSelection: IInsertAtSelection = (
+    str: string,
+    isVariable: boolean = false
+  ) => {
     const pictos = new Pictos([
       {
         type: isVariable ? "variable" : "string",
@@ -130,7 +142,7 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const wrapString:IWrapString = (prependStr, appendStr) => {
+  const wrapString: IWrapString = (prependStr, appendStr) => {
     const [newDisplay, newSelection] = display.wrapAtSelection(
       prependStr,
       appendStr,
@@ -140,7 +152,7 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const backspace:IBackspace = () => {
+  const backspace: IBackspace = () => {
     const [newDisplay, newSelection] = display.backspaceAtSelection(selection);
     setDisplay(newDisplay);
     setSelection(newSelection);
@@ -229,19 +241,17 @@ const Calculator = () => {
             width: "100%",
             flexDirection: "row",
             justifyContent: "space-between",
+            marginBottom: 30 // TODO get rid of magic number, this should be based the visible height of variables bove keyboard
           }}
         >
           <View>
-            {!!context.variables
-              .length /* TODO this should show only when a variable exists in the current display */ && (
-              <Text
-                style={styles.secondaryDisplay}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {interpolationPreview}
-              </Text>
-            )}
+            <Text
+              style={styles.secondaryDisplay}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {interpolationPreview}
+            </Text>
           </View>
           <Text
             style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
