@@ -10,19 +10,14 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import {
-  IDimensions,
-  IInsertOptions,
-  INode,
-  ISelection,
-  ITheme,
-} from "../types";
+import { IDimensions, ISelection, ITheme } from "../types";
 import { Context } from "../Context";
 
 import { useTheme } from "../themes";
 import Display from "./Display";
 import Operators from "./Operators";
-import Pictos from "../utils/Pictos";
+import Pictos from "../Pictos";
+import { cloneDeep } from "lodash";
 
 enum InputStateKeys {
   NAME = 0,
@@ -82,7 +77,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
     React.useContext(Context);
   const styles = createStyles(theme, context.dimensions);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
-  const [display, setDisplay] = React.useState<INode[]>([]);
+  const [display, setDisplay] = React.useState<Pictos>(new Pictos([]));
   const [selection, setSelection] = React.useState<ISelection>({
     start: 0,
     end: 0,
@@ -107,8 +102,12 @@ const VariableScrollView = ({ onInsertVariable }) => {
     },
   ];
 
-  const [activeInputIndex, setActiveInputIndex] = React.useState(0);
+  const [activeInputIndex, _setActiveInputIndex] = React.useState(0);
   const [inputStates, setInputStates] = React.useState(initialInputStates);
+
+  const setActiveInputIndex = (index: number) => {
+    _setActiveInputIndex(index);
+  };
 
   // set edit mode and show keyboard
   React.useEffect(() => {
@@ -124,13 +123,20 @@ const VariableScrollView = ({ onInsertVariable }) => {
       inputRef.current.focus();
 
       // update display/selection
-      const newDisplay =
-        inputStates[activeInputIndex].name === "name"
-          ? context.variables[editingVariableIndex].varName
-          : context.variables[editingVariableIndex].nodes;
-      const newSelection = { start: newDisplay.length, end: newDisplay.length };
+      const nameDisplay = context.variables[editingVariableIndex].varName;
+      const valueDisplay = context.variables[editingVariableIndex].nodes;
+
       setInputStates([
-        { name: "name", display: newDisplay, selection: newSelection },
+        {
+          name: "name",
+          display: nameDisplay,
+          selection: { start: nameDisplay.length, end: nameDisplay.length },
+        },
+        {
+          name: "value",
+          display: valueDisplay,
+          selection: { start: undefined, end: undefined },
+        },
       ]);
     } else {
       // close keyboard
@@ -147,34 +153,44 @@ const VariableScrollView = ({ onInsertVariable }) => {
     }
   }, [context.dimensions.keyboardVisible]);
 
-  const updateCurrentInputState = (inputState: Partial<InputState>) => {
+  const setSelectionOnInput = (selection: ISelection, inputIndex: number) => {
+    console.log({selection, inputIndex})
+    const inputStatesClone = cloneDeep(inputStates);
+    inputStatesClone[inputIndex].selection = selection;
+    inputStatesClone[Math.abs(inputIndex - 1)].selection = {
+      start: undefined,
+      end: undefined,
+    };
+
+    console.log({inputStatesCloneSelections: inputStatesClone.map(i => i.selection)})
+    setInputStates(inputStatesClone);
+    setActiveInputIndex(inputIndex);
+  };
+
+  /**
+   * Do a partial update of input states
+   * @param inputState
+   * @param forceInputIndex sometimes necessary to force update of the non-current input
+   */
+  const updateCurrentInputState = (
+    inputState: Partial<InputState>,
+    forceInputIndex?: number
+  ) => {
+    const useIndex = forceInputIndex || activeInputIndex;
+
     const newInputStates = inputStates
-      .slice(0, activeInputIndex)
-      .concat([{ ...inputStates[activeInputIndex], ...inputState }])
-      .concat(inputStates.slice(activeInputIndex + 1));
+      .slice(0, useIndex)
+      .concat([{ ...inputStates[useIndex], ...inputState }])
+      .concat(inputStates.slice(useIndex + 1));
 
     setInputStates(newInputStates);
 
     // ctxUpdateVariable(); // TODO
   };
 
-  const insertAtSelection = (str: Pictos, options?: IInsertOptions) => {
-    // TODO de-duplicate this logic
-    if (!options) {
-      options = {};
-    }
-
-    if (!options.type) {
-      options.type = "string";
-    }
-
-    if (options.type === "string" && str.length > 1) {
+  const insertAtSelection = (str: string, isVariable: boolean = false) => {
+    if (!isVariable && str.length > 1) {
       console.error(">1 length strings not implemented yet!");
-      return;
-    }
-
-    if (options.type === "variable" && !options.varName) {
-      console.error("Variable name required");
       return;
     }
 
@@ -183,9 +199,8 @@ const VariableScrollView = ({ onInsertVariable }) => {
     ].display.insertAtSelection(
       new Pictos([
         {
-          type: options.type,
+          type: isVariable ? "variable" : "string",
           nodes: str,
-          ...(options.varName ? { varName: options.varName } : {}),
         },
       ]),
       inputStates[activeInputIndex].selection
@@ -200,6 +215,13 @@ const VariableScrollView = ({ onInsertVariable }) => {
     ].display.backspaceAtSelection(inputStates[activeInputIndex].selection);
     updateCurrentInputState({ display: newDisplay, selection: newSelection });
   };
+
+  React.useEffect(() => {
+    // TESTING
+    console.log({
+      inputStatesSelections: inputStates.map((is) => is.selection),
+    });
+  }, [inputStates]);
 
   return (
     <View
@@ -219,7 +241,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
             horizontal={true}
             contentContainerStyle={styles.variables}
           >
-            {context.variables.map(({ varName, nodes }, index) => (
+            {context.variables.map(({ varName, nodes, key }, index) => (
               <Pressable
                 key={index}
                 style={{
@@ -236,11 +258,10 @@ const VariableScrollView = ({ onInsertVariable }) => {
                       index !== editingVariableIndex &&
                       activeInputIndex !== InputStateKeys.NAME
                     ) {
-                      // TODO insertAtSelecetion only handles chars, add an addPictosAtSelection fn
-                      // insertAtSelection(varName, { type: "variable", varName });
+                      insertAtSelection(key, true);
                     }
                   } else {
-                    onInsertVariable(varName, { type: "variable", varName });
+                    onInsertVariable(key, true);
                   }
                 }}
               >
@@ -267,17 +288,11 @@ const VariableScrollView = ({ onInsertVariable }) => {
               >
                 <Display
                   baseZIndex={2}
-                  displayNodes={inputStates[activeInputIndex].display}
-                  selection={inputStates[activeInputIndex].selection}
-                  onSelectionChange={(selection) => {
-                    if (activeInputIndex !== InputStateKeys.NAME) {
-                      setActiveInputIndex(InputStateKeys.NAME);
-                    }
-                    setTimeout(() =>
-                      // TODO
-                      setSelection(selection)
-                    );
-                  }}
+                  displayNodes={inputStates[InputStateKeys.NAME].display}
+                  selection={inputStates[InputStateKeys.NAME].selection}
+                  onSelectionChange={(selection) =>
+                    setSelectionOnInput(selection, InputStateKeys.NAME)
+                  }
                 />
               </View>
               <View
@@ -290,17 +305,11 @@ const VariableScrollView = ({ onInsertVariable }) => {
               >
                 <Display
                   baseZIndex={2}
-                  displayNodes={inputStates[activeInputIndex].display}
-                  selection={inputStates[activeInputIndex].selection}
-                  onSelectionChange={(selection) => {
-                    if (activeInputIndex !== InputStateKeys.VALUE) {
-                      setActiveInputIndex(InputStateKeys.VALUE);
-                    }
-                    setTimeout(() =>
-                      // TODO
-                      setSelection(selection)
-                    );
-                  }}
+                  displayNodes={inputStates[InputStateKeys.VALUE].display}
+                  selection={inputStates[InputStateKeys.VALUE].selection}
+                  onSelectionChange={(selection) =>
+                    setSelectionOnInput(selection, InputStateKeys.VALUE)
+                  }
                 />
               </View>
 
@@ -316,9 +325,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
                   if (key === "Backspace") {
                     backspace();
                   } else if (key.length === 1) {
-                    insertAtSelection(
-                      new Pictos([{ type: "string", nodes: key }])
-                    );
+                    insertAtSelection(key);
                   }
                 }}
               />

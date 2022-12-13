@@ -10,7 +10,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { IContext, IDimensions, INode, ISelection, ITheme } from "../types";
+import { IContext, IDimensions, ITheme } from "../types";
 import { Context } from "../Context";
 
 import { useTheme } from "../themes";

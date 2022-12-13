@@ -1,5 +1,5 @@
 import React from "react";
-import { IContext, IDimensions, INode, IVariable } from "./types";
+import { IContext, IDimensions, IVariable } from "./types";
 
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));

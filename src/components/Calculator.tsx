@@ -13,14 +13,13 @@ import Display from "./Display";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useTheme } from "../themes";
-import { IDimensions, IInsertOptions, IPicto, ISelection, ITheme, IVariable } from "../types";
-import { generateHex, getNextVariableName } from "../utils/string";
-
-import EditVariableModal from "./EditVariableModal";
+import { IDimensions, IPicto, ISelection, ITheme } from "../types";
+import { generateHex } from "../utils/string";
+import { getNextVariableName } from "../utils/pictos";
 import VariableScrollView from "./VariablesScrollView";
 import { Context } from "../Context";
 import Operators from "./Operators";
-import Pictos from "../utils/Pictos";
+import Pictos from "../Pictos";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -128,30 +127,18 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const insertAtSelection = (str: string, options?: IInsertOptions) => {
-    if (!options) {
-      options = {};
-    }
+  const insertAtSelection = (str: string, isVariable: boolean = false) => {
 
-    if (!options.type) {
-      options.type = "string";
-    }
 
-    if (options.type === "string" && str.length > 1) {
+    if (!isVariable && str.length > 1) {
       console.error(">1 length strings not implemented yet!");
-      return;
-    }
-
-    if (options.type === "variable" && !options.varName) {
-      console.error("Variable name required");
       return;
     }
 
     const pictos = new Pictos([
       {
-        type: options.type,
+        type: isVariable ? "variable" : "string",
         nodes: str,
-        ...(options.varName ? { varName: options.varName } : {}),
       },
     ]);
 

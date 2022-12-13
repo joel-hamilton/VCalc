@@ -1,7 +1,7 @@
 import { isEqual } from "lodash";
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
-import Pictos from "../utils/Pictos";
+import Pictos from "../Pictos";
 
 import { useTheme } from "../themes";
 import { ILayout, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
@@ -192,7 +192,7 @@ const Display = ({
                 textNodeProps={getTextNodeProps(index)}
                 fontSize={(styles.text as any).fontSize}
                 defaultTextHeight={textHeight}
-                variableNode={node.nodes as Pictos}
+                variableKey={node.nodes as string}
                 isSelected={
                   selection.start !== selection.end &&
                   index >= selection.start &&

@@ -1,4 +1,26 @@
-import Pictos from "./utils/Pictos";
+import Pictos from "./Pictos";
+
+export interface IPicto {
+  type: "string" | "variable";
+
+  // STRING_VARIABLE_KEY if type is 'variable'
+  // PICTOS if type is string and we're not at leaf node
+  // STRING_LITERAL if type is 'string' anbd we're at leaf node
+  nodes: string | Pictos;
+}
+
+export interface IVariable {
+  varName: Pictos;
+  nodes: Pictos;
+  key: string;
+}
+
+export interface ILayout {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
 
 export enum OperatorsWithExtraSpace {
   "*" = "*",
@@ -10,33 +32,6 @@ export interface ISelection {
   start: number | undefined;
   end: number | undefined;
 }
-
-export interface INode {
-  type: "string" | "variable";
-  nodes: string | INode[];
-  displayValue?: string;
-  varName?: INode[];
-}
-
-export interface IPicto {
-  type: "string" | "variable";
-  nodes: string | Pictos;
-  varName?: Pictos; // variables will have
-}
-
-export interface ILayout {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
-
-export interface IVariable {
-  varName: Pictos;
-  nodes: Pictos;
-  key: string;
-}
-
 export interface ITheme {
   dark: boolean;
   colors: {
@@ -73,9 +68,4 @@ export interface IContext {
   variables: IVariable[];
   dimensions: IDimensions;
   isEditMode: boolean;
-}
-
-export interface IInsertOptions {
-  type?: "string" | "variable";
-  varName?: Pictos;
 }

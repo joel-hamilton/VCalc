@@ -1,8 +1,10 @@
 import React from "react";
 import { StyleSheet, Text, View, ViewStyle } from "react-native";
-import Pictos from "../utils/Pictos";
+import Pictos from "../Pictos";
 
 import { useTheme } from "../themes";
+import { useContext } from "react";
+import { Context } from "../Context";
 
 const createStyles = ({ colors }, fontSize) =>
   StyleSheet.create({
@@ -25,20 +27,23 @@ const createStyles = ({ colors }, fontSize) =>
   } as { [name: string]: ViewStyle });
 
 const VariableNode = ({
-  variableNode,
+  variableKey,
   textNodeProps,
   fontSize,
   defaultTextHeight,
   isSelected,
 }: {
-  variableNode: Pictos;
+  variableKey: string;
   textNodeProps: any;
   fontSize: number;
   defaultTextHeight: number;
   isSelected: boolean;
 }) => {
+  const [context] = useContext(Context);
+  const findVariable = (key) => context.variables.find(v => v.key === key);
   const theme = useTheme();
   const styles = createStyles(theme, fontSize);
+  const [variable, setVariable] = React.useState(findVariable(variableKey));
 
   return (
     <View
@@ -59,7 +64,7 @@ const VariableNode = ({
       }}
     >
       <Text {...textNodeProps} style={styles.text}>
-        {variableNode.toString()}
+        {variable.varName.toString()}
       </Text>
     </View>
   );
