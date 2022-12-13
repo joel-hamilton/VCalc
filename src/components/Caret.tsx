@@ -1,14 +1,12 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 const Caret = ({
   visible,
   style,
-  onLongPress,
 }: {
   visible: boolean
   style: any;
-  onLongPress: () => void;
 }) => {
   const [caretBlinkOn, setCaretBlinkOn] = React.useState(true);
 

@@ -1,8 +1,8 @@
 import { isEqual } from "lodash";
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
-import Pictos from "../Pictos";
 
+import Pictos from "../Pictos";
 import { useTheme } from "../themes";
 import { ILayout, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
 import Caret from "./Caret";
@@ -28,7 +28,7 @@ const createStyles = ({ colors }: ITheme, baseZIndex: number) =>
       alignItems: "center",
       flexWrap: "wrap",
       minHeight: textHeight,
-      backgroundColor: 'green'
+      backgroundColor: "green",
     },
     text: {
       fontSize,
@@ -75,7 +75,7 @@ const Display = ({
     const charRight = charLayout.left + charLayout.width;
     const spaceUntilNextChar = nextCharLayout
       ? nextCharLayout.left - charRight
-      : 10;
+      : 3;
     const left = charRight + xAdjust + spaceUntilNextChar / 2;
     const charTop = charLayout.top + yAdjust;
     const newCaretLayout = { ...caretLayout, left, top: charTop };
@@ -150,68 +150,74 @@ const Display = ({
   };
 
   return (
-    <View ref={textContainerRef} style={styles.wrapper}>
-      {(displayNodes.pictos || []).map((node, index) => (
-        <React.Fragment key={index}>
-          {selection.start === selection.end && index === selection.start && (
+      <View ref={textContainerRef} style={styles.wrapper}>
+        {
+          displayNodes.map((node, index) => (
+            <React.Fragment key={index}>
+              {selection.start === selection.end &&
+                index === selection.start && (
+                  <Caret
+                    visible={!repositioningCaret}
+                    style={{ ...styles.text, ...styles.caret, ...caretLayout }}
+                  />
+                )}
+
+              <Pressable
+                // this will pick up events that don't land exactly on the Text/VariableNode components
+                onPress={getTextNodeProps(index).onPress}
+                onLongPress={getTextNodeProps(index).onLongPress}
+              >
+                {node.type === "string" && (
+                  <Text
+                    {...getTextNodeProps(index)}
+                    style={{
+                      ...styles.text,
+                      height: textHeight,
+                      paddingRight:
+                        (node.nodes as string) in OperatorsWithExtraSpace
+                          ? 5
+                          : 0,
+                      paddingLeft:
+                        (node.nodes as string) in OperatorsWithExtraSpace
+                          ? 5
+                          : 0,
+                      backgroundColor:
+                        selection.start !== selection.end &&
+                        index >= selection.start &&
+                        index < selection.end
+                          ? theme.colors.primary
+                          : "transparent",
+                    }}
+                  >
+                    {node.nodes.toString()}
+                  </Text>
+                )}
+                {node.type === "variable" && (
+                  <VariableNode
+                    textNodeProps={getTextNodeProps(index)}
+                    fontSize={(styles.text as any).fontSize}
+                    defaultTextHeight={textHeight}
+                    variableKey={node.nodes as string}
+                    isSelected={
+                      selection.start !== selection.end &&
+                      index >= selection.start &&
+                      index < selection.end
+                    }
+                  />
+                )}
+              </Pressable>
+            </React.Fragment>
+          )) as React.ReactNode
+        }
+        {(selection.start === selection.end &&
+          selection.start === displayNodes?.pictos?.length) ||
+          (0 && (
             <Caret
               visible={!repositioningCaret}
               style={{ ...styles.text, ...styles.caret, ...caretLayout }}
-              onLongPress={selectAll}
             />
-          )}
-
-          <Pressable
-            // this will pick up events that don't land exactly on the Text/VariableNode components
-            onPress={getTextNodeProps(index).onPress}
-            onLongPress={getTextNodeProps(index).onLongPress}
-          >
-            {node.type === "string" && (
-              <Text
-                {...getTextNodeProps(index)}
-                style={{
-                  ...styles.text,
-                  height: textHeight,
-                  paddingRight:
-                    (node.nodes as string) in OperatorsWithExtraSpace ? 5 : 0,
-                  paddingLeft:
-                    (node.nodes as string) in OperatorsWithExtraSpace ? 5 : 0,
-                  backgroundColor:
-                    selection.start !== selection.end &&
-                    index >= selection.start &&
-                    index < selection.end
-                      ? theme.colors.primary
-                      : "transparent",
-                }}
-              >
-                {displayNodes.toString(null, [node]) /* seems sloppy */}
-              </Text>
-            )}
-            {node.type === "variable" && (
-              <VariableNode
-                textNodeProps={getTextNodeProps(index)}
-                fontSize={(styles.text as any).fontSize}
-                defaultTextHeight={textHeight}
-                variableKey={node.nodes as string}
-                isSelected={
-                  selection.start !== selection.end &&
-                  index >= selection.start &&
-                  index < selection.end
-                }
-              />
-            )}
-          </Pressable>
-        </React.Fragment>
-      ))}
-      {selection.start === selection.end &&
-        selection.start === displayNodes.pictos.length && (
-          <Caret
-            visible={!repositioningCaret}
-            style={{ ...styles.text, ...styles.caret, ...caretLayout }}
-            onLongPress={selectAll}
-          />
-        )}
-    </View>
+          ))}
+      </View>
   );
 };
 

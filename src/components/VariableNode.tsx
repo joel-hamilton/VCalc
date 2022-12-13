@@ -1,10 +1,8 @@
-import React from "react";
-import { StyleSheet, Text, View, ViewStyle } from "react-native";
-import Pictos from "../Pictos";
+import React, { useContext } from 'react';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
-import { useTheme } from "../themes";
-import { useContext } from "react";
-import { Context } from "../Context";
+import { Context } from '../Context';
+import { useTheme } from '../themes';
 
 const createStyles = ({ colors }, fontSize) =>
   StyleSheet.create({
@@ -45,6 +43,7 @@ const VariableNode = ({
   const styles = createStyles(theme, fontSize);
   const [variable, setVariable] = React.useState(findVariable(variableKey));
 
+  console.log({variable, variableKey})
   return (
     <View
       style={{

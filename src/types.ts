@@ -69,3 +69,11 @@ export interface IContext {
   dimensions: IDimensions;
   isEditMode: boolean;
 }
+
+export type IInsertAtSelection = (charOrVariableKeyString: string, isVariable?: boolean) => void;
+
+export type ISetDisplay = (pictos: Pictos) => void;
+
+export type IBackspace = () => void;
+
+export type IWrapString = (prependPictos: Pictos, appendPictos: Pictos) => void;

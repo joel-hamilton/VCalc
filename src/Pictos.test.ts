@@ -1,5 +1,5 @@
-import { ISelection, IVariable } from "./types";
-import Pictos from "./Pictos";
+import Pictos from './Pictos';
+import { ISelection, IVariable } from './types';
 
 const testPictos = new Pictos([
   { type: "string", nodes: "t" },

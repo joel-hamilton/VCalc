@@ -1,23 +1,16 @@
-import React, { useState } from "react";
+import { cloneDeep } from 'lodash';
+import React from 'react';
 import {
-  KeyboardAvoidingView,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  Text,
-  TextInput,
-  View,
-  ViewStyle,
-} from "react-native";
-import { IDimensions, ISelection, ITheme } from "../types";
-import { Context } from "../Context";
+    KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
+    ViewStyle
+} from 'react-native';
 
-import { useTheme } from "../themes";
-import Display from "./Display";
-import Operators from "./Operators";
-import Pictos from "../Pictos";
-import { cloneDeep } from "lodash";
+import { Context } from '../Context';
+import Pictos from '../Pictos';
+import { useTheme } from '../themes';
+import { IBackspace, IDimensions, IInsertAtSelection, ISelection, ITheme } from '../types';
+import Display from './Display';
+import Operators from './Operators';
 
 enum InputStateKeys {
   NAME = 0,
@@ -45,7 +38,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
     variables: {
       flex: 1,
       flexDirection: "row",
-      alignItems: "flex-start",
+      alignItems: "center",
     },
     variable: {
       border: colors.border,
@@ -67,6 +60,25 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       flex: 1,
       backgroundColor: "purple",
       marginBottom: dimensions.operatorEditModeH,
+    },
+    inputWrapper: {
+      alignItems: "flex-end",
+      padding: 10,
+    },
+    inputLabel: {
+      fontWeight: "bold",
+    },
+    input: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      position: "relative",
+      width: "100%",
+      borderWidth: 1,
+      borderColor: colors.primary,
+      marginTop: 5,
+      marginBottom: 10,
+      paddingLeft: 10,
+      paddingRight: 10,
     },
   } as { [name: string]: ViewStyle });
 
@@ -154,7 +166,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
   }, [context.dimensions.keyboardVisible]);
 
   const setSelectionOnInput = (selection: ISelection, inputIndex: number) => {
-    console.log({selection, inputIndex})
+    console.log({ selection, inputIndex });
     const inputStatesClone = cloneDeep(inputStates);
     inputStatesClone[inputIndex].selection = selection;
     inputStatesClone[Math.abs(inputIndex - 1)].selection = {
@@ -162,7 +174,9 @@ const VariableScrollView = ({ onInsertVariable }) => {
       end: undefined,
     };
 
-    console.log({inputStatesCloneSelections: inputStatesClone.map(i => i.selection)})
+    console.log({
+      inputStatesCloneSelections: inputStatesClone.map((i) => i.selection),
+    });
     setInputStates(inputStatesClone);
     setActiveInputIndex(inputIndex);
   };
@@ -185,15 +199,11 @@ const VariableScrollView = ({ onInsertVariable }) => {
 
     setInputStates(newInputStates);
 
-    // ctxUpdateVariable(); // TODO
+    // TODO re-enable and test this
+    // ctxUpdateVariable(newInputStates[useIndex], editingVariableIndex); 
   };
 
-  const insertAtSelection = (str: string, isVariable: boolean = false) => {
-    if (!isVariable && str.length > 1) {
-      console.error(">1 length strings not implemented yet!");
-      return;
-    }
-
+  const insertAtSelection:IInsertAtSelection = (str: string, isVariable: boolean = false) => {
     const [newDisplay, newSelection] = inputStates[
       activeInputIndex
     ].display.insertAtSelection(
@@ -209,19 +219,12 @@ const VariableScrollView = ({ onInsertVariable }) => {
     updateCurrentInputState({ display: newDisplay, selection: newSelection });
   };
 
-  const backspace = () => {
+  const backspace:IBackspace = () => {
     const [newDisplay, newSelection] = inputStates[
       activeInputIndex
     ].display.backspaceAtSelection(inputStates[activeInputIndex].selection);
     updateCurrentInputState({ display: newDisplay, selection: newSelection });
   };
-
-  React.useEffect(() => {
-    // TESTING
-    console.log({
-      inputStatesSelections: inputStates.map((is) => is.selection),
-    });
-  }, [inputStates]);
 
   return (
     <View
@@ -278,39 +281,31 @@ const VariableScrollView = ({ onInsertVariable }) => {
         {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
           <View style={styles.editView}>
             <View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  position: "relative",
-                  width: "100%",
-                }}
-              >
-                <Display
-                  baseZIndex={2}
-                  displayNodes={inputStates[InputStateKeys.NAME].display}
-                  selection={inputStates[InputStateKeys.NAME].selection}
-                  onSelectionChange={(selection) =>
-                    setSelectionOnInput(selection, InputStateKeys.NAME)
-                  }
-                />
+              <View style={styles.inputWrapper}>
+                <Text style={styles.inputLabel}>Name</Text>
+                <View style={styles.input}>
+                  <Display
+                    baseZIndex={2}
+                    displayNodes={inputStates[InputStateKeys.NAME].display}
+                    selection={inputStates[InputStateKeys.NAME].selection}
+                    onSelectionChange={(selection) =>
+                      setSelectionOnInput(selection, InputStateKeys.NAME)
+                    }
+                  />
+                </View>
               </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  position: "relative",
-                  width: "100%",
-                }}
-              >
-                <Display
-                  baseZIndex={2}
-                  displayNodes={inputStates[InputStateKeys.VALUE].display}
-                  selection={inputStates[InputStateKeys.VALUE].selection}
-                  onSelectionChange={(selection) =>
-                    setSelectionOnInput(selection, InputStateKeys.VALUE)
-                  }
-                />
+              <View style={styles.inputWrapper}>
+                <Text style={styles.inputLabel}>Value</Text>
+                <View style={styles.input}>
+                  <Display
+                    baseZIndex={2}
+                    displayNodes={inputStates[InputStateKeys.VALUE].display}
+                    selection={inputStates[InputStateKeys.VALUE].selection}
+                    onSelectionChange={(selection) =>
+                      setSelectionOnInput(selection, InputStateKeys.VALUE)
+                    }
+                  />
+                </View>
               </View>
 
               <TextInput
@@ -321,10 +316,11 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 spellCheck={false}
                 style={{ position: "absolute", left: -99999 }}
                 onKeyPress={({ nativeEvent: { key } }) => {
+                  console.log({ key });
                   // This doesn't work on androids with hard keyboards!!
                   if (key === "Backspace") {
                     backspace();
-                  } else if (key.length === 1) {
+                  } else {
                     insertAtSelection(key);
                   }
                 }}

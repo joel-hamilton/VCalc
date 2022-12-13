@@ -1,5 +1,5 @@
-import { cloneDeep } from "lodash";
-import { IPicto, ISelection, IVariable } from "src/types";
+import { cloneDeep } from 'lodash';
+import { IPicto, ISelection, IVariable } from 'src/types';
 
 export default class Pictos {
   public pictos: IPicto[];
@@ -21,6 +21,10 @@ export default class Pictos {
 
   slice = (from: number, to?: number) => {
     return new Pictos(this.pictos.slice(from, to));
+  }
+
+  map = (mapFn) => {
+    return this.pictos.map(mapFn);
   }
 
   backspaceAtSelection = (selection: ISelection): [Pictos, ISelection] => {

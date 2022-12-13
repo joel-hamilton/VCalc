@@ -1,19 +1,23 @@
 import React, { useContext } from "react";
 import {
-  KeyboardAvoidingView,
   Pressable,
-  ScrollView,
   StyleSheet,
-  Platform,
   Text,
-  TextInput,
   View,
   ViewStyle,
 } from "react-native";
-import { IContext, IDimensions, ITheme } from "../types";
-import { Context } from "../Context";
 
+import { Context } from "../Context";
+import Pictos from "../Pictos";
 import { useTheme } from "../themes";
+import {
+  IBackspace,
+  IDimensions,
+  IInsertAtSelection,
+  ISetDisplay,
+  ITheme,
+  IWrapString,
+} from "../types";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -50,6 +54,16 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       alignItems: "center",
       justifyContent: "center",
     }),
+    buttonText: {
+      fontSize: 24,
+      color: colors.text,
+    },
+    buttonSecondaryText: {
+      color: colors.text,
+      position: "absolute",
+      top: 5,
+      right: 10,
+    },
   } as { [name: string]: ViewStyle });
 
 const createOperators = ({
@@ -57,23 +71,28 @@ const createOperators = ({
   insertAtSelection,
   backspace,
   wrapString,
+}: {
+  setDisplay: ISetDisplay;
+  insertAtSelection: IInsertAtSelection;
+  backspace: IBackspace;
+  wrapString: IWrapString;
 }) => [
   {
     text: "DEL",
     secondaryText: "CLR",
-    onLongPress: () => setDisplay([]),
+    onLongPress: () => setDisplay(new Pictos([])),
     onPress: backspace,
   },
   {
     text: "÷",
     secondaryText: "√",
-    onPress: () => insertAtSelection("/", { displayValue: "÷" }),
+    onPress: () => insertAtSelection("/"),
     onLongPress: () => insertAtSelection("√"),
   },
   {
     text: "x",
     secondaryText: "^",
-    onPress: () => insertAtSelection("*", { displayValue: "x" }),
+    onPress: () => insertAtSelection("*"),
     onLongPress: () => insertAtSelection("^"),
   },
   {
@@ -86,7 +105,11 @@ const createOperators = ({
     text: "+",
     secondaryText: "()",
     onPress: () => insertAtSelection("+"),
-    onLongPress: () => wrapString("(", ")"),
+    onLongPress: () =>
+      wrapString(
+        new Pictos([{ type: "string", nodes: "(" }]),
+        new Pictos([{ type: "string", nodes: ")" }])
+      ),
   },
 ];
 
@@ -95,6 +118,11 @@ const Operators = ({
   insertAtSelection,
   backspace,
   wrapString,
+}: {
+  setDisplay: ISetDisplay;
+  insertAtSelection: IInsertAtSelection;
+  backspace: IBackspace;
+  wrapString: IWrapString;
 }) => {
   const [context] = useContext(Context);
   const theme = useTheme();

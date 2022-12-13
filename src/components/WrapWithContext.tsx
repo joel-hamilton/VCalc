@@ -1,13 +1,12 @@
-import { ReactElement } from 'react';
-
 import { Context } from '../Context';
+import { IContext } from '../types';
 
 const WrapWithContext = ({children}) => {
   const context = {};
   const setContext = jest.fn();
 
   return (
-    <Context.Provider value={[context, setContext]}>{children}</Context.Provider>
+    <Context.Provider value={[context as IContext, setContext]}>{children}</Context.Provider>
   );
 };
 

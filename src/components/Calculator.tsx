@@ -1,25 +1,18 @@
-import { evaluate } from "mathjs";
-import React from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
+import { evaluate } from 'mathjs';
+import React from 'react';
+import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
-import Display from "./Display";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-import { useTheme } from "../themes";
-import { IDimensions, IPicto, ISelection, ITheme } from "../types";
-import { generateHex } from "../utils/string";
-import { getNextVariableName } from "../utils/pictos";
-import VariableScrollView from "./VariablesScrollView";
-import { Context } from "../Context";
-import Operators from "./Operators";
-import Pictos from "../Pictos";
+import { Context } from '../Context';
+import Pictos from '../Pictos';
+import { useTheme } from '../themes';
+import { IBackspace, IDimensions, IInsertAtSelection, IPicto, ISelection, ITheme, IWrapString } from '../types';
+import { getNextVariableName } from '../utils/pictos';
+import { generateHex } from '../utils/string';
+import Display from './Display';
+import Operators from './Operators';
+import VariableScrollView from './VariablesScrollView';
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -51,12 +44,6 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
     buttonText: {
       fontSize: 24,
       color: colors.text,
-    },
-    buttonSecondaryText: {
-      color: colors.text,
-      position: "absolute",
-      top: 5,
-      right: 10,
     },
     keypad: {
       flex: 3,
@@ -107,10 +94,9 @@ const Calculator = () => {
     }
   }, [display, context.variables]);
 
-
   const setTotal = () => {
     const res = doEvaluate();
-    const nodes  = res.split("").map(
+    const nodes = res.split("").map(
       (char): IPicto => ({
         type: "string",
         nodes: char,
@@ -118,7 +104,7 @@ const Calculator = () => {
     );
 
     const total = new Pictos(nodes);
-  
+
     const [newDisplay, newSelection] = display.insertAtSelection(total, {
       start: 0,
       end: display.length,
@@ -127,14 +113,7 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const insertAtSelection = (str: string, isVariable: boolean = false) => {
-
-
-    if (!isVariable && str.length > 1) {
-      console.error(">1 length strings not implemented yet!");
-      return;
-    }
-
+  const insertAtSelection:IInsertAtSelection = (str: string, isVariable: boolean = false) => {
     const pictos = new Pictos([
       {
         type: isVariable ? "variable" : "string",
@@ -151,7 +130,7 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const wrapString = (prependStr, appendStr) => {
+  const wrapString:IWrapString = (prependStr, appendStr) => {
     const [newDisplay, newSelection] = display.wrapAtSelection(
       prependStr,
       appendStr,
@@ -161,7 +140,7 @@ const Calculator = () => {
     setSelection(newSelection);
   };
 
-  const backspace = () => {
+  const backspace:IBackspace = () => {
     const [newDisplay, newSelection] = display.backspaceAtSelection(selection);
     setDisplay(newDisplay);
     setSelection(newSelection);

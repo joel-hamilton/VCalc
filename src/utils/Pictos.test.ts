@@ -1,6 +1,6 @@
-import Pictos from "../Pictos";
-import { IVariable } from "../types";
-import { getNextVariableName } from "./pictos";
+import Pictos from '../Pictos';
+import { IVariable } from '../types';
+import { getNextVariableName } from './pictos';
 
 describe("getNextVariableName", () => {
   const TEST_KEY = "testkey";
