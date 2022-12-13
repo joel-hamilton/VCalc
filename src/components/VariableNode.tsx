@@ -43,7 +43,6 @@ const VariableNode = ({
   const styles = createStyles(theme, fontSize);
   const [variable, setVariable] = React.useState(findVariable(variableKey));
 
-  console.log({variable, variableKey})
   return (
     <View
       style={{

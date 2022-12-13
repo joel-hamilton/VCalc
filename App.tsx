@@ -10,7 +10,7 @@ import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
 
 import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
-import { IContext, IDimensions } from "./src/types";
+import { IActions, IContext, IDimensions } from "./src/types";
 
 const Stack = createNativeStackNavigator();
 

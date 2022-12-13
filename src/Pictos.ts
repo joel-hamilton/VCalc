@@ -1,5 +1,5 @@
-import { cloneDeep } from 'lodash';
-import { IPicto, ISelection, IVariable } from 'src/types';
+import { cloneDeep } from "lodash";
+import { IPicto, ISelection, IVariable } from "src/types";
 
 export default class Pictos {
   public pictos: IPicto[];
@@ -13,19 +13,21 @@ export default class Pictos {
 
   equals = (otherPictos: Pictos) => {
     return this.toString() === otherPictos.toString();
-  }
+  };
 
   concat = (...otherPictos: Pictos[]) => {
-    return new Pictos(this.pictos.concat(...otherPictos.map(op => op.pictos)))
-  }
+    return new Pictos(
+      this.pictos.concat(...otherPictos.map((op) => op.pictos))
+    );
+  };
 
   slice = (from: number, to?: number) => {
     return new Pictos(this.pictos.slice(from, to));
-  }
+  };
 
   map = (mapFn) => {
     return this.pictos.map(mapFn);
-  }
+  };
 
   backspaceAtSelection = (selection: ISelection): [Pictos, ISelection] => {
     // if no selection, just remove the last char
@@ -53,10 +55,6 @@ export default class Pictos {
     selection: ISelection
   ): [Pictos, ISelection] => {
     const insertNodes = insertPictos.pictos;
-
-    if (!insertNodes.length) {
-      return [this, selection];
-    }
 
     const newStrArr = this.pictos
       .slice(0, selection.start)
@@ -105,8 +103,8 @@ export default class Pictos {
     variables?: IVariable[], // interpolate if this is present
     originalNodes?: IPicto[]
   ): string => {
-    if(variables === undefined) {
-      variables = []
+    if (variables === undefined) {
+      variables = [];
     }
 
     if (originalNodes === undefined) {
@@ -120,7 +118,10 @@ export default class Pictos {
 
       if (node.type === "variable") {
         if (variables.length) {
-          const variableValue = this.getVariableNodes(node.nodes as string, variables);
+          const variableValue = this.getVariableNodes(
+            node.nodes as string,
+            variables
+          );
 
           nodes[i] = {
             type: "string",
@@ -133,12 +134,15 @@ export default class Pictos {
     return nodes.map((n) => n.nodes).join("");
   };
 
-  private getVariableNodes = (varKey: string, variables:IVariable[]): Pictos => {
+  private getVariableNodes = (
+    varKey: string,
+    variables: IVariable[]
+  ): Pictos => {
     const variable = variables.find((v) => v.key === varKey);
     if (!variable) {
       return;
     }
 
-    return  variable.nodes;
+    return variable.nodes;
   };
 }

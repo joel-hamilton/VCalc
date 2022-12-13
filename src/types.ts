@@ -70,10 +70,30 @@ export interface IContext {
   isEditMode: boolean;
 }
 
-export type IInsertAtSelection = (charOrVariableKeyString: string, isVariable?: boolean) => void;
+export type IInsertAtSelection = (
+  charOrVariableKeyString: string,
+  isVariable?: boolean
+) => void;
 
 export type ISetDisplay = (pictos: Pictos) => void;
-
 export type IBackspace = () => void;
-
 export type IWrapString = (prependPictos: Pictos, appendPictos: Pictos) => void;
+type ISetDarkMode = (useDarkTheme: boolean) => void;
+type IAddVariable = (variable: IVariable) => void;
+type IDeleteVariable = (variableIndex: number) => void;
+type IUpdateVariable = (
+  variableUpdates: Partial<IVariable>,
+  index: number
+) => void;
+type ISetDimensions = (dimensions: IDimensions) => void;
+type ISetIsEditMode = (isEditmode: boolean) => void;
+export interface IActions {
+  ctxSetUseDarkMode: ISetDarkMode;
+  ctxAddVariable: IAddVariable;
+  ctxDeleteVariable: IDeleteVariable;
+  ctxUpdateVariable: IUpdateVariable;
+  ctxSetDimensions: ISetDimensions;
+  ctxSetIsEditMode: ISetIsEditMode;
+}
+
+export type ICreateActions = (setContext: any) => IActions;

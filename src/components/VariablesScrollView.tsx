@@ -1,16 +1,31 @@
-import { cloneDeep } from 'lodash';
-import React from 'react';
+import { cloneDeep } from "lodash";
+import React from "react";
 import {
-    KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
-    ViewStyle
-} from 'react-native';
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  ViewStyle,
+} from "react-native";
 
-import { Context } from '../Context';
-import Pictos from '../Pictos';
-import { useTheme } from '../themes';
-import { IBackspace, IDimensions, IInsertAtSelection, ISelection, ITheme } from '../types';
-import Display from './Display';
-import Operators from './Operators';
+import { Context } from "../Context";
+import Pictos from "../Pictos";
+import { useTheme } from "../themes";
+import {
+  IActions,
+  IBackspace,
+  IContext,
+  IDimensions,
+  IInsertAtSelection,
+  ISelection,
+  ITheme,
+} from "../types";
+import Display from "./Display";
+import Operators from "./Operators";
 
 enum InputStateKeys {
   NAME = 0,
@@ -89,11 +104,6 @@ const VariableScrollView = ({ onInsertVariable }) => {
     React.useContext(Context);
   const styles = createStyles(theme, context.dimensions);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
-  const [display, setDisplay] = React.useState<Pictos>(new Pictos([]));
-  const [selection, setSelection] = React.useState<ISelection>({
-    start: 0,
-    end: 0,
-  });
 
   interface InputState {
     name: string;
@@ -166,7 +176,6 @@ const VariableScrollView = ({ onInsertVariable }) => {
   }, [context.dimensions.keyboardVisible]);
 
   const setSelectionOnInput = (selection: ISelection, inputIndex: number) => {
-    console.log({ selection, inputIndex });
     const inputStatesClone = cloneDeep(inputStates);
     inputStatesClone[inputIndex].selection = selection;
     inputStatesClone[Math.abs(inputIndex - 1)].selection = {
@@ -174,9 +183,6 @@ const VariableScrollView = ({ onInsertVariable }) => {
       end: undefined,
     };
 
-    console.log({
-      inputStatesCloneSelections: inputStatesClone.map((i) => i.selection),
-    });
     setInputStates(inputStatesClone);
     setActiveInputIndex(inputIndex);
   };
@@ -199,11 +205,30 @@ const VariableScrollView = ({ onInsertVariable }) => {
 
     setInputStates(newInputStates);
 
-    // TODO re-enable and test this
-    // ctxUpdateVariable(newInputStates[useIndex], editingVariableIndex); 
+    ctxUpdateVariable(
+      {
+        [useIndex === InputStateKeys.NAME ? "varName" : "nodes"]:
+          newInputStates[useIndex].display,
+      },
+      editingVariableIndex
+    );
   };
 
-  const insertAtSelection:IInsertAtSelection = (str: string, isVariable: boolean = false) => {
+  const setDisplay = (display: Pictos) => {
+    const [newDisplay, newSelection] = inputStates[
+      activeInputIndex
+    ].display.insertAtSelection(display, {
+      start: 0,
+      end: inputStates[activeInputIndex].display.length,
+    });
+
+    updateCurrentInputState({ display: newDisplay, selection: newSelection });
+  };
+
+  const insertAtSelection: IInsertAtSelection = (
+    str: string,
+    isVariable: boolean = false
+  ) => {
     const [newDisplay, newSelection] = inputStates[
       activeInputIndex
     ].display.insertAtSelection(
@@ -219,7 +244,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
     updateCurrentInputState({ display: newDisplay, selection: newSelection });
   };
 
-  const backspace:IBackspace = () => {
+  const backspace: IBackspace = () => {
     const [newDisplay, newSelection] = inputStates[
       activeInputIndex
     ].display.backspaceAtSelection(inputStates[activeInputIndex].selection);
@@ -316,7 +341,6 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 spellCheck={false}
                 style={{ position: "absolute", left: -99999 }}
                 onKeyPress={({ nativeEvent: { key } }) => {
-                  console.log({ key });
                   // This doesn't work on androids with hard keyboards!!
                   if (key === "Backspace") {
                     backspace();
