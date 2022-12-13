@@ -16,9 +16,7 @@ import { Context } from "../Context";
 import Pictos from "../Pictos";
 import { useTheme } from "../themes";
 import {
-  IActions,
   IBackspace,
-  IContext,
   IDimensions,
   IInsertAtSelection,
   ISelection,
@@ -32,7 +30,7 @@ enum InputStateKeys {
   VALUE = 1,
 }
 
-const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
+const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
   StyleSheet.create<any>({
     wrapper: {
       height: dimensions.variableScrollViewH,
@@ -71,10 +69,10 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       color: colors.text,
     },
     editView: {
-      // position:'relative',
       flex: 1,
       backgroundColor: "purple",
-      marginBottom: dimensions.operatorEditModeH,
+      justifyContent: "space-between",
+      // marginBottom: dimensions.operatorEditModeH,
     },
     inputWrapper: {
       alignItems: "flex-end",
@@ -95,6 +93,11 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       paddingLeft: 10,
       paddingRight: 10,
     },
+    operatorsWrapper: {
+      // TODO this is dumb, what does 6px mean? Seems to work on most (all?) ios devices.
+      marginBottom:
+        Platform.OS === "ios" ? dimensions.operatorEditModeH - 6 : 0,
+    },
   } as { [name: string]: ViewStyle });
 
 const VariableScrollView = ({ onInsertVariable }) => {
@@ -102,7 +105,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
   const inputRef = React.createRef();
   const [context, { ctxSetIsEditMode, ctxUpdateVariable, ctxDeleteVariable }] =
     React.useContext(Context);
-  const styles = createStyles(theme, context.dimensions);
+  const styles = createStyles(theme, context.dimensions, Platform);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
 
   interface InputState {
@@ -351,14 +354,16 @@ const VariableScrollView = ({ onInsertVariable }) => {
               />
             </View>
 
-            <Operators
-              setDisplay={setDisplay}
-              insertAtSelection={insertAtSelection}
-              backspace={backspace}
-              wrapString={() => {
-                /*TODO*/
-              }}
-            />
+            <View style={styles.operatorsWrapper}>
+              <Operators
+                setDisplay={setDisplay}
+                insertAtSelection={insertAtSelection}
+                backspace={backspace}
+                wrapString={() => {
+                  /*TODO*/
+                }}
+              />
+            </View>
           </View>
         )}
       </KeyboardAvoidingView>

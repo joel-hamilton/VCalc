@@ -8,7 +8,7 @@ import { Context } from '../Context';
 import Pictos from '../Pictos';
 import { useTheme } from '../themes';
 import { IBackspace, IDimensions, IInsertAtSelection, IPicto, ISelection, ITheme, IWrapString } from '../types';
-import { getNextVariableName } from '../utils/pictos';
+import { getNextVariableName } from '../utils/pictosHelpers';
 import { generateHex } from '../utils/string';
 import Display from './Display';
 import Operators from './Operators';
