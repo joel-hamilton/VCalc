@@ -1,6 +1,17 @@
 import { cloneDeep } from "lodash";
 import { IPicto, ISelection, IVariable } from "src/types";
 
+/**
+ * Why Pictos?
+ * 
+ * As non-bmp characters aren't counted consistently (`"🥕".length === 2`, for example), Pictos
+ * provides an array-like solution where each element in the array is an IPicto representing
+ * either a string character (`{type: string, nodes: "🥕"}`) or a variable 
+ * (`{type: 'variable', nodes: VAR_NAME}`).
+ * 
+ * Storing each 'character' as an object in an array complicates outputting and comparing, and 
+ * Pictos exposes `equals` and `toString` methods.
+ */
 export default class Pictos {
   public pictos: IPicto[];
   constructor(pictos: IPicto[] = []) {

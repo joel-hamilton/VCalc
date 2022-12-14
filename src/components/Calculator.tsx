@@ -21,6 +21,7 @@ import { generateHex } from "../utils/string";
 import Display from "./Display";
 import Operators from "./Operators";
 import VariableScrollView from "./VariablesScrollView";
+import Keyboard from "./Keyboard";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -53,22 +54,6 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       fontSize: 24,
       color: colors.text,
     },
-    keypad: {
-      flex: 3,
-      flexDirection: "row",
-      flexWrap: "wrap",
-      backgroundColor: colors.button,
-    },
-    keypadEditMode: {
-      display: "none",
-    },
-    keypadItem: ({ pressed }) => ({
-      backgroundColor: pressed ? colors.buttonPressed : colors.button,
-      height: "25%",
-      flexBasis: "33.333333%",
-      alignItems: "center",
-      justifyContent: "center",
-    }),
   } as { [name: string]: ViewStyle });
 
 const Calculator = () => {
@@ -188,26 +173,7 @@ const Calculator = () => {
     }
   };
 
-  const keypad = [
-    { text: 7, onPress: () => insertAtSelection("7") },
-    { text: 8, onPress: () => insertAtSelection("8") },
-    { text: 9, onPress: () => insertAtSelection("9") },
-    { text: 4, onPress: () => insertAtSelection("4") },
-    { text: 5, onPress: () => insertAtSelection("5") },
-    { text: 6, onPress: () => insertAtSelection("6") },
-    { text: 1, onPress: () => insertAtSelection("1") },
-    { text: 2, onPress: () => insertAtSelection("2") },
-    { text: 3, onPress: () => insertAtSelection("3") },
-    { text: 0, onPress: () => insertAtSelection("0") },
-    {
-      text: ".",
-      onPress: () => insertAtSelection("."),
-    },
-    {
-      text: "=",
-      onPress: setTotal,
-    },
-  ];
+
 
   return (
     <View style={styles.main}>
@@ -267,22 +233,7 @@ const Calculator = () => {
       <VariableScrollView onInsertVariable={insertAtSelection} />
       {!context.isEditMode && (
         <View style={styles.inputWrapper}>
-          <View
-            style={{
-              ...styles.keypad,
-              ...(context.isEditMode ? styles.keypadEditMode : {}),
-            }}
-          >
-            {keypad.map((key) => (
-              <Pressable
-                key={key.text}
-                style={styles.keypadItem}
-                onPress={key.onPress}
-              >
-                <Text style={styles.buttonText}>{key.text}</Text>
-              </Pressable>
-            ))}
-          </View>
+          <Keyboard setTotal={setTotal} insertAtSelection={insertAtSelection} />
           <Operators
             setDisplay={setDisplay}
             insertAtSelection={insertAtSelection}
