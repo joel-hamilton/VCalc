@@ -149,7 +149,12 @@ const Display = ({
   };
 
   return (
-    <View ref={textContainerRef} style={styles.wrapper}>
+    <View
+      testID="display"
+      accessibilityHint={displayNodes.toString()}
+      ref={textContainerRef}
+      style={styles.wrapper}
+    >
       {
         displayNodes.map((node, index) => (
           <React.Fragment key={index}>

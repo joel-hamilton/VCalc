@@ -250,6 +250,17 @@ const VariableScrollView = ({ onInsertVariable }) => {
     updateCurrentInputState({ display: newDisplay, selection: newSelection });
   };
 
+  const wrapAtSelection = (prependPictos: Pictos, appendPictos: Pictos) => {
+    const [newDisplay, newSelection] = inputStates[
+      activeInputIndex
+    ].display.wrapAtSelection(
+      prependPictos,
+      appendPictos,
+      inputStates[activeInputIndex].selection
+    );
+    updateCurrentInputState({ display: newDisplay, selection: newSelection });
+  };
+
   const backspace: IBackspace = () => {
     const [newDisplay, newSelection] = inputStates[
       activeInputIndex
@@ -299,14 +310,17 @@ const VariableScrollView = ({ onInsertVariable }) => {
                   }
                 }}
               >
-                <Text style={styles.variableText}>
+                <Text
+                  accessibilityLabel={varName.toString()}
+                  style={styles.variableText}
+                >
                   {varName.toString()} {/* TODO add value preview too */}
                 </Text>
               </Pressable>
             ))}
           </ScrollView>
           <Pressable onPress={() => setEditVariableIndex(-1)}>
-            <Text style={{ fontSize: 30 }}>x</Text>
+            <Text testID="exit-edit-mode" style={{ fontSize: 30 }}>x</Text>
           </Pressable>
         </View>
         {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
@@ -362,9 +376,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 setDisplay={setDisplay}
                 insertAtSelection={insertAtSelection}
                 backspace={backspace}
-                wrapString={() => {
-                  /*TODO*/
-                }}
+                wrapString={wrapAtSelection}
               />
             </View>
           </View>

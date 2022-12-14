@@ -1,11 +1,5 @@
 import React, { useContext } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
 import { Context } from "../Context";
 import Pictos from "../Pictos";

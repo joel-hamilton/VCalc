@@ -56,12 +56,15 @@ const VariableNode = ({
               marginRight: 0,
               paddingRight: 5,
               height: defaultTextHeight,
-              justifyContent: 'center'
+              justifyContent: "center",
             }
           : {}),
       }}
     >
-      <Text {...textNodeProps} style={styles.text}>
+      <Text
+        {...textNodeProps}
+        style={styles.text}
+      >
         {variable.varName.toString()}
       </Text>
     </View>

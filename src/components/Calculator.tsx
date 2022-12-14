@@ -91,7 +91,6 @@ const Calculator = () => {
     try {
       const res = doEvaluate();
       const interpolationString = display.toString();
-      console.log({ interpolationPreview });
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -217,6 +216,7 @@ const Calculator = () => {
           <View style={{ height: 50 }}>
             {!!display.length && (
               <Pressable
+                testID="add-variable"
                 hitSlop={15}
                 style={styles.addVariableButton}
                 onPress={() => addVariable()}
@@ -241,11 +241,12 @@ const Calculator = () => {
             width: "100%",
             flexDirection: "row",
             justifyContent: "space-between",
-            marginBottom: 30 // TODO get rid of magic number, this should be based the visible height of variables bove keyboard
+            marginBottom: 30, // TODO get rid of magic number, this should be based the visible height of variables bove keyboard
           }}
         >
           <View>
             <Text
+              testID="interpolation-preview"
               style={styles.secondaryDisplay}
               numberOfLines={1}
               ellipsizeMode="tail"
@@ -254,6 +255,7 @@ const Calculator = () => {
             </Text>
           </View>
           <Text
+            testID="preview"
             style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
             numberOfLines={1}
             ellipsizeMode="tail"
