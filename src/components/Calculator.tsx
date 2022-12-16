@@ -21,7 +21,7 @@ import { generateHex } from "../utils/string";
 import Display from "./Display";
 import Operators from "./Operators";
 import VariableScrollView from "./VariablesScrollView";
-import Keyboard from "./Keyboard";
+import Keypad from "./Keypad";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -173,8 +173,6 @@ const Calculator = () => {
     }
   };
 
-
-
   return (
     <View style={styles.main}>
       <View style={styles.display}>
@@ -233,7 +231,7 @@ const Calculator = () => {
       <VariableScrollView onInsertVariable={insertAtSelection} />
       {!context.isEditMode && (
         <View style={styles.inputWrapper}>
-          <Keyboard setTotal={setTotal} insertAtSelection={insertAtSelection} />
+          <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />
           <Operators
             setDisplay={setDisplay}
             insertAtSelection={insertAtSelection}
