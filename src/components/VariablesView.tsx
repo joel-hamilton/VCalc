@@ -30,12 +30,12 @@ enum InputStateKeys {
   VALUE = 1,
 }
 
-const variableScrollViewZIndex = 2;
+const variablesViewZIndex = 2;
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
   StyleSheet.create<any>({
     wrapper: {
-      height: dimensions.variableScrollViewH,
+      height: dimensions.variablesViewH,
       backgroundColor: colors.card,
       position: "absolute",
       bottom: 0,
@@ -45,7 +45,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
     wrapperEdit: {
       height: "100%",
-      zIndex: variableScrollViewZIndex,
+      zIndex: variablesViewZIndex,
     },
     variablesView: {
       justifyContent: "space-between",
@@ -103,7 +103,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
   } as { [name: string]: ViewStyle });
 
-const VariableScrollView = ({ onInsertVariable }) => {
+const VariablesView = ({ onInsertVariable }) => {
   const theme = useTheme();
   const inputRef = React.createRef();
   const [context, { ctxSetIsEditMode, ctxUpdateVariable, ctxDeleteVariable }] =
@@ -330,7 +330,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 <Text style={styles.inputLabel}>Name</Text>
                 <View style={styles.input}>
                   <Display
-                    baseZIndex={variableScrollViewZIndex}
+                    baseZIndex={variablesViewZIndex}
                     displayNodes={inputStates[InputStateKeys.NAME].display}
                     selection={inputStates[InputStateKeys.NAME].selection}
                     onSelectionChange={(selection) =>
@@ -343,7 +343,7 @@ const VariableScrollView = ({ onInsertVariable }) => {
                 <Text style={styles.inputLabel}>Value</Text>
                 <View style={styles.input}>
                   <Display
-                    baseZIndex={variableScrollViewZIndex}
+                    baseZIndex={variablesViewZIndex}
                     displayNodes={inputStates[InputStateKeys.VALUE].display}
                     selection={inputStates[InputStateKeys.VALUE].selection}
                     onSelectionChange={(selection) =>
@@ -386,4 +386,4 @@ const VariableScrollView = ({ onInsertVariable }) => {
   );
 };
 
-export default VariableScrollView;
+export default VariablesView;

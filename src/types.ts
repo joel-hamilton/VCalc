@@ -58,8 +58,7 @@ export interface IDimensions {
   headerH: number;
   displayH: number;
   inputH: number;
-  variableScrollViewH: number;
-  keyboardH: number;
+  variablesViewH: number;
   keyboardVisible: boolean;
   operatorEditModeH: number;
 }

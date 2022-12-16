@@ -20,7 +20,7 @@ import { getNextVariableName } from "../utils/pictosHelpers";
 import { generateHex } from "../utils/string";
 import Display from "./Display";
 import Operators from "./Operators";
-import VariableScrollView from "./VariablesScrollView";
+import VariablesView from "./VariablesView";
 import Keypad from "./Keypad";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
@@ -228,7 +228,7 @@ const Calculator = () => {
           </Text>
         </View>
       </View>
-      <VariableScrollView onInsertVariable={insertAtSelection} />
+      <VariablesView onInsertVariable={insertAtSelection} />
       {!context.isEditMode && (
         <View style={styles.inputWrapper}>
           <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />

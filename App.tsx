@@ -1,5 +1,5 @@
 import * as React from "react";
-import { KeyboardAvoidingView, Platform, SafeAreaView, StatusBar, useColorScheme } from "react-native";
+import { SafeAreaView, StatusBar, useColorScheme } from "react-native";
 import { NavigationContainer, Theme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,27 +10,25 @@ import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
 
 import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
-import { IActions, IContext, IDimensions } from "./src/types";
+import { IContext, IDimensions } from "./src/types";
 
 const Stack = createNativeStackNavigator();
 
-const getDimensions = ({width, height}, {keyboardHeight, keyboardShown}):IDimensions => {
-const headerH = 40;
-const variableScrollerVisibleH= 40;
-// const screenExHeaderH = height - headerH;
+const getDimensions = ({ width, height }, { keyboardShown }): IDimensions => {
+  const headerH = 40;
+  const variablesViewVisibleH = 40;
 
   return {
     screenH: height,
     screenW: width,
     headerH,
     displayH: height / 2,
-    inputH: height / 2 - variableScrollerVisibleH,
-    variableScrollViewH: height / 2,
-    keyboardH: keyboardHeight,
+    inputH: height / 2 - variablesViewVisibleH,
+    variablesViewH: height / 2,
     keyboardVisible: keyboardShown,
     operatorEditModeH: 70,
   };
-}
+};
 
 const App = () => {
   const scheme = useColorScheme();
@@ -47,7 +45,7 @@ const App = () => {
   const actions = createActions(setContext);
 
   React.useEffect(() => {
-    actions.ctxSetDimensions(getDimensions(dimensions, keyboard))
+    actions.ctxSetDimensions(getDimensions(dimensions, keyboard));
   }, [dimensions, keyboard.keyboardShown]);
 
   React.useEffect(() => {
@@ -81,15 +79,15 @@ const App = () => {
       <SafeAreaView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
       >
-          <NavigationContainer theme={theme as unknown as Theme}>
-            <Stack.Navigator
-              screenOptions={{
-                header: Header,
-              }}
-            >
-              <Stack.Screen name="VCalc" component={Calculator} />
-            </Stack.Navigator>
-          </NavigationContainer>
+        <NavigationContainer theme={theme as unknown as Theme}>
+          <Stack.Navigator
+            screenOptions={{
+              header: Header,
+            }}
+          >
+            <Stack.Screen name="VCalc" component={Calculator} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </SafeAreaView>
     </Context.Provider>
   );
