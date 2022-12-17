@@ -11,6 +11,14 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  ZoomIn,
+} from "react-native-reanimated";
 
 import { Context } from "../Context";
 import Pictos from "../Pictos";
@@ -41,7 +49,6 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
       bottom: 0,
       left: 0,
       right: 0,
-      // padding: 5,
     },
     wrapperEdit: {
       height: "100%",
@@ -110,6 +117,46 @@ const VariablesView = ({ onInsertVariable }) => {
     React.useContext(Context);
   const styles = createStyles(theme, context.dimensions, Platform);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
+
+  const isPressed = useSharedValue(false);
+  const offsetY = useSharedValue(0);
+
+  const animatedStyles = useAnimatedStyle(() => ({
+    transform: [{ translateY: offsetY.value }],
+  }));
+
+  const startY = useSharedValue(0);
+  const gesture = Gesture.Pan()
+    .onBegin(() => {
+      isPressed.value = true;
+    })
+    .onUpdate((e) => {
+      offsetY.value = e.translationY + startY.value;
+    })
+    .onEnd(() => {
+      if (context.isEditMode && offsetY.value > 50) {
+        startY.value = 0;
+        offsetY.value = 0;
+        runOnJS(setEditVariableIndex)(-1);
+      }
+
+      if (!context.isEditMode && offsetY.value < -50) {
+        startY.value = 0;
+        offsetY.value = 0;
+        if(context.variables.length) {
+          runOnJS(setEditVariableIndex)(0);
+        }
+      }
+
+      offsetY.value = 0;
+    })
+    .onFinalize(() => {
+      isPressed.value = false;
+    });
+
+  React.useEffect(() => {
+    console.log({ y: offsetY.value, pressed: isPressed.value });
+  }, [offsetY.value, isPressed.value]);
 
   interface InputState {
     name: string;
@@ -269,120 +316,125 @@ const VariablesView = ({ onInsertVariable }) => {
   };
 
   return (
-    <View
-      style={{
-        ...styles.wrapper,
-        ...(context.isEditMode ? styles.wrapperEdit : {}),
-      }}
-    >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior="padding"
-        enabled={Platform.OS === "ios"}
+    <GestureDetector gesture={gesture}>
+      <Animated.View
+        style={[
+          styles.wrapper,
+          context.isEditMode ? styles.wrapperEdit : {},
+          animatedStyles,
+        ]}
       >
-        <View style={styles.variablesView}>
-          <ScrollView
-            keyboardShouldPersistTaps="always"
-            horizontal={true}
-            contentContainerStyle={styles.variables}
-          >
-            {context.variables.map(({ varName, nodes, key }, index) => (
-              <Pressable
-                key={index}
-                style={{
-                  ...styles.variable,
-                  ...(context.isEditMode ? styles.variableEditing : {}),
-                  ...(index === editingVariableIndex
-                    ? { backgroundColor: theme.colors.variableBackground }
-                    : {}),
-                }}
-                onLongPress={() => setEditVariableIndex(index)}
-                onPress={() => {
-                  if (context.isEditMode) {
-                    if (
-                      index !== editingVariableIndex &&
-                      activeInputIndex !== InputStateKeys.NAME
-                    ) {
-                      insertAtSelection(key, true);
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior="padding"
+          enabled={Platform.OS === "ios"}
+        >
+          <View style={styles.variablesView}>
+            <ScrollView
+              keyboardShouldPersistTaps="always"
+              horizontal={true}
+              contentContainerStyle={styles.variables}
+            >
+              {context.variables.map(({ varName, nodes, key }, index) => (
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.variable,
+                    context.isEditMode ? styles.variableEditing : {},
+                    index === editingVariableIndex
+                      ? { backgroundColor: theme.colors.variableBackground }
+                      : {},
+                  ]}
+                  onLongPress={() => setEditVariableIndex(index)}
+                  onPress={() => {
+                    if (context.isEditMode) {
+                      if (
+                        index !== editingVariableIndex &&
+                        activeInputIndex !== InputStateKeys.NAME
+                      ) {
+                        insertAtSelection(key, true);
+                      }
+                    } else {
+                      onInsertVariable(key, true);
                     }
-                  } else {
-                    onInsertVariable(key, true);
-                  }
-                }}
-              >
-                <Text
-                  accessibilityLabel={varName.toString()}
-                  style={styles.variableText}
+                  }}
                 >
-                  {varName.toString()} {/* TODO add value preview too */}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-          <Pressable onPress={() => setEditVariableIndex(-1)}>
-            <Text testID="exit-edit-mode" style={{ fontSize: 30 }}>x</Text>
-          </Pressable>
-        </View>
-        {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
-          <View style={styles.editView}>
-            <View>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputLabel}>Name</Text>
-                <View style={styles.input}>
-                  <Display
-                    baseZIndex={variablesViewZIndex}
-                    displayNodes={inputStates[InputStateKeys.NAME].display}
-                    selection={inputStates[InputStateKeys.NAME].selection}
-                    onSelectionChange={(selection) =>
-                      setSelectionOnInput(selection, InputStateKeys.NAME)
-                    }
-                  />
-                </View>
-              </View>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputLabel}>Value</Text>
-                <View style={styles.input}>
-                  <Display
-                    baseZIndex={variablesViewZIndex}
-                    displayNodes={inputStates[InputStateKeys.VALUE].display}
-                    selection={inputStates[InputStateKeys.VALUE].selection}
-                    onSelectionChange={(selection) =>
-                      setSelectionOnInput(selection, InputStateKeys.VALUE)
-                    }
-                  />
-                </View>
-              </View>
-
-              <TextInput
-                ref={inputRef}
-                autoFocus={true}
-                autoCorrect={false}
-                autoComplete="off"
-                spellCheck={false}
-                style={{ position: "absolute", left: -99999 }}
-                onKeyPress={({ nativeEvent: { key } }) => {
-                  // This doesn't work on androids with hard keyboards!!
-                  if (key === "Backspace") {
-                    backspace();
-                  } else {
-                    insertAtSelection(key);
-                  }
-                }}
-              />
-            </View>
-
-            <View style={styles.operatorsWrapper}>
-              <Operators
-                setDisplay={setDisplay}
-                insertAtSelection={insertAtSelection}
-                backspace={backspace}
-                wrapString={wrapAtSelection}
-              />
-            </View>
+                  <Text
+                    accessibilityLabel={varName.toString()}
+                    style={styles.variableText}
+                  >
+                    {varName.toString()} {/* TODO add value preview too */}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+            <Pressable onPress={() => setEditVariableIndex(-1)}>
+              <Text testID="exit-edit-mode" style={{ fontSize: 30 }}>
+                x
+              </Text>
+            </Pressable>
           </View>
-        )}
-      </KeyboardAvoidingView>
-    </View>
+          {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
+            <View style={styles.editView}>
+              <View>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Name</Text>
+                  <View style={styles.input}>
+                    <Display
+                      baseZIndex={variablesViewZIndex}
+                      displayNodes={inputStates[InputStateKeys.NAME].display}
+                      selection={inputStates[InputStateKeys.NAME].selection}
+                      onSelectionChange={(selection) =>
+                        setSelectionOnInput(selection, InputStateKeys.NAME)
+                      }
+                    />
+                  </View>
+                </View>
+                <View style={styles.inputWrapper}>
+                  <Text style={styles.inputLabel}>Value</Text>
+                  <View style={styles.input}>
+                    <Display
+                      baseZIndex={variablesViewZIndex}
+                      displayNodes={inputStates[InputStateKeys.VALUE].display}
+                      selection={inputStates[InputStateKeys.VALUE].selection}
+                      onSelectionChange={(selection) =>
+                        setSelectionOnInput(selection, InputStateKeys.VALUE)
+                      }
+                    />
+                  </View>
+                </View>
+
+                <TextInput
+                  ref={inputRef}
+                  autoFocus={true}
+                  autoCorrect={false}
+                  autoComplete="off"
+                  spellCheck={false}
+                  style={{ position: "absolute", left: -99999 }}
+                  onKeyPress={({ nativeEvent: { key } }) => {
+                    // This doesn't work on androids with hard keyboards!!
+                    if (key === "Backspace") {
+                      backspace();
+                    } else {
+                      insertAtSelection(key);
+                    }
+                  }}
+                />
+              </View>
+
+              <View style={styles.operatorsWrapper}>
+                <Operators
+                  setDisplay={setDisplay}
+                  insertAtSelection={insertAtSelection}
+                  backspace={backspace}
+                  wrapString={wrapAtSelection}
+                />
+              </View>
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </Animated.View>
+    </GestureDetector>
   );
 };
 

@@ -11,6 +11,7 @@ import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
 import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
 import { IContext, IDimensions } from "./src/types";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,7 @@ const App = () => {
 
   return (
     <Context.Provider value={[context, actions]}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
       >
@@ -89,6 +91,7 @@ const App = () => {
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaView>
+      </GestureHandlerRootView>
     </Context.Provider>
   );
 };
