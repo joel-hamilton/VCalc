@@ -30,6 +30,10 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       alignItems: "center",
       justifyContent: "center",
     }),
+    buttonText: {
+      fontSize: 24,
+      color: colors.text,
+    },
   } as { [name: string]: ViewStyle });
 
 const Keypad = ({ insertAtSelection, setTotal }) => {

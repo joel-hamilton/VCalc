@@ -1,6 +1,7 @@
 import { cloneDeep } from "lodash";
 import React from "react";
 import {
+  Dimensions,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -8,6 +9,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TextStyle,
   View,
   ViewStyle,
 } from "react-native";
@@ -43,16 +45,18 @@ const variablesViewZIndex = 2;
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
   StyleSheet.create<any>({
     wrapper: {
-      height: dimensions.variablesViewH,
+      // height: dimensions.variablesViewH,
+      height: "100%",
       backgroundColor: colors.card,
       position: "absolute",
-      bottom: 0,
+      top: dimensions.displayH - dimensions.variablesViewPeek,
+      // bottom: 0,
       left: 0,
       right: 0,
     },
     wrapperEdit: {
-      height: "100%",
-      zIndex: variablesViewZIndex,
+      // height: "100%",
+      // zIndex: variablesViewZIndex,
     },
     variablesView: {
       justifyContent: "space-between",
@@ -71,7 +75,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
       height: 30,
       borderRadius: 10,
       marginRight: 5,
-      backgroundColor: colors.variableBackground,
+      backgroundColor: colors.buttonHighlight,
     },
     variableEditing: {
       backgroundColor: colors.secondaryText,
@@ -118,11 +122,20 @@ const VariablesView = ({ onInsertVariable }) => {
   const styles = createStyles(theme, context.dimensions, Platform);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
 
+  const translateYEditMode =
+    -1 * context.dimensions.displayH + context.dimensions.variablesViewPeek;
+
   const isPressed = useSharedValue(false);
   const offsetY = useSharedValue(0);
 
-  const animatedStyles = useAnimatedStyle(() => ({
-    transform: [{ translateY: offsetY.value }],
+  const animatedSwiperStyles = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: withSpring(offsetY.value, { overshootClamping: true }) },
+    ],
+  }));
+
+  const animatedEditorStyles = useAnimatedStyle(() => ({
+    opacity: offsetY.value / translateYEditMode,
   }));
 
   const startY = useSharedValue(0);
@@ -134,29 +147,26 @@ const VariablesView = ({ onInsertVariable }) => {
       offsetY.value = e.translationY + startY.value;
     })
     .onEnd(() => {
-      if (context.isEditMode && offsetY.value > 50) {
-        startY.value = 0;
+      if (context.isEditMode && offsetY.value - startY.value > 50) {
         offsetY.value = 0;
+        startY.value = 0;
         runOnJS(setEditVariableIndex)(-1);
-      }
-
-      if (!context.isEditMode && offsetY.value < -50) {
-        startY.value = 0;
+      } else if (
+        !context.isEditMode &&
+        offsetY.value < -50 &&
+        context.variables.length
+      ) {
+        offsetY.value = translateYEditMode;
+        startY.value = translateYEditMode;
+        runOnJS(setEditVariableIndex)(0);
+      } else {
         offsetY.value = 0;
-        if(context.variables.length) {
-          runOnJS(setEditVariableIndex)(0);
-        }
+        startY.value = 0;
       }
-
-      offsetY.value = 0;
     })
     .onFinalize(() => {
       isPressed.value = false;
     });
-
-  React.useEffect(() => {
-    console.log({ y: offsetY.value, pressed: isPressed.value });
-  }, [offsetY.value, isPressed.value]);
 
   interface InputState {
     name: string;
@@ -321,7 +331,7 @@ const VariablesView = ({ onInsertVariable }) => {
         style={[
           styles.wrapper,
           context.isEditMode ? styles.wrapperEdit : {},
-          animatedStyles,
+          animatedSwiperStyles,
         ]}
       >
         <KeyboardAvoidingView
@@ -374,8 +384,8 @@ const VariablesView = ({ onInsertVariable }) => {
               </Text>
             </Pressable>
           </View>
-          {editingVariableIndex >= 0 /* not context.isEditMode on purpose*/ && (
-            <View style={styles.editView}>
+          {context.variables.length > 0 && (
+            <Animated.View style={[styles.editView, animatedEditorStyles]}>
               <View>
                 <View style={styles.inputWrapper}>
                   <Text style={styles.inputLabel}>Name</Text>
@@ -430,7 +440,7 @@ const VariablesView = ({ onInsertVariable }) => {
                   wrapString={wrapAtSelection}
                 />
               </View>
-            </View>
+            </Animated.View>
           )}
         </KeyboardAvoidingView>
       </Animated.View>
