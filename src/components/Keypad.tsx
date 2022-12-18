@@ -65,7 +65,7 @@ const Keypad = ({ insertAtSelection, setTotal }) => {
     <View
       style={{
         ...styles.keypad,
-        ...(context.isEditMode ? styles.keypadEditMode : {}),
+        // ...(context.isEditMode ? styles.keypadEditMode : {}),
       }}
     >
       {keypad.map((key) => (

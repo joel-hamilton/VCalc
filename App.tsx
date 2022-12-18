@@ -18,17 +18,20 @@ const Stack = createNativeStackNavigator();
 const getDimensions = ({ width, height }, { keyboardShown }): IDimensions => {
   const headerH = 40;
   const variablesViewPeek = 40;
+  const displayH = height / 2;
 
   return {
     screenH: height,
     screenW: width,
     headerH,
-    displayH: height / 2,
+    displayH,
     inputH: height / 2 - variablesViewPeek,
     variablesViewH: height / 2,
     keyboardVisible: keyboardShown,
     operatorEditModeH: 70,
     variablesViewPeek,
+    translateYEditMode:
+    -1 * (displayH + variablesViewPeek)
   };
 };
 

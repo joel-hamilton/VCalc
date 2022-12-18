@@ -115,7 +115,12 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
   } as { [name: string]: ViewStyle });
 
-const VariablesView = ({ onInsertVariable }) => {
+const VariablesView = ({
+  onInsertVariable,
+  variablesTranslateY,
+  animatedSwiperStyles,
+  animatedEditorStyles,
+}) => {
   const theme = useTheme();
   const inputRef = React.createRef();
   const [context, { ctxSetIsEditMode, ctxUpdateVariable, ctxDeleteVariable }] =
@@ -123,26 +128,7 @@ const VariablesView = ({ onInsertVariable }) => {
   const styles = createStyles(theme, context.dimensions, Platform);
   const [editingVariableIndex, setEditVariableIndex] = React.useState(-1);
 
-  const translateYEditMode =
-    -1 * context.dimensions.displayH + context.dimensions.variablesViewPeek;
-
   const isPressed = useSharedValue(false);
-  const offsetY = useSharedValue(0);
-
-  const animatedSwiperStyles = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: withSpring(offsetY.value, { overshootClamping: true }) },
-    ],
-    backgroundColor: interpolateColor(
-      offsetY.value,
-      [0, translateYEditMode],
-      [theme.colors.card, theme.colors.background]
-    ),
-  }));
-
-  const animatedEditorStyles = useAnimatedStyle(() => ({
-    opacity: offsetY.value / translateYEditMode,
-  }));
 
   const startY = useSharedValue(0);
   const gesture = Gesture.Pan()
@@ -150,23 +136,26 @@ const VariablesView = ({ onInsertVariable }) => {
       isPressed.value = true;
     })
     .onUpdate((e) => {
-      offsetY.value = e.translationY + startY.value;
+      variablesTranslateY.value = e.translationY + startY.value;
     })
     .onEnd(() => {
-      if (context.isEditMode && offsetY.value - startY.value > 50) {
-        offsetY.value = 0;
+      if (context.isEditMode && variablesTranslateY.value - startY.value > 50) {
+        variablesTranslateY.value = 0;
         startY.value = 0;
         runOnJS(setEditVariableIndex)(-1);
       } else if (
         !context.isEditMode &&
-        offsetY.value < -50 &&
+        variablesTranslateY.value < -50 &&
         context.variables.length
       ) {
-        offsetY.value = translateYEditMode;
-        startY.value = translateYEditMode;
+        variablesTranslateY.value = context.dimensions.translateYEditMode;
+        startY.value = context.dimensions.translateYEditMode;
         runOnJS(setEditVariableIndex)(0);
+      } else if (context.isEditMode) {
+        variablesTranslateY.value = context.dimensions.translateYEditMode;
+        startY.value = context.dimensions.translateYEditMode;
       } else {
-        offsetY.value = 0;
+        variablesTranslateY.value = 0;
         startY.value = 0;
       }
     })
@@ -420,22 +409,24 @@ const VariablesView = ({ onInsertVariable }) => {
                   </View>
                 </View>
 
-                <TextInput
-                  ref={inputRef}
-                  autoFocus={true}
-                  autoCorrect={false}
-                  autoComplete="off"
-                  spellCheck={false}
-                  style={{ position: "absolute", left: -99999 }}
-                  onKeyPress={({ nativeEvent: { key } }) => {
-                    // This doesn't work on androids with hard keyboards!!
-                    if (key === "Backspace") {
-                      backspace();
-                    } else {
-                      insertAtSelection(key);
-                    }
-                  }}
-                />
+                {context.isEditMode && (
+                  <TextInput
+                    ref={inputRef}
+                    autoFocus={true}
+                    autoCorrect={false}
+                    autoComplete="off"
+                    spellCheck={false}
+                    style={{ position: "absolute", left: -99999 }}
+                    onKeyPress={({ nativeEvent: { key } }) => {
+                      // This doesn't work on androids with hard keyboards!!
+                      if (key === "Backspace") {
+                        backspace();
+                      } else {
+                        insertAtSelection(key);
+                      }
+                    }}
+                  />
+                )}
               </View>
 
               <View style={styles.operatorsWrapper}>

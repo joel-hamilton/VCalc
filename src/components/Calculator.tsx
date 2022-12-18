@@ -22,6 +22,13 @@ import Display from "./Display";
 import Operators from "./Operators";
 import VariablesView from "./VariablesView";
 import Keypad from "./Keypad";
+import Animated, {
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -71,6 +78,7 @@ const Calculator = () => {
     start: 0,
     end: 0,
   });
+  const variablesTranslateY = useSharedValue(0);
 
   React.useEffect(() => {
     try {
@@ -173,6 +181,33 @@ const Calculator = () => {
     }
   };
 
+  const animatedSwiperStyles = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: withSpring(variablesTranslateY.value, {
+          overshootClamping: true,
+        }),
+      },
+    ],
+    backgroundColor: interpolateColor(
+      variablesTranslateY.value,
+      [0, context.dimensions.translateYEditMode],
+      [theme.colors.card, theme.colors.background]
+    ),
+  }));
+
+  const animatedEditorStyles = useAnimatedStyle(() => ({
+    opacity: interpolate(variablesTranslateY.value, [0, context.dimensions.translateYEditMode], [0, 1])
+  }));
+
+  const animatedInputStyles = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      variablesTranslateY.value,
+      [context.dimensions.translateYEditMode, 0],
+      [0, 1]
+    ),
+  }));
+
   return (
     <View style={styles.main}>
       <View style={styles.display}>
@@ -228,18 +263,23 @@ const Calculator = () => {
           </Text>
         </View>
       </View>
-      <VariablesView onInsertVariable={insertAtSelection} />
-      {!context.isEditMode && (
-        <View style={styles.inputWrapper}>
-          <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />
-          <Operators
-            setDisplay={setDisplay}
-            insertAtSelection={insertAtSelection}
-            backspace={backspace}
-            wrapString={wrapString}
-          />
-        </View>
-      )}
+      <VariablesView
+        onInsertVariable={insertAtSelection}
+        variablesTranslateY={variablesTranslateY}
+        animatedEditorStyles={animatedEditorStyles}
+        animatedSwiperStyles={animatedSwiperStyles}
+      />
+      {/* {!context.isEditMode && ( */}
+      <Animated.View style={[styles.inputWrapper, animatedInputStyles]}>
+        <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />
+        <Operators
+          setDisplay={setDisplay}
+          insertAtSelection={insertAtSelection}
+          backspace={backspace}
+          wrapString={wrapString}
+        />
+      </Animated.View>
+      {/* )} */}
     </View>
   );
 };
