@@ -102,7 +102,7 @@ const Header = ({
     <View
       style={{
         ...styles.main,
-        ...(context.isEditMode ? { backgroundColor: theme.colors.card } : {}),
+        // ...(context.isEditMode ? { backgroundColor: theme.colors.card } : {}),
       }}
     >
       <Text style={styles.title}>{title}</Text>

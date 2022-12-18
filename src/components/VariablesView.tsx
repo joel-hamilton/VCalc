@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  interpolateColor,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
@@ -132,6 +133,11 @@ const VariablesView = ({ onInsertVariable }) => {
     transform: [
       { translateY: withSpring(offsetY.value, { overshootClamping: true }) },
     ],
+    backgroundColor: interpolateColor(
+      offsetY.value,
+      [0, translateYEditMode],
+      [theme.colors.card, theme.colors.background]
+    ),
   }));
 
   const animatedEditorStyles = useAnimatedStyle(() => ({
@@ -339,7 +345,7 @@ const VariablesView = ({ onInsertVariable }) => {
           behavior="padding"
           enabled={Platform.OS === "ios"}
         >
-          <View style={styles.variablesView}>
+          <View style={[styles.variablesView]}>
             <ScrollView
               keyboardShouldPersistTaps="always"
               horizontal={true}
