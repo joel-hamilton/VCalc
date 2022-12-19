@@ -19,19 +19,20 @@ const getDimensions = ({ width, height }, { keyboardShown }): IDimensions => {
   const headerH = 40;
   const variablesViewPeek = 40;
   const displayH = height / 2;
+  const inputH = height / 2 - variablesViewPeek;
 
   return {
     screenH: height,
     screenW: width,
     headerH,
     displayH,
-    inputH: height / 2 - variablesViewPeek,
+    inputH,
     variablesViewH: height / 2,
     keyboardVisible: keyboardShown,
     operatorsHorizontalH: 70,
     variablesViewPeek,
     translateYEditMode:
-    -1 * (displayH - variablesViewPeek)
+    -1 * (inputH - variablesViewPeek)
   };
 };
 

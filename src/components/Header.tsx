@@ -70,7 +70,7 @@ const Header = ({
           disabled={true}
           trackColor={{
             false: theme.colors.border,
-            true: theme.colors.buttonHighlight,
+            true: theme.colors.primary,
           }}
           thumbColor={
             !!context.useDarkTheme

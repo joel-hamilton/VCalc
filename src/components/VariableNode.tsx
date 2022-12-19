@@ -1,17 +1,27 @@
-import React, { useContext } from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import React, { useContext } from "react";
+import { StyleSheet, Text, View, ViewStyle } from "react-native";
 
-import { Context } from '../Context';
-import { useTheme } from '../themes';
+import { Context } from "../Context";
+import { useTheme } from "../themes";
 
-const createStyles = ({ colors }, fontSize) =>
+const createStyles = ({ colors }, fontSize, defaultTextHeight) =>
   StyleSheet.create({
     wrapper: {
-      backgroundColor: colors.variableBackground,
+      backgroundColor: colors.primary,
       color: colors.text,
       borderRadius: 5,
       marginLeft: 5,
       marginRight: 5,
+    },
+    wrapperSelected: {
+      backgroundColor: colors.primary,
+      borderRadius: 0,
+      marginLeft: 0,
+      paddingLeft: 5,
+      marginRight: 0,
+      paddingRight: 5,
+      height: defaultTextHeight,
+      justifyContent: "center",
     },
     text: {
       paddingTop: 5,
@@ -38,33 +48,14 @@ const VariableNode = ({
   isSelected: boolean;
 }) => {
   const [context] = useContext(Context);
-  const findVariable = (key) => context.variables.find(v => v.key === key);
+  const findVariable = (key) => context.variables.find((v) => v.key === key);
   const theme = useTheme();
-  const styles = createStyles(theme, fontSize);
+  const styles = createStyles(theme, fontSize, defaultTextHeight);
   const [variable, setVariable] = React.useState(findVariable(variableKey));
 
   return (
-    <View
-      style={{
-        ...styles.wrapper,
-        ...(isSelected
-          ? {
-              backgroundColor: theme.colors.primary,
-              borderRadius: 0,
-              marginLeft: 0,
-              paddingLeft: 5,
-              marginRight: 0,
-              paddingRight: 5,
-              height: defaultTextHeight,
-              justifyContent: "center",
-            }
-          : {}),
-      }}
-    >
-      <Text
-        {...textNodeProps}
-        style={styles.text}
-      >
+    <View style={[styles.wrapper, isSelected && styles.wrapperSelected]}>
+      <Text {...textNodeProps} style={styles.text}>
         {variable.varName.toString()}
       </Text>
     </View>

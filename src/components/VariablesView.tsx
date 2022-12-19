@@ -12,10 +12,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, {
-  runOnJS,
-  useSharedValue,
-} from "react-native-reanimated";
+import Animated, { runOnJS, useSharedValue } from "react-native-reanimated";
 
 import { Context } from "../Context";
 import Pictos from "../Pictos";
@@ -44,8 +41,9 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
       height: "100%",
       backgroundColor: colors.card,
       position: "absolute",
-      top: dimensions.displayH - dimensions.variablesViewPeek,
-      // bottom: 0,
+      // top: dimensions.displayH - dimensions.variablesViewPeek,
+      // bottom: dimensions.translateYEditMode,
+      top: -1 * dimensions.translateYEditMode,
       left: 0,
       right: 0,
     },
@@ -70,7 +68,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
       height: 30,
       borderRadius: 10,
       marginRight: 5,
-      backgroundColor: colors.buttonHighlight,
+      backgroundColor: colors.primary,
     },
     variableEditing: {
       backgroundColor: colors.secondaryText,
@@ -89,6 +87,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
     inputLabel: {
       fontWeight: "bold",
+      color: colors.text,
     },
     input: {
       flexDirection: "row",
@@ -183,6 +182,16 @@ const VariablesView = ({
     _setActiveInputIndex(index);
   };
 
+  const exitEditMode = () => {
+    setEditVariableIndex(-1);
+    variablesTranslateY.value = 0;
+  };
+
+  const enterEditMode = (index = 0) => {
+    setEditVariableIndex(index);
+    variablesTranslateY.value = context.dimensions.translateYEditMode;
+  };
+
   // set edit mode and show keyboard
   React.useEffect(() => {
     const isEditMode = editingVariableIndex >= 0;
@@ -223,7 +232,7 @@ const VariablesView = ({
 
   React.useEffect(() => {
     if (context.isEditMode && !context.dimensions.keyboardVisible) {
-      setEditVariableIndex(-1);
+      exitEditMode();
     }
   }, [context.dimensions.keyboardVisible]);
 
@@ -341,10 +350,10 @@ const VariablesView = ({
                     styles.variable,
                     context.isEditMode ? styles.variableEditing : {},
                     index === editingVariableIndex
-                      ? { backgroundColor: theme.colors.variableBackground }
+                      ? { backgroundColor: theme.colors.primary }
                       : {},
                   ]}
-                  onLongPress={() => setEditVariableIndex(index)}
+                  onLongPress={() => enterEditMode(index)}
                   onPress={() => {
                     if (context.isEditMode) {
                       if (
@@ -367,7 +376,7 @@ const VariablesView = ({
                 </Pressable>
               ))}
             </ScrollView>
-            <Pressable onPress={() => setEditVariableIndex(-1)}>
+            <Pressable onPress={exitEditMode}>
               <Text testID="exit-edit-mode" style={{ fontSize: 30 }}>
                 x
               </Text>

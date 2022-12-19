@@ -33,6 +33,7 @@ const createStyles = ({ colors }: ITheme, baseZIndex: number) =>
     },
     text: {
       fontSize,
+      color: colors.text,
     },
     caret: {
       position: "absolute",
@@ -176,20 +177,26 @@ const Display = ({
               {node.type === "string" && (
                 <Text
                   {...getTextNodeProps(index)}
-                  style={{
-                    ...styles.text,
-                    height: textHeight,
-                    paddingRight:
-                      (node.nodes as string) in OperatorsWithExtraSpace ? 5 : 0,
-                    paddingLeft:
-                      (node.nodes as string) in OperatorsWithExtraSpace ? 5 : 0,
-                    backgroundColor:
-                      selection.start !== selection.end &&
-                      index >= selection.start &&
-                      index < selection.end
-                        ? theme.colors.primary
-                        : "transparent",
-                  }}
+                  style={[
+                    styles.text,
+                    {
+                      height: textHeight,
+                      paddingRight:
+                        (node.nodes as string) in OperatorsWithExtraSpace
+                          ? 5
+                          : 0,
+                      paddingLeft:
+                        (node.nodes as string) in OperatorsWithExtraSpace
+                          ? 5
+                          : 0,
+                      backgroundColor:
+                        selection.start !== selection.end &&
+                        index >= selection.start &&
+                        index < selection.end
+                          ? theme.colors.primary
+                          : "transparent",
+                    },
+                  ]}
                 >
                   {node.nodes.toString()}
                 </Text>
@@ -214,7 +221,7 @@ const Display = ({
       {isCaretAtIndex(selection, displayNodes.length) && (
         <Caret
           visible={!repositioningCaret}
-          style={{ ...styles.text, ...styles.caret, ...caretLayout }}
+          style={[styles.text, styles.caret, caretLayout]}
         />
       )}
 
@@ -256,7 +263,6 @@ const Display = ({
           }
         />
       </>
-
     </View>
   );
 };

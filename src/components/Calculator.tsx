@@ -223,7 +223,7 @@ const Calculator = () => {
                 <MaterialCommunityIcons
                   name="plus-circle-outline"
                   size={32}
-                  color={theme.colors.buttonHighlight}
+                  color={theme.colors.primary}
                 />
               </Pressable>
             )}

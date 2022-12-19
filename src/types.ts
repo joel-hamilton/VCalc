@@ -36,19 +36,15 @@ export interface ITheme {
   dark: boolean;
   colors: {
     primary: string;
+    primaryPressed: string;
     danger: string;
     background: string;
     border: string;
     card: string;
     text: string;
     secondaryText: string;
-    variableBackground: string;
     button: string;
     buttonPressed: string;
-    buttonHighlight: string;
-    buttonHighlightPressed: string;
-    buttonVariable: string;
-    buttonVariablePressed: string;
   };
 }
 
@@ -62,7 +58,7 @@ export interface IDimensions {
   keyboardVisible: boolean;
   operatorsHorizontalH: number;
   variablesViewPeek: number;
-  translateYEditMode:number
+  translateYEditMode: number;
 }
 export interface IContext {
   useDarkTheme: boolean;

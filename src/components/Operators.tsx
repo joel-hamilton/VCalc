@@ -17,26 +17,26 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
     operators: {
       flex: 1,
-      backgroundColor: colors.buttonHighlight,
+      backgroundColor: colors.primary,
     },
     operatorsHorizontal: {
       flexDirection: "row",
       height: dimensions.operatorsHorizontalH,
       width: "100%",
-      backgroundColor: colors.buttonHighlight,
+      backgroundColor: colors.primary,
     },
     operatorsItem: ({ pressed }) => ({
       backgroundColor: pressed
-        ? colors.buttonHighlightPressed
-        : colors.buttonHighlight,
+        ? colors.primaryPressed
+        : colors.primary,
       height: "20%",
       alignItems: "center",
       justifyContent: "center",
     }),
     operatorsItemHorizontal: ({ pressed }) => ({
       backgroundColor: pressed
-        ? colors.buttonHighlightPressed
-        : colors.buttonHighlight,
+        ? colors.primaryPressed
+        : colors.primary,
       height: "100%",
       width: "20%",
       alignItems: "center",
