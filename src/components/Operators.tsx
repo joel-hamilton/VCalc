@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
 import { Context } from "../Context";
-import Pictos from "../Pictos";
+import {Pictos} from "../classes";
 import { useTheme } from "../themes";
 import {
   IBackspace,

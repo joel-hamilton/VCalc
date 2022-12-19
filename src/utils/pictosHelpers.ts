@@ -1,6 +1,5 @@
-import Pictos from "../Pictos";
 import { IPicto, IVariable } from "../types";
-import { Variables } from "../Variables";
+import { Pictos, Variables } from "../classes";
 
 export const getNextVariableName = (
   baseStr: string,

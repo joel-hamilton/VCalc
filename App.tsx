@@ -12,8 +12,7 @@ import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
 import { IContext, IDimensions, IVariable } from "./src/types";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Pictos from "./src/Pictos";
-import { Variables } from "./src/Variables";
+import {Pictos, Variables} from "./src/classes";
 
 const Stack = createNativeStackNavigator();
 
@@ -68,9 +67,8 @@ const App = () => {
     };
 
     const loadVariables = async () => {
-      // await AsyncStorage.removeItem('@variables');
       const variablesSerialized = (await AsyncStorage.getItem("@variables")) || "[]";
-      const variables = new Variables().deserialize(variablesSerialized);
+      const variables = Variables.fromSerializedString(variablesSerialized);
       actions.ctxSetVariables(variables);
     };
 

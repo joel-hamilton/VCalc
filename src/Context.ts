@@ -2,7 +2,7 @@ import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { IContext, IDimensions, IVariable, IActions } from "./types";
-import { Variables } from "./Variables";
+import { Variables } from "./classes";
 
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));

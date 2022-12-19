@@ -1,4 +1,4 @@
-import Pictos from '../Pictos';
+import Pictos from '../classes/Pictos';
 import { IVariable } from '../types';
 import { getNextVariableName } from './pictosHelpers';
 

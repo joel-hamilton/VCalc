@@ -1,5 +1,4 @@
-import Pictos from "./Pictos";
-import { Variables } from "./Variables";
+import {Pictos, Variables} from "./classes";
 
 export interface IPicto {
   type: "string" | "variable";

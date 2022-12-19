@@ -2,7 +2,7 @@ import { isEqual } from "lodash";
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
-import Pictos from "../Pictos";
+import {Pictos} from "../classes";
 import { useTheme } from "../themes";
 import { ILayout, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
 import Caret from "./Caret";
