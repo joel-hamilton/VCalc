@@ -1,4 +1,5 @@
 import { cloneDeep } from "lodash";
+import { index } from "mathjs";
 import React from "react";
 import {
   KeyboardAvoidingView,
@@ -49,7 +50,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
     wrapperEdit: {
       // height: "100%",
-      // zIndex: variablesViewZIndex,
+      zIndex: variablesViewZIndex,
     },
     variablesView: {
       justifyContent: "space-between",
@@ -410,6 +411,15 @@ const VariablesView = ({
                       }
                     />
                   </View>
+                </View>
+                <View>
+                  <Pressable
+                    onPress={() => {
+                      ctxDeleteVariable(editingVariableIndex);
+                    }}
+                  >
+                    <Text>Delete</Text>
+                  </Pressable>
                 </View>
 
                 {context.isEditMode && (

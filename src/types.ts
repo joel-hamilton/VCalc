@@ -77,6 +77,7 @@ export type IBackspace = () => void;
 export type IWrapString = (prependPictos: Pictos, appendPictos: Pictos) => void;
 type ISetDarkMode = (useDarkTheme: boolean) => void;
 type IAddVariable = (variable: IVariable) => void;
+type ISetVariables = (variable: IVariable[]) => void;
 type IDeleteVariable = (variableIndex: number) => void;
 type IUpdateVariable = (
   variableUpdates: Partial<IVariable>,
@@ -87,6 +88,7 @@ type ISetIsEditMode = (isEditmode: boolean) => void;
 export interface IActions {
   ctxSetUseDarkMode: ISetDarkMode;
   ctxAddVariable: IAddVariable;
+  ctxSetVariables: ISetVariables;
   ctxDeleteVariable: IDeleteVariable;
   ctxUpdateVariable: IUpdateVariable;
   ctxSetDimensions: ISetDimensions;

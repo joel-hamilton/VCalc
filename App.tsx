@@ -10,8 +10,9 @@ import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
 
 import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
-import { IContext, IDimensions } from "./src/types";
+import { IContext, IDimensions, IVariable } from "./src/types";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Pictos from "./src/Pictos";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,8 +32,7 @@ const getDimensions = ({ width, height }, { keyboardShown }): IDimensions => {
     keyboardVisible: keyboardShown,
     operatorsHorizontalH: 70,
     variablesViewPeek,
-    translateYEditMode:
-    -1 * (inputH - variablesViewPeek)
+    translateYEditMode: -1 * (inputH - variablesViewPeek),
   };
 };
 
@@ -66,7 +66,20 @@ const App = () => {
       }
     };
 
+    const loadVariables = async () => {
+      const variablesSerialized =
+        (JSON.parse(await AsyncStorage.getItem("@variables")) as IVariable[]) ||
+        [];
+
+        const variables = variablesSerialized.map(vs => {
+          return {...vs, varName: (new Pictos()).deserialize(vs.varName), nodes: (new Pictos()).deserialize(vs.nodes)}
+        })
+        
+      actions.ctxSetVariables(variables);
+    };
+
     loadUserPrefs();
+    loadVariables();
   }, []);
 
   React.useEffect(() => {
@@ -83,19 +96,19 @@ const App = () => {
   return (
     <Context.Provider value={[context, actions]}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: theme.colors.background }}
-      >
-        <NavigationContainer theme={theme as unknown as Theme}>
-          <Stack.Navigator
-            screenOptions={{
-              header: Header,
-            }}
-          >
-            <Stack.Screen name="VCalc" component={Calculator} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaView>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: theme.colors.background }}
+        >
+          <NavigationContainer theme={theme as unknown as Theme}>
+            <Stack.Navigator
+              screenOptions={{
+                header: Header,
+              }}
+            >
+              <Stack.Screen name="VCalc" component={Calculator} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaView>
       </GestureHandlerRootView>
     </Context.Provider>
   );

@@ -145,6 +145,15 @@ export default class Pictos {
     return nodes.map((n) => n.nodes).join("");
   };
 
+  serialize = () => {
+    return JSON.stringify(this.pictos);
+  }
+
+  deserialize=(serializedPicto) => {
+    this.pictos = JSON.parse(serializedPicto);
+    return this;
+  }
+
   private getVariableNodes = (
     varKey: string,
     variables: IVariable[]
