@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { IPicto, ISelection, IVariable } from "src/types";
+import { Variables } from "./Variables";
 
 /**
  * Why Pictos?
@@ -111,11 +112,11 @@ export default class Pictos {
   };
 
   toString = (
-    variables?: IVariable[], // interpolate if this is present
+    variables?: Variables, // interpolate if this is present
     originalNodes?: IPicto[]
   ): string => {
     if (variables === undefined) {
-      variables = [];
+      variables = new Variables();
     }
 
     if (originalNodes === undefined) {
@@ -156,7 +157,7 @@ export default class Pictos {
 
   private getVariableNodes = (
     varKey: string,
-    variables: IVariable[]
+    variables: Variables
   ): Pictos => {
     const variable = variables.find((v) => v.key === varKey);
     if (!variable) {

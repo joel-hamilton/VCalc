@@ -2,7 +2,7 @@ import * as React from "react";
 import { SafeAreaView, StatusBar, useColorScheme } from "react-native";
 import { NavigationContainer, Theme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage, { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { useKeyboard, useDimensions } from "@react-native-community/hooks";
 
 import Calculator from "./src/components/Calculator";
@@ -13,6 +13,7 @@ import Header from "./src/components/Header";
 import { IContext, IDimensions, IVariable } from "./src/types";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Pictos from "./src/Pictos";
+import { Variables } from "./src/Variables";
 
 const Stack = createNativeStackNavigator();
 
@@ -43,7 +44,7 @@ const App = () => {
   const [theme, setTheme] = React.useState(MyDefaultTheme);
   const [context, setContext] = React.useState<IContext>({
     useDarkTheme: undefined,
-    variables: [],
+    variables: new Variables(),
     dimensions: getDimensions(dimensions, keyboard),
     isEditMode: false,
   });
@@ -67,14 +68,9 @@ const App = () => {
     };
 
     const loadVariables = async () => {
-      const variablesSerialized =
-        (JSON.parse(await AsyncStorage.getItem("@variables")) as IVariable[]) ||
-        [];
-
-        const variables = variablesSerialized.map(vs => {
-          return {...vs, varName: (new Pictos()).deserialize(vs.varName), nodes: (new Pictos()).deserialize(vs.nodes)}
-        })
-        
+      // await AsyncStorage.removeItem('@variables');
+      const variablesSerialized = (await AsyncStorage.getItem("@variables")) || "[]";
+      const variables = new Variables().deserialize(variablesSerialized);
       actions.ctxSetVariables(variables);
     };
 

@@ -1,9 +1,10 @@
-import Pictos from '../Pictos';
-import { IPicto, IVariable } from '../types';
+import Pictos from "../Pictos";
+import { IPicto, IVariable } from "../types";
+import { Variables } from "../Variables";
 
 export const getNextVariableName = (
   baseStr: string,
-  variables: IVariable[]
+  variables: Variables
 ): Pictos => {
   const lastNumUsed = variables.reduce((acc, { varName }) => {
     if (varName.slice(0, baseStr.length).toString() !== baseStr) {
@@ -16,7 +17,7 @@ export const getNextVariableName = (
     }
 
     return acc;
-  }, 0);
+  }, 0) as unknown as number;
 
   // TODO move this and tests to array
   const newVarName = `${baseStr}${lastNumUsed + 1}`;

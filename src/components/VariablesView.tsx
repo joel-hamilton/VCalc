@@ -24,6 +24,7 @@ import {
   IInsertAtSelection,
   ISelection,
   ITheme,
+  IVariable,
 } from "../types";
 import Display from "./Display";
 import Operators from "./Operators";
@@ -207,8 +208,8 @@ const VariablesView = ({
       inputRef.current.focus();
 
       // update display/selection
-      const nameDisplay = context.variables[editingVariableIndex].varName;
-      const valueDisplay = context.variables[editingVariableIndex].nodes;
+      const nameDisplay = context.variables.getVariableAt(editingVariableIndex).varName;
+      const valueDisplay = context.variables.getVariableAt(editingVariableIndex).nodes;
 
       setInputStates([
         {
@@ -344,7 +345,7 @@ const VariablesView = ({
               horizontal={true}
               contentContainerStyle={styles.variables}
             >
-              {context.variables.map(({ varName, nodes, key }, index) => (
+              {(context.variables as any).map(({ varName, nodes, key }, index) => (
                 <Pressable
                   key={index}
                   style={[

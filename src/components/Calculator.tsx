@@ -29,6 +29,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { Variables } from "../Variables";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({
@@ -164,7 +165,7 @@ const Calculator = () => {
       nodes = display; // TODO allow adding selection as value
     }
 
-    ctxAddVariable({ varName, nodes, key: generateHex(8) });
+    ctxAddVariable(new Variables([{ varName, nodes, key: generateHex(8) }]));
   };
 
   const doEvaluate = () => {

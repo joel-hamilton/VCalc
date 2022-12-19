@@ -2,13 +2,14 @@ import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { IContext, IDimensions, IVariable, IActions } from "./types";
+import { Variables } from "./Variables";
 
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));
 
 const addVariable =
   (setContext) =>
-  (variable: IVariable, storeInAsyncStorage = true) => {
+  (variable: Variables, storeInAsyncStorage = true) => {
     setContext((context: IContext) => {
       const newContext = {
         ...context,
@@ -32,7 +33,7 @@ const addVariable =
 
 const setVariables =
   (setContext) =>
-  (variables: IVariable[], storeInAsyncStorage = false) => {
+  (variables: Variables, storeInAsyncStorage = false) => {
     setContext((context: IContext) => {
       if (storeInAsyncStorage) {
         AsyncStorage.setItem("@variables", JSON.stringify(context.variables));
@@ -76,7 +77,7 @@ const updateVariable =
         ...context,
         variables: context.variables
           .slice(0, index)
-          .concat({ ...context.variables[index], ...variableUpdates })
+          .concat(new Variables([{ ...context.variables.getVariableAt(index), ...variableUpdates }]))
           .concat(context.variables.slice(index + 1)),
       };
     });

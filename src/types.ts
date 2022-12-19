@@ -1,4 +1,5 @@
 import Pictos from "./Pictos";
+import { Variables } from "./Variables";
 
 export interface IPicto {
   type: "string" | "variable";
@@ -62,7 +63,7 @@ export interface IDimensions {
 }
 export interface IContext {
   useDarkTheme: boolean;
-  variables: IVariable[];
+  variables: Variables;
   dimensions: IDimensions;
   isEditMode: boolean;
 }
@@ -76,8 +77,8 @@ export type ISetDisplay = (pictos: Pictos) => void;
 export type IBackspace = () => void;
 export type IWrapString = (prependPictos: Pictos, appendPictos: Pictos) => void;
 type ISetDarkMode = (useDarkTheme: boolean) => void;
-type IAddVariable = (variable: IVariable) => void;
-type ISetVariables = (variable: IVariable[]) => void;
+type IAddVariable = (variable: Variables) => void;
+type ISetVariables = (variable: Variables) => void;
 type IDeleteVariable = (variableIndex: number) => void;
 type IUpdateVariable = (
   variableUpdates: Partial<IVariable>,
