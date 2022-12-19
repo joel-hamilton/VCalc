@@ -26,17 +26,13 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       backgroundColor: colors.primary,
     },
     operatorsItem: ({ pressed }) => ({
-      backgroundColor: pressed
-        ? colors.primaryPressed
-        : colors.primary,
+      backgroundColor: pressed ? colors.primaryPressed : colors.primary,
       height: "20%",
       alignItems: "center",
       justifyContent: "center",
     }),
     operatorsItemHorizontal: ({ pressed }) => ({
-      backgroundColor: pressed
-        ? colors.primaryPressed
-        : colors.primary,
+      backgroundColor: pressed ? colors.primaryPressed : colors.primary,
       height: "100%",
       width: "20%",
       alignItems: "center",
@@ -125,12 +121,11 @@ const Operators = ({
   });
 
   return (
-    <View
-      style={horizontal ? styles.operatorsHorizontal : styles.operators}
-    >
+    <View style={horizontal ? styles.operatorsHorizontal : styles.operators}>
       {operators.map((operator) => (
         <Pressable
           key={operator.text}
+          testID={`${operator.text}${horizontal ? "horizontal" : "vertical"}`}
           style={({ pressed }) =>
             horizontal
               ? styles.operatorsItemHorizontal({ pressed })
