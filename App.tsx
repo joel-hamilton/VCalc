@@ -28,10 +28,10 @@ const getDimensions = ({ width, height }, { keyboardShown }): IDimensions => {
     inputH: height / 2 - variablesViewPeek,
     variablesViewH: height / 2,
     keyboardVisible: keyboardShown,
-    operatorEditModeH: 70,
+    operatorsHorizontalH: 70,
     variablesViewPeek,
     translateYEditMode:
-    -1 * (displayH + variablesViewPeek)
+    -1 * (displayH - variablesViewPeek)
   };
 };
 

@@ -60,9 +60,9 @@ export interface IDimensions {
   inputH: number;
   variablesViewH: number;
   keyboardVisible: boolean;
-  operatorEditModeH: number;
+  operatorsHorizontalH: number;
   variablesViewPeek: number;
-  translateYEditMode:number;
+  translateYEditMode:number
 }
 export interface IContext {
   useDarkTheme: boolean;

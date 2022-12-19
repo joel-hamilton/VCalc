@@ -240,7 +240,7 @@ const Calculator = () => {
             width: "100%",
             flexDirection: "row",
             justifyContent: "space-between",
-            marginBottom: 30, // TODO get rid of magic number, this should be based the visible height of variables bove keyboard
+            marginBottom: context.dimensions.variablesViewPeek
           }}
         >
           <View>

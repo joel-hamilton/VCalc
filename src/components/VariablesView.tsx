@@ -1,7 +1,6 @@
 import { cloneDeep } from "lodash";
 import React from "react";
 import {
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -9,18 +8,13 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TextStyle,
   View,
   ViewStyle,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  interpolateColor,
   runOnJS,
-  useAnimatedStyle,
   useSharedValue,
-  withSpring,
-  ZoomIn,
 } from "react-native-reanimated";
 
 import { Context } from "../Context";
@@ -111,7 +105,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     operatorsWrapper: {
       // TODO this is dumb, what does 6px mean? Seems to work on most (all?) ios devices.
       marginBottom:
-        Platform.OS === "ios" ? dimensions.operatorEditModeH - 6 : 0,
+        Platform.OS === "ios" ? dimensions.operatorsHorizontalH - 6 : 0,
     },
   } as { [name: string]: ViewStyle });
 
@@ -435,6 +429,7 @@ const VariablesView = ({
                   insertAtSelection={insertAtSelection}
                   backspace={backspace}
                   wrapString={wrapAtSelection}
+                  horizontal={true}
                 />
               </View>
             </Animated.View>

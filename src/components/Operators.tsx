@@ -19,9 +19,9 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       flex: 1,
       backgroundColor: colors.buttonHighlight,
     },
-    operatorsEditMode: {
+    operatorsHorizontal: {
       flexDirection: "row",
-      height: dimensions.operatorEditModeH,
+      height: dimensions.operatorsHorizontalH,
       width: "100%",
       backgroundColor: colors.buttonHighlight,
     },
@@ -33,7 +33,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
       alignItems: "center",
       justifyContent: "center",
     }),
-    operatorsItemEditMode: ({ pressed }) => ({
+    operatorsItemHorizontal: ({ pressed }) => ({
       backgroundColor: pressed
         ? colors.buttonHighlightPressed
         : colors.buttonHighlight,
@@ -106,11 +106,13 @@ const Operators = ({
   insertAtSelection,
   backspace,
   wrapString,
+  horizontal = false,
 }: {
   setDisplay: ISetDisplay;
   insertAtSelection: IInsertAtSelection;
   backspace: IBackspace;
   wrapString: IWrapString;
+  horizontal?: boolean;
 }) => {
   const [context] = useContext(Context);
   const theme = useTheme();
@@ -124,14 +126,14 @@ const Operators = ({
 
   return (
     <View
-      style={context.isEditMode ? styles.operatorsEditMode : styles.operators}
+      style={horizontal ? styles.operatorsHorizontal : styles.operators}
     >
       {operators.map((operator) => (
         <Pressable
           key={operator.text}
           style={({ pressed }) =>
-            context.isEditMode
-              ? styles.operatorsItemEditMode({ pressed })
+            horizontal
+              ? styles.operatorsItemHorizontal({ pressed })
               : styles.operatorsItem({ pressed })
           }
           onLongPress={operator.onLongPress}
