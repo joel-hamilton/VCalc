@@ -1,4 +1,5 @@
-import Pictos from '../classes/Pictos';
+import {Pictos} from '../classes/Pictos';
+import { Variables } from '../classes/Variables';
 import { IVariable } from '../types';
 import { getNextVariableName } from './pictosHelpers';
 
@@ -37,19 +38,19 @@ describe("getNextVariableName", () => {
   const cases: {
     name: string;
     baseStr: string;
-    variables: IVariable[];
+    variables: Variables;
     expected: string;
   }[] = [
     {
       name: "returns `${baseStr}1` if no variables exist",
       baseStr: "var",
-      variables: [],
+      variables: new Variables([]),
       expected: "var1",
     },
     {
       name: "correctly generates next variable name",
       baseStr: "var",
-      variables: [variablePictos],
+      variables: new Variables([variablePictos]),
       expected: "var2",
     },
   ];

@@ -132,7 +132,7 @@ describe("Calculator", () => {
       expect(varPressables.length).toBe(1);
     });
 
-    it.skip("saves changes to the variable value", () => {
+    it("saves changes to the variable value", () => {
       // TODO focus the value display before typing
       fireEvent.press(screen.UNSAFE_queryAllByType(Display)[2]);
       fireEvent.press(screen.getByTestId("-horizontal"));

@@ -1,5 +1,6 @@
 import { IPicto, IVariable } from "../types";
-import { Pictos, Variables } from "../classes";
+import { Pictos } from "../classes/Pictos";
+import { Variables } from "../classes/Variables";
 
 export const getNextVariableName = (
   baseStr: string,
@@ -29,3 +30,8 @@ export const getNextVariableName = (
 
   return new Pictos(pictos);
 };
+
+export  const pictosFromSerializedString = (serializedPicto) => {
+    const pictos = JSON.parse(serializedPicto);
+    return new Pictos(pictos);
+  };

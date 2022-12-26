@@ -16,7 +16,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, { runOnJS, useSharedValue } from "react-native-reanimated";
 
 import { Context } from "../Context";
-import {Pictos} from "../classes";
+import {Pictos} from "../classes/Pictos";
 import { useTheme } from "../themes";
 import {
   IBackspace,
@@ -345,7 +345,7 @@ const VariablesView = ({
               horizontal={true}
               contentContainerStyle={styles.variables}
             >
-              {(context.variables as any).map(({ varName, nodes, key }, index) => (
+              {(context.variables as any).map(({ varName, nodes, key }:IVariable, index) => (
                 <Pressable
                   key={index}
                   style={[

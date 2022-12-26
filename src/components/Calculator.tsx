@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { Context } from "../Context";
-import {Pictos} from "../classes";
+import {Pictos} from "../classes/Pictos";
 import { useTheme } from "../themes";
 import {
   IBackspace,
@@ -29,7 +29,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { Variables } from "../classes";
+import { Variables } from "../classes/Variables";
 
 const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
   StyleSheet.create<any>({

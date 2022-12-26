@@ -7,12 +7,12 @@ import { useKeyboard, useDimensions } from "@react-native-community/hooks";
 
 import Calculator from "./src/components/Calculator";
 import { MyDarkTheme, MyDefaultTheme } from "./src/themes";
-
+import { variablesFromSerializedString } from "./src/utils/variablesHelpers";
 import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
 import { IContext, IDimensions, IVariable } from "./src/types";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import {Pictos, Variables} from "./src/classes";
+import {Variables} from "./src/classes/Variables"
 
 const Stack = createNativeStackNavigator();
 
@@ -68,7 +68,7 @@ const App = () => {
 
     const loadVariables = async () => {
       const variablesSerialized = (await AsyncStorage.getItem("@variables")) || "[]";
-      const variables = Variables.fromSerializedString(variablesSerialized);
+      const variables = variablesFromSerializedString(variablesSerialized);
       actions.ctxSetVariables(variables);
     };
 

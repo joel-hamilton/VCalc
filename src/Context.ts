@@ -2,7 +2,7 @@ import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { IContext, IDimensions, IVariable, IActions } from "./types";
-import { Variables } from "./classes";
+import { Variables } from "./classes/Variables";
 
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));
@@ -17,14 +17,8 @@ const addVariable =
       };
 
       if (storeInAsyncStorage) {
-        const serializedVars = newContext.variables.map((v) => {
-          return { ...v, nodes: v.nodes.serialize(), varName: v.varName.serialize() };
-        });
-        console.log({ SAVING: serializedVars });
-        AsyncStorage.setItem(
-          "@variables",
-          JSON.stringify(serializedVars)
-        );
+        const serializedVars = newContext.variables.serialize();
+        AsyncStorage.setItem("@variables", JSON.stringify(serializedVars));
       }
 
       return newContext;
@@ -77,7 +71,11 @@ const updateVariable =
         ...context,
         variables: context.variables
           .slice(0, index)
-          .concat(new Variables([{ ...context.variables.getVariableAt(index), ...variableUpdates }]))
+          .concat(
+            new Variables([
+              { ...context.variables.getVariableAt(index), ...variableUpdates },
+            ])
+          )
           .concat(context.variables.slice(index + 1)),
       };
     });

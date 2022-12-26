@@ -1,11 +1,12 @@
 import React from "react";
+import { Variables } from "../classes/Variables";
 import { Context, createActions } from "../Context";
 import { IActions, IContext, ICreateActions } from "../types";
 
 
   const initialContext: IContext = {
     useDarkTheme: undefined,
-    variables: [],
+    variables: new Variables(),
     dimensions: {
       screenH: 500,
       screenW: 300,
@@ -14,7 +15,9 @@ import { IActions, IContext, ICreateActions } from "../types";
       inputH: 40,
       variablesViewH: 400,
       keyboardVisible: false,
-      operatorEditModeH: 60,
+      translateYEditMode: 400,
+      variablesViewPeek: 40,
+      operatorsHorizontalH: 100
     },
     isEditMode: false,
   };
