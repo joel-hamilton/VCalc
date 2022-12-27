@@ -1,5 +1,5 @@
 import { cloneDeep } from "lodash";
-import { IPicto, ISelection } from "../types";
+import { IPicto, ISelection, IVariable } from "../types";
 import { Variables } from "./Variables";
 
 /**
@@ -130,14 +130,14 @@ export class Pictos {
 
       if (node.type === "variable") {
         if (variables.length) {
-          const variableValue = this.getVariableNodes(
+          const variable = this.getVariable(
             node.nodes as string,
             variables
           );
 
           nodes[i] = {
             type: "string",
-            nodes: variableValue.toString(variables),
+            nodes: variable.nodes.toString(variables),
           };
         }
       }
@@ -146,10 +146,11 @@ export class Pictos {
     return nodes.map((n) => n.nodes).join("");
   };
 
+  // are any of these picto nodes (recursive) of type: 'variable' and node: varName?
   containsVariable = (
     varKey: string,
     variables: Variables,
-    nodes: IPicto[]
+    nodes?: IPicto[]
   ) => {
     if (!nodes) {
       nodes = this.pictos;
@@ -157,18 +158,19 @@ export class Pictos {
 
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
-
       if (node.type === "variable") {
         if (node.nodes === varKey) {
           return true;
         } else {
-          const variableValue = this.getVariableNodes(varKey, variables);
-
-          nodes[i] = {
-            type: "string",
-            nodes: variableValue.toString(variables),
-          };
+          const variable = this.getVariable(varKey, variables);
+          if(variable.key === varKey) {
+            return true;
+          }
+          
+          return variable.nodes.containsVariable(varKey, variables);
         }
+      } else if (typeof node.nodes !== "string") {
+        return node.nodes.containsVariable(varKey, variables);
       }
     }
 
@@ -179,12 +181,12 @@ export class Pictos {
     return JSON.stringify(this.pictos);
   };
 
-  private getVariableNodes = (varKey: string, variables: Variables): Pictos => {
+  private getVariable = (varKey: string, variables: Variables): IVariable => {
     const variable = variables.find((v) => v.key === varKey);
     if (!variable) {
       return;
     }
 
-    return variable.nodes;
+    return variable;
   };
 }

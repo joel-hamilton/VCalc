@@ -1,6 +1,6 @@
-import {Pictos} from './Pictos';
-import { ISelection, IVariable } from '../types';
-import { Variables } from './Variables';
+import { Pictos } from "./Pictos";
+import { ISelection, IVariable } from "../types";
+import { Variables } from "./Variables";
 
 const testPictos = new Pictos([
   { type: "string", nodes: "t" },
@@ -245,87 +245,93 @@ describe("wrapAtSelection", () => {
   }
 });
 
-
 describe("containsVariable", () => {
   const TEST_KEY = "testkey";
-  const variablePictos: IVariable = {
-    key: TEST_KEY,
-    varName: new Pictos([
-      { type: "string", nodes: "v" },
-      { type: "string", nodes: "a" },
-      { type: "string", nodes: "r" },
-      { type: "string", nodes: "1" },
-    ]),
-    nodes: new Pictos([{ type: "string", nodes: "5" }]),
-  };
-
-  const TEST_KEY2 = "testkey2";
-  const variablePictos2 = {
-    key: TEST_KEY2,
-    varName: new Pictos([
-      { type: "string", nodes: "v" },
-      { type: "string", nodes: "a" },
-      { type: "string", nodes: "r" },
-      { type: "string", nodes: "2" },
-    ]),
-    nodes: new Pictos([
-      {
-        type: "variable",
-        nodes: TEST_KEY,
-      },
-      { type: "string", nodes: "+" },
-      { type: "string", nodes: "10" },
-    ]),
-  };
+  const variables: Variables = new Variables([
+    {
+      key: TEST_KEY,
+      varName: new Pictos([
+        { type: "string", nodes: "v" },
+        { type: "string", nodes: "a" },
+        { type: "string", nodes: "r" },
+        { type: "string", nodes: "1" },
+      ]),
+      nodes: new Pictos([{ type: "string", nodes: "5" }]),
+    },
+    {
+      key: "another-key",
+      varName: new Pictos([
+        { type: "string", nodes: "v" },
+        { type: "string", nodes: "a" },
+        { type: "string", nodes: "r" },
+        { type: "string", nodes: "2" },
+      ]),
+      nodes: new Pictos([{ type: "variable", nodes: TEST_KEY }]),
+    },
+  ]);
 
   const cases: {
     name: string;
+    varKey: string;
     displayPictos: Pictos;
     variables: Variables;
-    useDisplayValues?: boolean;
-    expected: string;
+    expected: boolean;
   }[] = [
     {
-      name: "interpolates at start of string",
-      displayPictos: new Pictos([
-        { type: "variable", nodes: TEST_KEY },
-        { type: "string", nodes: "+" },
-        { type: "string", nodes: "5" },
-      ]),
-      variables: new Variables([variablePictos]),
-      expected: "5+5",
+      name: "returns false if key doesn't exist in pictos",
+      varKey: "nonexistent",
+      displayPictos: new Pictos([{ type: "string", nodes: "5" }]),
+      variables,
+      expected: false,
     },
     {
-      name: "interpolates spaces correctly",
+      name: "returns true if key exists",
+      varKey: TEST_KEY,
       displayPictos: new Pictos([
-        { type: "variable", nodes: TEST_KEY },
-        { type: "string", nodes: " " },
-        { type: "string", nodes: "+" },
-        { type: "string", nodes: " " },
-        { type: "string", nodes: "4" },
         { type: "string", nodes: "5" },
+        { type: "variable", nodes: TEST_KEY },
       ]),
-      variables: new Variables([variablePictos]),
-      expected: "5 + 45",
+      variables,
+      expected: true,
     },
-
     {
-      name: "interpolates nested variable",
+      name: "returns true if key exists (recursive)",
+      varKey: TEST_KEY,
       displayPictos: new Pictos([
-        { type: "string", nodes: "0" },
-        { type: "string", nodes: "+" },
-
-        { type: "variable", nodes: TEST_KEY2 },
+        { type: "string", nodes: "5" },
+        {
+          type: "string",
+          nodes: new Pictos([
+            { type: "string", nodes: "5" },
+            { type: "variable", nodes: TEST_KEY },
+          ]),
+        },
       ]),
-      variables: new Variables([variablePictos, variablePictos2]),
-      expected: "0+5+10",
+      variables,
+      expected: true,
+    },
+    {
+      name: "returns true if key exists (recursive in another variable)",
+      varKey: TEST_KEY,
+      displayPictos: new Pictos([
+        { type: "string", nodes: "5" },
+        {
+          type: "string",
+          nodes: new Pictos([
+            { type: "string", nodes: "5" },
+            { type: "variable", nodes: 'another-key' },
+          ]),
+        },
+      ]),
+      variables,
+      expected: true,
     },
   ];
 
   for (const c of cases) {
     it(c.name, () => {
-      const str = c.displayPictos.toString(c.variables);
-      expect(str).toBe(c.expected);
+      const res = c.displayPictos.containsVariable(c.varKey, c.variables);
+      expect(res).toBe(c.expected);
     });
   }
 });
