@@ -67,13 +67,14 @@ const App = () => {
     };
 
     const loadVariables = async () => {
+      await AsyncStorage.removeItem('@variables');
       const variablesSerialized = (await AsyncStorage.getItem("@variables")) || "[]";
       const variables = variablesFromSerializedString(variablesSerialized);
       actions.ctxSetVariables(variables);
     };
 
     loadUserPrefs();
-    loadVariables();
+    // loadVariables();
   }, []);
 
   React.useEffect(() => {

@@ -16,7 +16,7 @@ import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, { runOnJS, useSharedValue } from "react-native-reanimated";
 
 import { Context } from "../Context";
-import {Pictos} from "../classes/Pictos";
+import { Pictos } from "../classes/Pictos";
 import { useTheme } from "../themes";
 import {
   IBackspace,
@@ -141,7 +141,7 @@ const VariablesView = ({
       } else if (
         !context.isEditMode &&
         variablesTranslateY.value < -50 &&
-        context.variables.length
+        context.variables.variables.length // TODO, Variables class getter 'length' isn't working
       ) {
         variablesTranslateY.value = context.dimensions.translateYEditMode;
         startY.value = context.dimensions.translateYEditMode;
@@ -208,8 +208,10 @@ const VariablesView = ({
       inputRef.current.focus();
 
       // update display/selection
-      const nameDisplay = context.variables.getVariableAt(editingVariableIndex).varName;
-      const valueDisplay = context.variables.getVariableAt(editingVariableIndex).nodes;
+      const nameDisplay =
+        context.variables.getVariableAt(editingVariableIndex).varName;
+      const valueDisplay =
+        context.variables.getVariableAt(editingVariableIndex).nodes;
 
       setInputStates([
         {
@@ -345,38 +347,40 @@ const VariablesView = ({
               horizontal={true}
               contentContainerStyle={styles.variables}
             >
-              {(context.variables as any).map(({ varName, nodes, key }:IVariable, index) => (
-                <Pressable
-                  key={index}
-                  style={[
-                    styles.variable,
-                    context.isEditMode ? styles.variableEditing : {},
-                    index === editingVariableIndex
-                      ? { backgroundColor: theme.colors.primary }
-                      : {},
-                  ]}
-                  onLongPress={() => enterEditMode(index)}
-                  onPress={() => {
-                    if (context.isEditMode) {
-                      if (
-                        index !== editingVariableIndex &&
-                        activeInputIndex !== InputStateKeys.NAME
-                      ) {
-                        insertAtSelection(key, true);
+              {(context.variables as any).map(
+                ({ varName, nodes, key }: IVariable, index) => (
+                  <Pressable
+                    key={index}
+                    style={[
+                      styles.variable,
+                      context.isEditMode ? styles.variableEditing : {},
+                      index === editingVariableIndex
+                        ? { backgroundColor: theme.colors.primary }
+                        : {},
+                    ]}
+                    onLongPress={() => enterEditMode(index)}
+                    onPress={() => {
+                      if (context.isEditMode) {
+                        if (
+                          index !== editingVariableIndex &&
+                          activeInputIndex !== InputStateKeys.NAME
+                        ) {
+                          insertAtSelection(key, true);
+                        }
+                      } else {
+                        onInsertVariable(key, true);
                       }
-                    } else {
-                      onInsertVariable(key, true);
-                    }
-                  }}
-                >
-                  <Text
-                    accessibilityLabel={varName.toString()}
-                    style={styles.variableText}
+                    }}
                   >
-                    {varName.toString()} {/* TODO add value preview too */}
-                  </Text>
-                </Pressable>
-              ))}
+                    <Text
+                      accessibilityLabel={varName.toString()}
+                      style={styles.variableText}
+                    >
+                      {varName.toString()} {/* TODO add value preview too */}
+                    </Text>
+                  </Pressable>
+                )
+              )}
             </ScrollView>
             <Pressable onPress={exitEditMode}>
               <Text testID="exit-edit-mode" style={{ fontSize: 30 }}>
