@@ -13,6 +13,7 @@ import Header from "./src/components/Header";
 import { IContext, IDimensions, IVariable } from "./src/types";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {Variables} from "./src/classes/Variables"
+import { Pictos } from "./src/classes/Pictos";
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,7 @@ const App = () => {
   const [context, setContext] = React.useState<IContext>({
     useDarkTheme: undefined,
     variables: new Variables(),
+    currentValue: new Pictos(),
     dimensions: getDimensions(dimensions, keyboard),
     isEditMode: false,
   });

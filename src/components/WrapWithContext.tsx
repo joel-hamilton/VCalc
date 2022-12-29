@@ -1,4 +1,5 @@
 import React from "react";
+import { Pictos } from "../classes/Pictos";
 import { Variables } from "../classes/Variables";
 import { Context, createActions } from "../Context";
 import { IActions, IContext, ICreateActions } from "../types";
@@ -7,6 +8,7 @@ import { IActions, IContext, ICreateActions } from "../types";
   const initialContext: IContext = {
     useDarkTheme: undefined,
     variables: new Variables(),
+    currentValue: new Pictos(),
     dimensions: {
       screenH: 500,
       screenW: 300,

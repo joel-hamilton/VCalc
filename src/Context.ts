@@ -3,9 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { IContext, IDimensions, IVariable, IActions } from "./types";
 import { Variables } from "./classes/Variables";
+import { Pictos } from "./classes/Pictos";
 
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));
+
+  const setCurrentValue = (setContext) => (currentValue: Pictos) => {
+    setContext((context:IContext) => ({...context, currentValue}))
+  }
 
 const addVariable =
   (setContext) =>
@@ -101,6 +106,7 @@ export const Context = React.createContext<[IContext, IActions]>([] as any);
 
 export const createActions = (setContext): IActions => ({
   ctxSetUseDarkMode: setUseDarkMode(setContext),
+  ctxSetCurrentValue: setCurrentValue(setContext),
   ctxAddVariable: addVariable(setContext),
   ctxSetVariables: setVariables(setContext),
   ctxDeleteVariable: deleteVariable(setContext),

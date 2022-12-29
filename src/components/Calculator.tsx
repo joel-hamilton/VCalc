@@ -66,13 +66,12 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions) =>
 
 const Calculator = () => {
   const theme = useTheme();
-  const [context, { ctxAddVariable, ctxDeleteVariable }] =
+  const [context, { ctxAddVariable, ctxDeleteVariable, ctxSetCurrentValue }] =
     React.useContext(Context);
   const styles = React.useMemo(
     () => createStyles(theme, context.dimensions),
     [theme]
   );
-  const [display, setDisplay] = React.useState<Pictos>(new Pictos());
   const [preview, setPreview] = React.useState("");
   const [interpolationPreview, setInterpolationPreview] = React.useState("");
   const [selection, setSelection] = React.useState<ISelection>({
@@ -84,7 +83,7 @@ const Calculator = () => {
   React.useEffect(() => {
     try {
       const res = doEvaluate();
-      const interpolationString = display.toString();
+      const interpolationString = context.currentValue.toString();
       setInterpolationPreview(interpolationString);
       if (res) {
         setPreview(res + "");
@@ -94,7 +93,7 @@ const Calculator = () => {
     } catch (e) {
       setPreview("");
     }
-  }, [display, context.variables]);
+  }, [context.currentValue, context.variables]);
 
   const setTotal = () => {
     const res = doEvaluate();
@@ -107,11 +106,11 @@ const Calculator = () => {
 
     const total = new Pictos(nodes);
 
-    const [newDisplay, newSelection] = display.insertAtSelection(total, {
+    const [newDisplay, newSelection] = context.currentValue.insertAtSelection(total, {
       start: 0,
-      end: display.length,
+      end: context.currentValue.length,
     });
-    setDisplay(newDisplay);
+    ctxSetCurrentValue(newDisplay);
     setSelection(newSelection);
   };
 
@@ -126,28 +125,28 @@ const Calculator = () => {
       },
     ]);
 
-    const [newDisplay, newSelection] = display.insertAtSelection(
+    const [newDisplay, newSelection] = context.currentValue.insertAtSelection(
       pictos,
       selection
     );
 
-    setDisplay(newDisplay);
+    ctxSetCurrentValue(newDisplay);
     setSelection(newSelection);
   };
 
   const wrapString: IWrapString = (prependStr, appendStr) => {
-    const [newDisplay, newSelection] = display.wrapAtSelection(
+    const [newDisplay, newSelection] = context.currentValue.wrapAtSelection(
       prependStr,
       appendStr,
       selection
     );
-    setDisplay(newDisplay);
+    ctxSetCurrentValue(newDisplay);
     setSelection(newSelection);
   };
 
   const backspace: IBackspace = () => {
-    const [newDisplay, newSelection] = display.backspaceAtSelection(selection);
-    setDisplay(newDisplay);
+    const [newDisplay, newSelection] = context.currentValue.backspaceAtSelection(selection);
+    ctxSetCurrentValue(newDisplay);
     setSelection(newSelection);
   };
 
@@ -162,7 +161,7 @@ const Calculator = () => {
     }
 
     if (nodes === undefined) {
-      nodes = display; // TODO allow adding selection as value
+      nodes = context.currentValue; // TODO allow adding selection as value
     }
 
     ctxAddVariable(new Variables([{ varName, nodes, key: generateHex(8) }]));
@@ -170,7 +169,7 @@ const Calculator = () => {
 
   const doEvaluate = () => {
     try {
-      const interpolatedDisplay = display.toString(context.variables);
+      const interpolatedDisplay = context.currentValue.toString(context.variables);
       const result = evaluate(interpolatedDisplay);
       if (result === undefined) {
         return "";
@@ -214,7 +213,7 @@ const Calculator = () => {
       <View style={styles.display}>
         <View style={{ alignItems: "flex-end" }}>
           <View style={{ height: 50 }}>
-            {!!display.length && (
+            {!!context.currentValue.length && (
               <Pressable
                 testID="add-variable"
                 hitSlop={15}
@@ -230,7 +229,7 @@ const Calculator = () => {
             )}
           </View>
           <Display
-            displayNodes={display}
+            displayNodes={context.currentValue}
             selection={selection}
             onSelectionChange={setSelection}
             baseZIndex={1}
@@ -274,7 +273,7 @@ const Calculator = () => {
       <Animated.View style={[styles.inputWrapper, animatedInputStyles]}>
         <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />
         <Operators
-          setDisplay={setDisplay}
+          setDisplay={ctxSetCurrentValue}
           insertAtSelection={insertAtSelection}
           backspace={backspace}
           wrapString={wrapString}
