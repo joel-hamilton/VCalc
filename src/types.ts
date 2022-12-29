@@ -81,7 +81,7 @@ type ISetDarkMode = (useDarkTheme: boolean) => void;
 type ISetCurrentValue = (currentValue: Pictos) => void;
 type IAddVariable = (variable: Variables) => void;
 type ISetVariables = (variable: Variables) => void;
-type IDeleteVariable = (variableIndex: number) => void;
+type IDeleteVariable = (variableIndex: number) => true | string;
 type IUpdateVariable = (
   variableUpdates: Partial<IVariable>,
   index: number

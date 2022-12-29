@@ -2,6 +2,7 @@ import { cloneDeep } from "lodash";
 import { index } from "mathjs";
 import React from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -420,7 +421,10 @@ const VariablesView = ({
                 <View>
                   <Pressable
                     onPress={() => {
-                      ctxDeleteVariable(editingVariableIndex);
+                        const res = ctxDeleteVariable(editingVariableIndex);
+                        if(res !== true) {
+                          Alert.alert('Error', res);
+                        }
                     }}
                   >
                     <Text>Delete</Text>

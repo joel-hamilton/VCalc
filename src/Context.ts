@@ -8,9 +8,9 @@ import { Pictos } from "./classes/Pictos";
 const setUseDarkMode = (setContext) => (useDarkTheme) =>
   setContext((context: IContext) => ({ ...context, useDarkTheme }));
 
-  const setCurrentValue = (setContext) => (currentValue: Pictos) => {
-    setContext((context:IContext) => ({...context, currentValue}))
-  }
+const setCurrentValue = (setContext) => (currentValue: Pictos) => {
+  setContext((context: IContext) => ({ ...context, currentValue }));
+};
 
 const addVariable =
   (setContext) =>
@@ -46,8 +46,23 @@ const setVariables =
 
 const deleteVariable =
   (setContext) =>
-  (index: number, storeInAsyncStorage = true) => {
+  (index: number, storeInAsyncStorage = true): true | string => {
+    let error = "";
     setContext((context: IContext) => {
+      // ensure varaible not in use
+      const varKey = context.variables.getVariableAt(index).key;
+      if (context.currentValue.containsVariable(varKey, context.variables)) {
+        error = "Variable is in use in the calculator";
+        return context;
+      }
+
+      for (let v of context.variables.variables) {
+        if (v.nodes.containsVariable(varKey, context.variables)) {
+          error = `Variable is being used by '${v.varName.toString()}'`;
+          return context;
+        }
+      }
+
       if (storeInAsyncStorage) {
         AsyncStorage.setItem("@variables", JSON.stringify(context.variables));
       }
@@ -58,6 +73,8 @@ const deleteVariable =
           .concat(context.variables.slice(index + 1)),
       };
     });
+
+    return error || true;
   };
 
 const updateVariable =
