@@ -125,6 +125,10 @@ describe("Calculator", () => {
       expect(screen.UNSAFE_queryAllByType(Display).length).toBe(1);
     });
 
+    it.skip("shows variable name and value when opening", () => {
+      // TODO
+    });
+
     it("saves changes to the variable name", () => {
       fireEvent.press(screen.getByTestId("-horizontal"));
       fireEvent.press(exitEditMode);
