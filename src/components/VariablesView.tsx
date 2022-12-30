@@ -203,8 +203,10 @@ const VariablesView = ({
     if (inputRef.current === null) {
       return;
     }
+  }, [editingVariableIndex]);
 
-    if (isEditMode) {
+  React.useEffect(() => {
+    if (context.isEditMode) {
       // open keyboard
       inputRef.current.focus();
 
@@ -213,7 +215,6 @@ const VariablesView = ({
         context.variables.getVariableAt(editingVariableIndex).varName;
       const valueDisplay =
         context.variables.getVariableAt(editingVariableIndex).nodes;
-
       setInputStates([
         {
           name: "name",
@@ -228,12 +229,14 @@ const VariablesView = ({
       ]);
     } else {
       // close keyboard
-      inputRef.current.blur();
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
 
       // reset focused elem
       setActiveInputIndex(0);
     }
-  }, [editingVariableIndex]);
+  }, [context.isEditMode]);
 
   React.useEffect(() => {
     if (context.isEditMode && !context.dimensions.keyboardVisible) {
@@ -421,10 +424,10 @@ const VariablesView = ({
                 <View>
                   <Pressable
                     onPress={() => {
-                        const res = ctxDeleteVariable(editingVariableIndex);
-                        if(res !== true) {
-                          Alert.alert('Error', res);
-                        }
+                      const res = ctxDeleteVariable(editingVariableIndex);
+                      if (res !== true) {
+                        Alert.alert("Error", res);
+                      }
                     }}
                   >
                     <Text>Delete</Text>
