@@ -148,7 +148,6 @@ describe("Calculator", () => {
     });
 
     it("saves changes to the variable value", () => {
-      // TODO focus the value display before typing
       fireEvent.press(
         screen.getByTestId("display-variable-value-pressable-0"),
         {
