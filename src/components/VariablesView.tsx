@@ -1,5 +1,4 @@
 import { cloneDeep } from "lodash";
-import { index } from "mathjs";
 import React from "react";
 import {
   Alert,
@@ -14,7 +13,11 @@ import {
   ViewStyle,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, { runOnJS, useSharedValue } from "react-native-reanimated";
+import Animated, {
+  runOnJS,
+  SharedValue,
+  useSharedValue,
+} from "react-native-reanimated";
 
 import { Context } from "../Context";
 import { Pictos } from "../classes/Pictos";
@@ -116,6 +119,11 @@ const VariablesView = ({
   variablesTranslateY,
   animatedSwiperStyles,
   animatedEditorStyles,
+}: {
+  onInsertVariable: IInsertAtSelection;
+  variablesTranslateY: SharedValue<number>;
+  animatedSwiperStyles: object;
+  animatedEditorStyles: object;
 }) => {
   const theme = useTheme();
   const inputRef = React.createRef();
@@ -399,6 +407,7 @@ const VariablesView = ({
                   <Text style={styles.inputLabel}>Name</Text>
                   <View style={styles.input}>
                     <Display
+                      testID="display-variable-name"
                       baseZIndex={variablesViewZIndex}
                       displayNodes={inputStates[InputStateKeys.NAME].display}
                       selection={inputStates[InputStateKeys.NAME].selection}
@@ -412,6 +421,7 @@ const VariablesView = ({
                   <Text style={styles.inputLabel}>Value</Text>
                   <View style={styles.input}>
                     <Display
+                      testID="display-variable-value"
                       baseZIndex={variablesViewZIndex}
                       displayNodes={inputStates[InputStateKeys.VALUE].display}
                       selection={inputStates[InputStateKeys.VALUE].selection}

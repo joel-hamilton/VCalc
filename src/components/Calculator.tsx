@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { Context } from "../Context";
-import {Pictos} from "../classes/Pictos";
+import { Pictos } from "../classes/Pictos";
 import { useTheme } from "../themes";
 import {
   IBackspace,
@@ -106,10 +106,13 @@ const Calculator = () => {
 
     const total = new Pictos(nodes);
 
-    const [newDisplay, newSelection] = context.currentValue.insertAtSelection(total, {
-      start: 0,
-      end: context.currentValue.length,
-    });
+    const [newDisplay, newSelection] = context.currentValue.insertAtSelection(
+      total,
+      {
+        start: 0,
+        end: context.currentValue.length,
+      }
+    );
     ctxSetCurrentValue(newDisplay);
     setSelection(newSelection);
   };
@@ -145,7 +148,8 @@ const Calculator = () => {
   };
 
   const backspace: IBackspace = () => {
-    const [newDisplay, newSelection] = context.currentValue.backspaceAtSelection(selection);
+    const [newDisplay, newSelection] =
+      context.currentValue.backspaceAtSelection(selection);
     ctxSetCurrentValue(newDisplay);
     setSelection(newSelection);
   };
@@ -169,7 +173,9 @@ const Calculator = () => {
 
   const doEvaluate = () => {
     try {
-      const interpolatedDisplay = context.currentValue.toString(context.variables);
+      const interpolatedDisplay = context.currentValue.toString(
+        context.variables
+      );
       const result = evaluate(interpolatedDisplay);
       if (result === undefined) {
         return "";
@@ -197,7 +203,11 @@ const Calculator = () => {
   }));
 
   const animatedEditorStyles = useAnimatedStyle(() => ({
-    opacity: interpolate(variablesTranslateY.value, [0, context.dimensions.translateYEditMode], [0, 1])
+    opacity: interpolate(
+      variablesTranslateY.value,
+      [0, context.dimensions.translateYEditMode],
+      [0, 1]
+    ),
   }));
 
   const animatedInputStyles = useAnimatedStyle(() => ({
@@ -229,6 +239,7 @@ const Calculator = () => {
             )}
           </View>
           <Display
+            testID="display-main"
             displayNodes={context.currentValue}
             selection={selection}
             onSelectionChange={setSelection}
@@ -240,7 +251,7 @@ const Calculator = () => {
             width: "100%",
             flexDirection: "row",
             justifyContent: "space-between",
-            marginBottom: context.dimensions.variablesViewPeek
+            marginBottom: context.dimensions.variablesViewPeek,
           }}
         >
           <View>

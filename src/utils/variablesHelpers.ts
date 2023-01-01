@@ -3,7 +3,6 @@ import { pictosFromSerializedString } from "./pictosHelpers";
 
 export const variablesFromSerializedString = (serializedVariables) => {
   const withWithSerializedPictos = JSON.parse(serializedVariables);
-  console.log({withWithSerializedPictos})
   const deserializedVariables = withWithSerializedPictos.map((v) => ({
     ...v,
     varName: pictosFromSerializedString(v.varName),

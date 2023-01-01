@@ -2,7 +2,7 @@ import { isEqual } from "lodash";
 import React from "react";
 import { Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
 
-import {Pictos} from "../classes/Pictos";
+import { Pictos } from "../classes/Pictos";
 import { useTheme } from "../themes";
 import { ILayout, ISelection, ITheme, OperatorsWithExtraSpace } from "../types";
 import Caret from "./Caret";
@@ -47,11 +47,13 @@ const Display = ({
   selection,
   onSelectionChange,
   baseZIndex,
+  testID,
 }: {
   displayNodes: Pictos;
   selection: ISelection;
   onSelectionChange: (sel: ISelection) => void;
   baseZIndex: number;
+  testID: string;
 }) => {
   const textContainerRef = React.useRef(null);
   const textsRef = React.useRef([]);
@@ -144,7 +146,7 @@ const Display = ({
       ref: (el) => (textsRef.current[index] = el),
       onLongPress: selectAll,
       onPress: ({ nativeEvent }) => {
-        const charWidth = layout[index].width;
+        const charWidth = layout[index]?.width || 1;
         const touchX = nativeEvent.locationX;
         const caretPos = touchX < charWidth / 2 ? index : index + 1;
         onSelectionChange({ start: caretPos, end: caretPos });
@@ -154,7 +156,7 @@ const Display = ({
 
   return (
     <View
-      testID="display"
+      testID={testID}
       accessibilityHint={displayNodes.toString()}
       ref={textContainerRef}
       style={styles.wrapper}
@@ -173,6 +175,7 @@ const Display = ({
               // this will pick up events that don't land exactly on the Text/VariableNode components
               onPress={getTextNodeProps(index).onPress}
               onLongPress={getTextNodeProps(index).onLongPress}
+              testID={`${testID}-pressable-${index}`}
             >
               {node.type === "string" && (
                 <Text

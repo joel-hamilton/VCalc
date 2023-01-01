@@ -2,54 +2,52 @@ import * as React from "react";
 
 import { fireEvent, render, screen } from "@testing-library/react-native";
 import Calculator from "../components/Calculator";
-import WrapWithContext from "./WrapWithContext";
-import Display from "./Display";
+import WrapWithContext, { initialContext } from "./WrapWithContext";
+import VariablesView from "./VariablesView";
 
 jest.useFakeTimers();
 
 describe("Calculator", () => {
+  let zero, one, two, three, four, five, six, seven, eight, nine, dot;
+  let delClr, timesPower, minusFactorial, plusBrackets, dividedRoot, equals;
+  let display, preview, interpolationPreview;
+  let getDisplayChildren, getAddVariable;
+
   beforeEach(() => {
     render(
       <WrapWithContext>
         <Calculator />
       </WrapWithContext>
     );
+
+    zero = screen.getByText("0");
+    one = screen.getByText("1");
+    two = screen.getByText("2");
+    three = screen.getByText("3");
+    four = screen.getByText("4");
+    five = screen.getByText("5");
+    six = screen.getByText("6");
+    seven = screen.getByText("7");
+    eight = screen.getByText("8");
+    nine = screen.getByText("9");
+    dot = screen.getByText(".");
+
+    delClr = screen.getByText("DEL");
+    timesPower = screen.getByText("^");
+    minusFactorial = screen.getByText("-");
+    dividedRoot = screen.getByText("÷");
+    plusBrackets = screen.getByText("+");
+    equals = screen.getByText("=");
+
+    interpolationPreview = screen.getByTestId("interpolation-preview");
+    preview = screen.getByTestId("preview");
+    display = screen.getByTestId("display-main");
+
+    getAddVariable = () => screen.getByTestId("add-variable");
+    getDisplayChildren = () => display.props.children[0];
   });
 
   describe("main display", () => {
-    let zero, one, two, three, four, five, six, seven, eight, nine, dot;
-    let delClr, timesPower, minusFactorial, plusBrackets, dividedRoot, equals;
-    let display, preview, interpolationPreview;
-    let getDisplayChildren, getAddVariable;
-
-    beforeEach(() => {
-      zero = screen.getByText("0");
-      one = screen.getByText("1");
-      two = screen.getByText("2");
-      three = screen.getByText("3");
-      four = screen.getByText("4");
-      five = screen.getByText("5");
-      six = screen.getByText("6");
-      seven = screen.getByText("7");
-      eight = screen.getByText("8");
-      nine = screen.getByText("9");
-      dot = screen.getByText(".");
-
-      delClr = screen.getByText("DEL");
-      timesPower = screen.getByText("^");
-      minusFactorial = screen.getByText("-");
-      dividedRoot = screen.getByText("÷");
-      plusBrackets = screen.getByText("+");
-      equals = screen.getByText("=");
-
-      interpolationPreview = screen.getByTestId("interpolation-preview");
-      preview = screen.getByTestId("preview");
-      display = screen.getByTestId("display");
-
-      getAddVariable = () => screen.getByTestId("add-variable");
-      getDisplayChildren = () => display.props.children[0];
-    });
-
     it("adds numbers from keyboard", async () => {
       fireEvent.press(one);
       fireEvent.press(two);
@@ -105,28 +103,41 @@ describe("Calculator", () => {
     });
   });
 
-  describe.skip("edit view", () => {
+  describe("edit view", () => {
     let exitEditMode;
 
     beforeEach(() => {
       exitEditMode = screen.getByTestId("exit-edit-mode");
       fireEvent.press(screen.getByText("1"));
-      fireEvent.press(screen.getByText("+vertical"));
+      fireEvent.press(screen.getByTestId("+vertical"));
       fireEvent.press(screen.getByText("2"));
       fireEvent.press(screen.getByTestId("add-variable"));
 
+      fireEvent(delClr, "onLongPress");
+
       const varPressable = screen.queryAllByText("var1")[0];
-      fireEvent(varPressable, "onLongPress");
+      fireEvent.press(varPressable); // add variable to main display
+      fireEvent(varPressable, "onLongPress"); // open edit variables
     });
 
     it("opens and closes", () => {
-      expect(screen.UNSAFE_queryAllByType(Display).length).toBe(3);
+      expect(
+        screen.UNSAFE_getByType(VariablesView).props.variablesTranslateY.value
+      ).toBe(initialContext.dimensions.variablesViewH);
       fireEvent.press(exitEditMode);
-      expect(screen.UNSAFE_queryAllByType(Display).length).toBe(1);
+      expect(
+        screen.UNSAFE_getByType(VariablesView).props.variablesTranslateY.value
+      ).toBe(0);
     });
 
-    it.skip("shows variable name and value when opening", () => {
-      // TODO
+    it("shows variable name and value when opening", () => {
+      expect(
+        screen.getByTestId("display-variable-name").props.accessibilityHint
+      ).toBe("var1");
+
+      expect(
+        screen.getByTestId("display-variable-value").props.accessibilityHint
+      ).toBe("1+2");
     });
 
     it("saves changes to the variable name", () => {
@@ -138,10 +149,16 @@ describe("Calculator", () => {
 
     it("saves changes to the variable value", () => {
       // TODO focus the value display before typing
-      fireEvent.press(screen.UNSAFE_queryAllByType(Display)[2]);
+      fireEvent.press(
+        screen.getByTestId("display-variable-value-pressable-0"),
+        {
+          nativeEvent: { locationX: 0 },
+        }
+      );
       fireEvent.press(screen.getByTestId("-horizontal"));
       const previewDisplay = screen.getByTestId("preview");
-      expect(previewDisplay.props.children).toBe('-1+2');
+      const valDisplay = screen.getByTestId("display-variable-value");
+      expect(previewDisplay.props.children).toBe("1"); // ie: -1+2
     });
   });
 });
