@@ -1,8 +1,15 @@
 import * as React from "react";
-import { SafeAreaView, StatusBar, useColorScheme } from "react-native";
+import {
+  KeyboardAvoidingView,
+  SafeAreaView,
+  StatusBar,
+  useColorScheme,
+} from "react-native";
 import { NavigationContainer, Theme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AsyncStorage, { useAsyncStorage } from "@react-native-async-storage/async-storage";
+import AsyncStorage, {
+  useAsyncStorage,
+} from "@react-native-async-storage/async-storage";
 import { useKeyboard, useDimensions } from "@react-native-community/hooks";
 
 import Calculator from "./src/components/Calculator";
@@ -12,7 +19,7 @@ import { Context, createActions } from "./src/Context";
 import Header from "./src/components/Header";
 import { IContext, IDimensions, IVariable } from "./src/types";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import {Variables} from "./src/classes/Variables"
+import { Variables } from "./src/classes/Variables";
 import { Pictos } from "./src/classes/Pictos";
 
 const Stack = createNativeStackNavigator();
@@ -69,8 +76,9 @@ const App = () => {
     };
 
     const loadVariables = async () => {
-      await AsyncStorage.removeItem('@variables');
-      const variablesSerialized = (await AsyncStorage.getItem("@variables")) || "[]";
+      await AsyncStorage.removeItem("@variables");
+      const variablesSerialized =
+        (await AsyncStorage.getItem("@variables")) || "[]";
       const variables = variablesFromSerializedString(variablesSerialized);
       actions.ctxSetVariables(variables);
     };
@@ -93,19 +101,21 @@ const App = () => {
   return (
     <Context.Provider value={[context, actions]}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: theme.colors.background }}
-        >
-          <NavigationContainer theme={theme as unknown as Theme}>
-            <Stack.Navigator
-              screenOptions={{
-                header: Header,
-              }}
-            >
-              <Stack.Screen name="VCalc" component={Calculator} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaView>
+        <KeyboardAvoidingView style={{flex: 1}}>
+          <SafeAreaView
+            style={{ flex: 1, backgroundColor: theme.colors.background }}
+          >
+            <NavigationContainer theme={theme as unknown as Theme}>
+              <Stack.Navigator
+                screenOptions={{
+                  header: Header,
+                }}
+              >
+                <Stack.Screen name="VCalc" component={Calculator} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </SafeAreaView>
+        </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </Context.Provider>
   );

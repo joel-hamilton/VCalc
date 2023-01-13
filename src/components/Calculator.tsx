@@ -188,110 +188,114 @@ const Calculator = () => {
   };
 
   const animatedSwiperStyles = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: withSpring(variablesTranslateY.value, {
-          overshootClamping: true,
-        }),
-      },
-    ],
-    backgroundColor: interpolateColor(
-      variablesTranslateY.value,
-      [0, context.dimensions.translateYEditMode],
-      [theme.colors.card, theme.colors.background]
-    ),
+    // transform: [
+    //   {
+    //     translateY: withSpring(variablesTranslateY.value, {
+    //       overshootClamping: true,
+    //     }),
+    //   },
+    // ],
+    // backgroundColor: interpolateColor(
+    //   variablesTranslateY.value,
+    //   [0, context.dimensions.translateYEditMode],
+    //   [theme.colors.card, theme.colors.background]
+    // ),
   }));
 
   const animatedEditorStyles = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      variablesTranslateY.value,
-      [0, context.dimensions.translateYEditMode],
-      [0, 1]
-    ),
+    // opacity: interpolate(
+    //   variablesTranslateY.value,
+    //   [0, context.dimensions.translateYEditMode],
+    //   [0, 1]
+    // ),
   }));
 
   const animatedInputStyles = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      variablesTranslateY.value,
-      [context.dimensions.translateYEditMode, 0],
-      [0, 1]
-    ),
+    // opacity: interpolate(
+    //   variablesTranslateY.value,
+    //   [context.dimensions.translateYEditMode, 0],
+    //   [0, 1]
+    // ),
   }));
 
   return (
-    <View style={styles.main}>
-      <View style={styles.display}>
-        <View style={{ alignItems: "flex-end" }}>
-          <View style={{ height: 50 }}>
-            {!!context.currentValue.length && (
-              <Pressable
-                testID="add-variable"
-                hitSlop={15}
-                style={styles.addVariableButton}
-                onPress={() => addVariable()}
-              >
-                <MaterialCommunityIcons
-                  name="plus-circle-outline"
-                  size={32}
-                  color={theme.colors.primary}
-                />
-              </Pressable>
-            )}
-          </View>
-          <Display
-            testID="display-main"
-            displayNodes={context.currentValue}
-            selection={selection}
-            onSelectionChange={setSelection}
-            baseZIndex={1}
-          />
-        </View>
-        <View
-          style={{
-            width: "100%",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            marginBottom: context.dimensions.variablesViewPeek,
-          }}
-        >
-          <View>
-            <Text
-              testID="interpolation-preview"
-              style={styles.secondaryDisplay}
-              numberOfLines={1}
-              ellipsizeMode="tail"
+    <>
+      <View style={styles.main}>
+        {!context.isEditMode && (
+          <View style={styles.display}>
+            <View style={{ alignItems: "flex-end" }}>
+              <View style={{ height: 50 }}>
+                {!!context.currentValue.length && (
+                  <Pressable
+                    testID="add-variable"
+                    hitSlop={15}
+                    style={styles.addVariableButton}
+                    onPress={() => addVariable()}
+                  >
+                    <MaterialCommunityIcons
+                      name="plus-circle-outline"
+                      size={32}
+                      color={theme.colors.primary}
+                    />
+                  </Pressable>
+                )}
+              </View>
+              <Display
+                testID="display-main"
+                displayNodes={context.currentValue}
+                selection={selection}
+                onSelectionChange={setSelection}
+                baseZIndex={1}
+              />
+            </View>
+            <View
+              style={{
+                width: "100%",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginBottom: context.dimensions.variablesViewPeek,
+              }}
             >
-              {interpolationPreview}
-            </Text>
+              <View>
+                <Text
+                  testID="interpolation-preview"
+                  style={styles.secondaryDisplay}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {interpolationPreview}
+                </Text>
+              </View>
+              <Text
+                testID="preview"
+                style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {preview}
+              </Text>
+            </View>
           </View>
-          <Text
-            testID="preview"
-            style={{ ...styles.secondaryDisplay, paddingLeft: 50 }}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {preview}
-          </Text>
-        </View>
-      </View>
-      <VariablesView
-        onInsertVariable={insertAtSelection}
-        variablesTranslateY={variablesTranslateY}
-        animatedEditorStyles={animatedEditorStyles}
-        animatedSwiperStyles={animatedSwiperStyles}
-      />
-      {/* {!context.isEditMode && ( */}
-      <Animated.View style={[styles.inputWrapper, animatedInputStyles]}>
-        <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />
-        <Operators
-          setDisplay={ctxSetCurrentValue}
-          insertAtSelection={insertAtSelection}
-          backspace={backspace}
-          wrapString={wrapString}
+        )}
+        <VariablesView
+          onInsertVariable={insertAtSelection}
+          variablesTranslateY={variablesTranslateY}
+          animatedEditorStyles={animatedEditorStyles}
+          animatedSwiperStyles={animatedSwiperStyles}
         />
-      </Animated.View>
-      {/* )} */}
-    </View>
+        {!context.isEditMode && (
+          <Animated.View style={[styles.inputWrapper, animatedInputStyles]}>
+            <Keypad setTotal={setTotal} insertAtSelection={insertAtSelection} />
+            <Operators
+              setDisplay={ctxSetCurrentValue}
+              insertAtSelection={insertAtSelection}
+              backspace={backspace}
+              wrapString={wrapString}
+            />
+          </Animated.View>
+        )}
+      </View>
+    </>
   );
 };
 

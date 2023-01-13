@@ -71,14 +71,14 @@ describe("Calculator", () => {
       fireEvent.press(one);
       fireEvent.press(plusBrackets);
       fireEvent.press(two);
-      fireEvent(minusFactorial, "onLongPress");
+      fireEvent(minusFactorial, "longPress");
       fireEvent.press(dividedRoot);
       fireEvent.press(two);
       fireEvent.press(minusFactorial);
       fireEvent.press(four);
-      fireEvent(plusBrackets, "onLongPress");
+      fireEvent(plusBrackets, "longPress");
       fireEvent.press(nine);
-      fireEvent(timesPower, "onLongPress");
+      fireEvent(timesPower, "longPress");
       fireEvent.press(two);
       fireEvent.press(delClr);
       fireEvent.press(four);
@@ -113,11 +113,11 @@ describe("Calculator", () => {
       fireEvent.press(screen.getByText("2"));
       fireEvent.press(screen.getByTestId("add-variable"));
 
-      fireEvent(delClr, "onLongPress");
+      fireEvent(delClr, "longPress");
 
       const varPressable = screen.queryAllByText("var1")[0];
       fireEvent.press(varPressable); // add variable to main display
-      fireEvent(varPressable, "onLongPress"); // open edit variables
+      fireEvent(varPressable, "longPress"); // open edit variables
     });
 
     it("opens and closes", () => {

@@ -44,17 +44,19 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
   StyleSheet.create<any>({
     wrapper: {
       // height: dimensions.variablesViewH,
-      height: "100%",
+      height: dimensions.variablesViewPeek,
       backgroundColor: colors.card,
-      position: "absolute",
+      // position: "absolute",
       // top: dimensions.displayH - dimensions.variablesViewPeek,
       // bottom: dimensions.translateYEditMode,
-      top: -1 * dimensions.translateYEditMode,
-      left: 0,
-      right: 0,
+      // top: -1 * dimensions.translateYEditMode,
+      // top: 50,
+      // left: 0,
+      // right: 0,
     },
     wrapperEdit: {
       // height: "100%",
+      flex: 1,
       zIndex: variablesViewZIndex,
     },
     variablesView: {
@@ -84,6 +86,7 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
       color: colors.text,
     },
     editView: {
+      backgroundColor: 'purple',
       flex: 1,
       justifyContent: "space-between",
     },
@@ -109,8 +112,8 @@ const createStyles = ({ colors }: ITheme, dimensions: IDimensions, Platform) =>
     },
     operatorsWrapper: {
       // TODO this is dumb, what does 6px mean? Seems to work on most (all?) ios devices.
-      marginBottom:
-        Platform.OS === "ios" ? dimensions.operatorsHorizontalH - 6 : 0,
+      // marginBottom:
+        // Platform.OS === "ios" ? dimensions.operatorsHorizontalH : 0,
     },
   } as { [name: string]: ViewStyle });
 
@@ -342,6 +345,7 @@ const VariablesView = ({
   return (
     <GestureDetector gesture={gesture}>
       <Animated.View
+      
         style={[
           styles.wrapper,
           context.isEditMode ? styles.wrapperEdit : {},
@@ -463,7 +467,6 @@ const VariablesView = ({
                   />
                 )}
               </View>
-
               <View style={styles.operatorsWrapper}>
                 <Operators
                   setDisplay={setDisplay}
